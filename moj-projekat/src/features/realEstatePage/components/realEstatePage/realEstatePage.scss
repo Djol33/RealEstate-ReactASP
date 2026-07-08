@@ -1,0 +1,273 @@
+  
+  $blue:#002356;
+$yellow:#002356;
+$yellowdark:#002356;
+$darkgray:#444548;
+$lightgray:#f1f1f1;
+
+  #realestatepost{
+    width:60%;
+    margin:0px auto;
+     text-align: left;
+        //margin:30px;
+        box-sizing: border-box;
+        padding:15px 0px;
+        .icon-heart{
+            display: inline-block;
+            box-sizing: border-box;
+            padding:5px;
+            border-radius: 50%;
+            border:1px solid $darkgray;
+            margin-left: 10px;
+            &.active{
+                color: red;
+
+            }
+        }
+        #aditionalDescription{
+            max-width:800px;
+            h2{
+                font-size: 1.3rem;
+                margin-bottom: 8px;
+            }
+            margin: 20px 0px;
+        }
+        #owner{
+            margin-bottom: 20px;
+            h1{
+                font-size: 1.3rem;
+                a{
+                    color:black;
+                    text-decoration: none;
+                    &:hover{
+                        text-decoration: underline;
+                    }
+                }
+                margin-bottom: 8px;
+
+            }
+            p{
+                a{
+                    color:black;
+                    cursor: pointer;
+                    text-decoration: none;
+                }
+            }
+        }
+
+        #title{
+            font-size: 3rem;
+        }
+        #adress{
+            color:$darkgray;
+            margin-top: 6px;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+        #price{
+            background: rgb(0,35,86);
+            background: linear-gradient(90deg, rgba(0,35,86,1) 0%, rgba(0,129,166,1) 50%, rgba(0,212,255,0) 100%);
+            border-radius: 10px 0px 0px 10px;
+            ///background: rgb(0,31,63);
+            //background: linear-gradient(120deg, rgba(0,31,63,1) 0%, rgba(0,56,112,1) 33%, rgba(0,42,84,0) 64%, rgba(0,42,84,0) 100%);            color:white;
+            display: block;
+            margin:10px 0px;
+          max-width: 800px;;
+ 
+            #textprice{
+        font-size: 2rem;
+      color:white;
+      box-sizing: border-box;
+      padding:10px 10px;
+            }
+        }
+
+        #basic_info{
+            height:auto;
+            box-sizing: border-box;
+            display: flex;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            span{
+                width:150px;
+                height:150px;
+                border-radius: 25px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                background-color: $lightgray;
+                color:$darkgray;
+                margin-right: 15px;
+ 
+                span.value{
+                    background-color: transparent;
+                    width:min-content;
+                    height: min-content;
+                    display: block;
+                    margin:0px;
+                }
+                span.header{
+                    font-size: 1.1rem;
+ 
+                    background-color: transparent;
+                    width:min-content;
+                    height: min-content;
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                    margin-right:0px;
+                }
+            }
+        }/*
+        div#images{
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-rows: repeat(3, 200px);
+            grid-column-gap: 0px;
+            grid-row-gap: 0px;
+            row-gap: 10px;
+            max-width: 1100px;
+
+            column-gap: 10px;
+            .main { grid-area: 1 / 1 / 4 / 2;width:100%; height:100%; }
+            .sidebar1 { grid-area: 1 / 2 / 2 / 3;max-width:100%;  max-height:100%;}
+            .sidebar2 { grid-area: 2 / 2 / 3 / 3;max-width:100%;  max-width:100%;}
+            .sidebar3 { grid-area: 3 / 2 / 4 / 3; max-width:100%; max-height:100%;}
+            .d-none{display:none;}
+            div{
+                background-position:center center;
+                background-size: cover;
+                width: 100%;
+                height:100%;
+                display: block;
+            }
+        }*/
+
+        div#images {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+            grid-template-rows: repeat(3, 200px); /* 3 equal rows */
+            gap: 10px; /* Row and column gap */
+            max-width: 1100px; /* Limit the grid width */
+        
+            .main {
+                /* Main image takes 3 columns and 3 rows */
+                grid-column: 1 / span 3; /* Spans across the first 3 columns */
+                grid-row: 1 / span 3; /* Spans across all 3 rows */
+                width: 100%;
+                height: 100%;
+            }
+        
+            .sidebar1 {
+                /* Only take space if the image exists */
+                grid-column: 4; /* 4th column */
+                grid-row: 1; /* 1st row */
+                width: 100%;
+                height: 100%;
+                &.d-none { display: none; } /* Hide if image is missing */
+            }
+        
+            .sidebar2 {
+                grid-column: 4;
+                grid-row: 2;
+                width: 100%;
+                height: 100%;
+                &.d-none { display: none; }
+            }
+        
+            .sidebar3 {
+                grid-column: 4;
+                grid-row: 3;
+                width: 100%;
+                height: 100%;
+                &.d-none { display: none; }
+            }
+        
+            div {
+                background-position: center center;
+                background-size: cover;
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+        }
+        
+        .overlay{
+            position:fixed;
+            top:0px;
+            left:0px;
+            width:100%;
+            height:100%;
+            background-color: hsla(0, 0%, 20%, 0.73);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .imgholder{
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                img{
+                    
+                    width:auto;
+                    max-height: 100%;
+                    max-width: 80%;
+                    height:auto;
+                    display: block;
+                }
+                i{
+                    position:absolute;
+                
+                    left:75%;
+                    top:25%;
+                    font-size: 46px;
+                    color:white;
+                    z-index: 34;
+    
+                }
+                .leftt{
+                    position: absolute;
+                    left:15%;
+                    top:50%;
+                     font-size: 14px;
+                    z-index: 20;
+                    
+                    transform: translate(-50%,-50%);
+                    border-radius: 50%;
+                  
+                    cursor:pointer;
+                    box-sizing: border-box;
+                    color: white;
+                  
+                   ; padding:15px;
+                    background-color: $darkgray;
+                
+                   
+ 
+
+                }
+                .rightt{
+                    position: absolute;
+                    z-index: 20;
+                    font-size:14px;
+                    left:85%;
+                    top:50%;
+                    color:white;
+                    transform: translate(-50%,-50%);
+                    border-radius: 50%;
+                  
+                    cursor:pointer;
+                    box-sizing: border-box;
+                    color: white;
+                  
+                   ; padding:15px;
+                    background-color: $darkgray;
+                }
+            }
+        }
+ 
+        }

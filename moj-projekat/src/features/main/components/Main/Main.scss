@@ -1,0 +1,49 @@
+.wrapper{
+    padding:0px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width:60%;
+    margin: 0px auto;
+}
+
+.pagination {
+    width: 60%;
+    margin: 20px auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 24px 0;
+
+    .page-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid #002356;
+        background: transparent;
+        color: #002356;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover:not(:disabled) {
+            background: #002356;
+            color: white;
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+    }
+
+    .page-info {
+        font-size: 1rem;
+        color: #444548;
+        min-width: 60px;
+        text-align: center;
+    }
+}

@@ -1,0 +1,14 @@
+@import 'color';
+@mixin border(){
+    border:3px solid $blue;
+    color:black;
+}
+@mixin noBorder(){
+    background-color: $blue;
+    color:white;
+}
+@mixin flex(){
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}

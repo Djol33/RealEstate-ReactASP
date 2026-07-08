@@ -1,0 +1,6 @@
+@nekretnineapi_HostAddress = http://localhost:5067
+
+GET {{nekretnineapi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

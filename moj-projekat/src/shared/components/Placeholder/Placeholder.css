@@ -1,0 +1,24 @@
+.placeholder{
+    width: 100%;
+
+    background-color: #d6d6d6;
+    background: #D6D6D6;
+background: linear-gradient(0deg, rgb(125, 125, 125) 0%, rgba(235, 235, 235, 1) 50%, rgba(214, 214, 214, 1) 100%);
+    border-radius: 8px;
+    background-size: 400% 400%;
+    padding:16px;
+    animation: gradient 3s ease infinite;
+  
+}
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+
+}

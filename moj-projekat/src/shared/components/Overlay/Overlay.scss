@@ -1,0 +1,25 @@
+#overlay {
+  
+    position: fixed;
+    top:0px;
+    left:0px;
+    background-color: #3f3f3f;
+    width:100%;
+    height:100vh;
+    display: flex;
+    padding: 0px;
+    align-items: center;
+    justify-content: space-around;
+    padding:25px;
+
+    overflow: hidden;
+
+    i.fa-x{
+        cursor: pointer;
+        font-size: 1.8rem;
+        color:white;
+        position: absolute;
+        left:90%;
+        top:10%;
+    }
+}

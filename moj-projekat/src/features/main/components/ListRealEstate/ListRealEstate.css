@@ -1,0 +1,21 @@
+.list-real-estate-row{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 14px;
+    width:65%;
+
+}
+
+
+.list-real-estate-row a{
+
+            width:100%;
+        height:200px;
+
+        margin-bottom:16px;
+
+ 
+gap:16px;
+}

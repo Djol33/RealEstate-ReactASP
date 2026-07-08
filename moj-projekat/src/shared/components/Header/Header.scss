@@ -1,0 +1,38 @@
+ $blue:#002356;
+$yellow:#002356;
+$yellowdark:#002356;
+$darkgray:#444548;
+$lightgray:#f1f1f1;
+
+
+header {
+    box-sizing: border-box;
+    padding:8px;
+    background-color: $blue;
+    color:$lightgray;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  h1 a{
+                color:white;
+                text-decoration: none;
+            }
+    nav{
+        width:fit-content;
+        ;
+        ul{
+            display: flex;
+            list-style-type:none ;
+            align-items: center;
+            gap: 8px;
+            li a{
+                color:white;
+                text-decoration: none;
+            }
+        }
+   
+    }
+
+
+}

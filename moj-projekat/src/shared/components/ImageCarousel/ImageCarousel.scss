@@ -1,0 +1,26 @@
+.wrap-parent{ 
+    color:white;
+    text-align: center  ;
+     width: fit-content !important;
+    img{
+        width:70%;
+        max-height: 60vh;
+    }
+    .arr{
+        position: absolute;
+        font-size: 1.8rem;
+
+    }
+    .fa-angle-left{
+        top:50%;
+        left:10%;
+        transform: translate("-50%");
+    }
+    .fa-angle-right{
+        top:50%;
+        right:10%;
+       
+
+    }
+
+}

@@ -1,0 +1,32 @@
+.options{
+    position:absolute;
+    width:100%;
+    top:100%;
+    left:0px;
+    z-index: 9999;
+    display: none;
+    span{
+        padding:6px;
+        background-color: #c2c2c2;
+        border:1px solid black;
+        display: block;
+    }
+}
+
+
+input:focus + .options{
+    display: block;
+}
+
+.selectedOptions{
+    
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    span{ 
+        padding:2px;
+        background-color: #c2c2c2;
+        border:1px solid black;
+    }
+}
