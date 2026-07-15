@@ -1,6 +1,6 @@
-﻿using Application;
+using Application;
 
-namespace nekretnineapi
+namespace nekretnineapi.Auth
 {
     public class GuestActor : IApplicationActor
     {

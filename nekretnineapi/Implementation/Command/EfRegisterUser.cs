@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
+using Application.Security;
 using DataDomain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,14 +17,15 @@ namespace Implementation.Command
     {
 
         private readonly AppDbContext db;
+        private readonly IPasswordHasher passwordHasher;
 
         int IUseCase.Id => 4;
 
         string IUseCase.Name => "Register User";
 
-        public EfRegisterUser(AppDbContext db) {
+        public EfRegisterUser(AppDbContext db, IPasswordHasher passwordHasher) {
             this.db = db;
-            
+            this.passwordHasher = passwordHasher;
         }
 
         public void  Execute(RegisterUserDTO request)
@@ -32,7 +34,7 @@ namespace Implementation.Command
             Console.WriteLine(this.db.Users == null);
             var user = new User();
             user.Email = request.Email;
-            user.Password = request.Password;
+            user.Password = passwordHasher.Hash(request.Password);
             user.UserRole = 0;
             user.IsActive = 1;
             user.CreatedAt= DateTime.UtcNow;
@@ -49,7 +51,6 @@ namespace Implementation.Command
             {
                 if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx)
                 {
-                    // 2627 i 2601 su SQL Server kodovi za UNIQUE constraint violation
                     if (sqlEx.Number == 2627 || sqlEx.Number == 2601)
                     {
                         throw new ApplicationException("Email već postoji.");

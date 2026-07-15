@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HMM7bUmaSmo=",
+  "dgSpecHash": "RyCie1s1mbE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Nemanja\\source\\repos\\nekretnineapi\\Application\\Application.csproj",
+  "projectFilePath": "C:\\Users\\Nemanja\\Desktop\\poslatinagit\\nekretnineapi\\Application\\Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Nemanja\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Nemanja\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

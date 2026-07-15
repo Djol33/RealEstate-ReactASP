@@ -15,8 +15,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using nekretnineapi;
-using nekretnineapi;
+using nekretnineapi.Auth;
 using nekretnineapi.Validators;
+using Application.Exceptions;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -39,37 +40,42 @@ builder.Services.AddControllers()
     {
         options.SuppressModelStateInvalidFilter = true;
     });
-builder.Services.AddControllers();
-builder.Services.AddTransient<JWTManager>(x =>
-{
-    var context = x.GetService<AppDbContext>();
-   
-    return new JWTManager(context);
-});
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
+    ?? throw new InvalidOperationException("Nedostaje 'Jwt' sekcija u konfiguraciji.");
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Key) || Encoding.UTF8.GetByteCount(jwtSettings.Key) < 32)
+    throw new InvalidOperationException(
+        "Jwt:Key nije podesen ili je prekratak (min 32 bajta). Podesi ga preko User Secrets ili env varijable 'Jwt__Key'.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "yourdomain.com",
-            ValidAudience = "yourdomain.com",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key_ndsfknfdsklndfsklndfsklndfskongskondfskodvnkodfvnkdfosnkodfsodvnkl/dfs"))
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            ClockSkew = TimeSpan.FromMinutes(1)
         };
     });
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddAuthorization();
- 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<AppDbContext>();
 builder.Services.AddTransient<UseCaseExecutor>(x => new UseCaseExecutor(x));
+
+builder.Services.AddSingleton<Application.Security.ITokenFactory, nekretnineapi.Auth.JwtTokenFactory>();
+builder.Services.AddSingleton<Application.Security.IPasswordHasher, Implementation.Security.Pbkdf2PasswordHasher>();
+builder.Services.AddTransient<Application.Command.ILogin, Implementation.Command.EfLogin>();
 builder.Services.AddTransient<IShowRealEstate, EfShowRealEstate>();
 builder.Services.AddTransient<ICitySearch, EfCity>();
 builder.Services.AddTransient<IRegesiter, EfRegisterUser > ();
@@ -80,39 +86,20 @@ builder.Services.AddTransient<IShowTypeOfRealestate, TypeOfRealestateEf>();
 builder.Services.AddTransient<IShowAllCities, EfShowAllCities>();
 builder.Services.AddScoped<IApplicationActor>(x =>
 {
-    var accessor = x.GetRequiredService<IHttpContextAccessor>();
-    var header = accessor.HttpContext.Request.Headers["Authorization"];
+    var user = x.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
 
-    var data = header.ToString().Split("Bearer ");
-
-    if (data.Length < 2)
-    {
+    if (user?.Identity is not { IsAuthenticated: true })
         return new GuestActor();
-        //throw new UnauthorizedAccessException();
-    }
 
-    var handler = new JwtSecurityTokenHandler();
-    JwtSecurityToken tokenObj;
-    try
-    {
-        tokenObj = handler.ReadJwtToken(data[1]);
-    }
-    catch
-    {
-         return new GuestActor();
-    }
+    var id = user.FindFirst("Id")?.Value;
+    var email = user.FindFirst("Email")?.Value;
+    var userRole = user.FindFirst("UserRole")?.Value ?? "0";
 
-    var claims = tokenObj.Claims;
- 
-
-    var email = claims.First(x => x.Type == "Email").Value;
-    var id = claims.First(x => x.Type == "Id").Value;
-    var userRole = claims.FirstOrDefault(x => x.Type == "UserRole")?.Value ?? "0";
+    if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(email))
+        return new GuestActor();
 
     return new JwtActor(id, email, userRole);
 });
-
-builder.Services.AddTransient<IRegisterCompany, EfRegisterCompany > ();
 
 builder.Services.AddScoped<IShowSingleRealEstate, SingleRealEstate>();
 builder.Services.AddHttpClient("nominatim", client =>
@@ -140,6 +127,14 @@ app.UseExceptionHandler(appError =>
             context.Response.ContentType = "application/json";
             var errors = validationEx.Errors.Select(e => new { property = e.PropertyName, error = e.ErrorMessage });
             await context.Response.WriteAsJsonAsync(new { errors });
+            return;
+        }
+
+        if (ex is InvalidCredentialsException)
+        {
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             return;
         }
 

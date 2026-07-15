@@ -1,6 +1,6 @@
 using Application;
 
-namespace nekretnineapi
+namespace nekretnineapi.Auth
 {
     public class JwtActor : IApplicationActor
     {

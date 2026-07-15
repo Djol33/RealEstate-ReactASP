@@ -1,0 +1,12 @@
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+.vs/
+.idea/
+nekretnineapi/uploads/
+*.env
+.env
+secrets.json
+appsettings.*.Local.json
