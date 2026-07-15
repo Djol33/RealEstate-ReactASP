@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\nekretnineapi.props" />
-</Project>
