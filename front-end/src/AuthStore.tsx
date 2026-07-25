@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 export type AuthUser = {
   id: number;
   fname: string;
-  lname:string;
+  lname: string;
   email: string;
   token: string;
 }
@@ -20,13 +20,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(()=>{
+  const [user, setUser] = useState<AuthUser | null>(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
 
   });
-  useEffect(()=>{
-    
+  useEffect(() => {
+
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -34,61 +34,69 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
- 
-  const login = async   (data) => {
+
+  const login = async (data) => {
     let resp;
     try {
-    const response = await axios.post('https://localhost:7154/api/LoginTEST', data)
-    .then((response)=>{
-      console.log('Success:', response.data.token);
-      if(response.data.token.code ==401 ){ resp =  {
-        code:401,
-        message: 'Invalid email or password'
+      const response = ( axios.post('https://localhost:7154/api/LoginTEST', data))
+        .then((response) => {
 
-      }};
-      setUser(a=>(
-        {
-          id: response.data.token.id,
-          fname: response.data.token.fIrstName  ,
-          lname:response.data.token.lastName,
-          email: response.data.token.email,
-          token: response.data.token.token
+          if (response.data.token.code == 401) {
+            resp = {
+              code: 401,
+              message: 'Invalid email or password'
 
-        })
-      )
+            }
+          }
+          else {
+            response=response.data
+            setUser(a => (
+              {
+                id: response.id,
+                fname: response.fIrstName,
+                lname: response.lastName,
+                email: response.email,
+                token: response.token
+
+              })
+            )
 
 
-      localStorage.setItem('user', JSON.stringify({
-                   id: response.data.token.id,
-     fname: response.data.token.fIrstName  ,
-          lname:response.data.token.lastName,
-          email: response.data.token.email,
-          token: response.data.token.token}))
-  
-           
-    
-  })
-  if(resp) return resp;
-    return {
-        code:200,
+            localStorage.setItem('user', JSON.stringify({
+              id: response.id,
+              fname: response.fIrstName,
+              lname: response.lastName,
+              email: response.email,
+              token: response.token
+            }))
+
+          }
+
+
+
+        });
+      if (resp) return resp;
+      return {
+        code: 200,
         message: 'Login Successful'
 
       }
- 
 
-} catch (err) {
-    console.error('Fetch Error:', err);
-  }
-    
+
+    } catch (err) {
+      console.error('Fetch Error:', err);
+    }
+
   };
 
-  const logout = () =>{
+
+  const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
 
 
   }
- 
+
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
@@ -98,7 +106,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
- 
+
   if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };

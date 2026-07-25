@@ -46,7 +46,6 @@ namespace nekretnineapi.Controllers
             var result = await validator.ValidateAsync(param);
             if (!result.IsValid)
             {
-                // vraćamo sve greške korisniku
                 return BadRequest(result.Errors );
             }
             executor.ExecuteCommand(service, param);

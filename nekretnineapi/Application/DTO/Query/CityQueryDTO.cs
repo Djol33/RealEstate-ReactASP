@@ -10,6 +10,6 @@ namespace Application.DTO.Query
     {
    
         public string ?CityName { get; set; }
-        public List<string>? CitiesToIgnore { get; set; }
+        public List<string>? CitiesToIgnore { get; set; } = new();
     }
 }

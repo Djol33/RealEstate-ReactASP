@@ -15,7 +15,7 @@ namespace Application
         {
             return query.Execute(search);
         }
-
+        /*
         public void ExecuteCommand<TRequest>(ICommand<TRequest> command, TRequest request)
         {
             var validator = _provider.GetService(typeof(IValidator<TRequest>)) as IValidator<TRequest>;
@@ -28,6 +28,11 @@ namespace Application
             }
 
             command.Execute(request);
+        }*/
+        public void ExecuteCommand<TRequest>(ICommand<TRequest> command, TRequest request)
+        {
+            command.Execute(request);
         }
+
     }
 }

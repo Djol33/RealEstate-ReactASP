@@ -15,8 +15,10 @@ import { preload } from "react-dom";
 import { RealEstateWrapper } from "./features/realEstatePage/RealEstateWrapper";
 import {AddRealEstate} from './features/realEstatePage/components/addRealEstate/addRealEstate'
 import {EditRealEstate} from './features/realEstatePage/components/editRealEstate/editRealEstate'
+import { redirect } from 'react-router-dom';
+
 const router = createBrowserRouter([
-  {
+    {
     path: "/",
     element: <Layout />,
     children: [
@@ -57,6 +59,7 @@ const router = createBrowserRouter([
             path: "profile",
             loader: async () =>{
               let user = localStorage.getItem("user");
+                if (!user) throw redirect("/auth/login");
               user = JSON.parse(user);
               console.log("user", user)
               return preLoadUser(user);

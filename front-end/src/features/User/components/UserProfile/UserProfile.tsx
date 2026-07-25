@@ -4,11 +4,10 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import  './UserProfile.css';
 import { useLoaderData } from 'react-router-dom';
-
- export async function preLoadUser(user){
+  export async function preLoadUser(user){
  
 
-  let dataFetch =  await axios.get("https://localhost:7154/api/Profile/"+user.id)
+  let dataFetch =  await  axios.get("https://localhost:7154/api/Profile/")
   let data = dataFetch.data;
   console.log(user)
   let userInstance: User;

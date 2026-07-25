@@ -43,7 +43,13 @@ namespace Implementation.Command
                 })
                 .FirstOrDefault();
 
-            if (user == null || !passwordHasher.Verify(request.Password, user.Password))
+            if (user == null)
+                throw new InvalidCredentialsException();    
+
+            var ok = passwordHasher.Verify(request.Password, user.Password);
+            Console.WriteLine(request.Password);
+            Console.WriteLine(user.Password);
+            if (!ok)
                 throw new InvalidCredentialsException();
 
             var token = tokenFactory.Create(user.Id, user.Email, user.UserRole);

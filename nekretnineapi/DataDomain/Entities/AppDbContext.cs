@@ -18,7 +18,7 @@ public partial class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=DESKTOP-F5TETT5;Database=phpapp;Trusted_Connection=True;TrustServerCertificate=True;", x => x.UseNetTopologySuite());
+        optionsBuilder.UseSqlServer("Server=BG-C-000MC\\SQLEXPRESS;Database=phpapp;Trusted_Connection=True;TrustServerCertificate=True;", x => x.UseNetTopologySuite());
       
     }
 

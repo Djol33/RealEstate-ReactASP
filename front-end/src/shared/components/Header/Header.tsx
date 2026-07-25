@@ -36,7 +36,11 @@ export function Header( ) {
       <Link to="/apartment/add">Add Apartment</Link>
     </li>
   )}
-
+  {user && (
+    <li>
+      <Link to="/user/profile">Profile</Link>
+    </li>
+  )}
   <li>
     <Profile />
   </li>

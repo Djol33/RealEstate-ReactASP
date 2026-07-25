@@ -1,7 +1,8 @@
 ﻿using Application;
 using Application.Query;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace nekretnineapi.Controllers.User
@@ -17,17 +18,14 @@ namespace nekretnineapi.Controllers.User
             this.exec = exec;
         }
         // GET: api/<ProfileController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
         // GET api/<ProfileController>/5
-        [HttpGet("{id}")]
-        public IActionResult Get(int id, [FromServices] IUserProfile query)
+        [Authorize]
+        [HttpGet()]
+        public IActionResult Get( [FromServices] IUserProfile query)
         {
 
+            var id = int.Parse(User.FindFirst("Id").Value);
             return Ok(exec.ExecuteQuery(query, id));
         }
 

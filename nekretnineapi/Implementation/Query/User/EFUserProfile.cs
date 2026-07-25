@@ -18,21 +18,27 @@ namespace Implementation.Query.User
         public EFUserProfile(AppDbContext db) { this.db = db; }
         public UserProfileDTO Execute(int request)
         {
-            return this.db.Users.Where(perId => perId.Id == request).Select(x => new UserProfileDTO
-            {
-                Email = x.Email,
-                UserBasic = x.UserBasics.Where(userId=> userId.FkId == x.Id).Select(a=>new UserBasicDTO
-                {
-                    FirstName = a.FirstName,
-                    LastName = a.LastName,
-                }).First(),
-                UserCompany = x.Companies.Where(companyId=> companyId.FkId == x.Id).Select(Company=>new UserCompanyDTO
-                {
-                    BIP = Company.Bip
+            var profile = db.Users
+    .Where(u => u.Id == request)
+    .Select(x => new UserProfileDTO
+    {
+        Email = x.Email,
+        UserBasic = x.UserBasics.Select(a => new UserBasicDTO
+        {
+            FirstName = a.FirstName,
+            LastName = a.LastName,
+        }).FirstOrDefault(),
+        UserCompany = x.Companies.Select(c => new UserCompanyDTO
+        {
+            BIP = c.Bip
+        }).FirstOrDefault()
+    })
+    .FirstOrDefault();
 
-                }).FirstOrDefault()
-                
-            }).FirstOrDefault() ;
+            if (profile == null)
+                throw new Exception();   // ili KeyNotFoundException
+
+            return profile;
         }
     }
 }

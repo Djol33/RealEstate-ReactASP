@@ -68,6 +68,20 @@ $red: #e74c3c;
       margin: 0 0 18px;
       text-align: center;
     }
+    input[type='email'], input[type='password'], input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1.5px solid #ddd;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+border-radius: 25px;
+      &:focus {
+        outline: none;
+        border-color: $blue;
+      }
+    }
+    
   }
 
   .auth-field {

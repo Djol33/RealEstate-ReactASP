@@ -1,3 +1,4 @@
+import './core/Interceptor/JWT/jwt.jsx'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -11,11 +12,11 @@ import JWTProvider from './core/Interceptor/JWT/jwt.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
 
-    <JWTProvider>
+   
       <AuthProvider>
       <App />
       </AuthProvider>
-    </JWTProvider>
+
       
  
   </StrictMode>,

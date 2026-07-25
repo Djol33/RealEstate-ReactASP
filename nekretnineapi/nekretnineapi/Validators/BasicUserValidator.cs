@@ -29,7 +29,7 @@ namespace nekretnineapi.Validators
             {
                 bool exists =   db.Users.Any(z=>z.Email ==  Email);
                 return !exists;
-            }).WithMessage("ID Must be unique");
+            }).WithMessage("Email Must be unique");
         }
 
     }

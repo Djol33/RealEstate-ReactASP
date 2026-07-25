@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../AuthStore';
 import { Validate } from '../../../../../shared/Validation/AuthValidate';
 import '../../../../../features/Auth/auth.scss';
-
+import './Login.scss';
 type Inputs = {
   Email: string;
   Password: string;
@@ -28,11 +28,9 @@ export default function Login() {
     setServerError('');
     try {
       const res = await login(data);
-      if (res?.code === 401) {
-        setServerError('Invalid email or password.');
-      } else if (res?.code === 200) {
-        navigate('/');
-      }
+      if (res?.code === 401) setServerError('Invalid email or password.');
+      else if (res?.code === 200) navigate('/');
+      else setServerError('Login failed. Please try again.');
     } catch {
       setServerError('Login failed. Please try again.');
     }
