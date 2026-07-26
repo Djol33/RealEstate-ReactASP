@@ -23,13 +23,13 @@ namespace Implementation.Command
         {
             var realestate = db.Realestates
                 .FirstOrDefault(r => r.Id == request.Id)
-                ?? throw new KeyNotFoundException("Nekretnina nije pronađena.");
+                ?? throw new KeyNotFoundException("Listing not found.");
 
            
             bool isOwner = realestate.Owner == actor.Id;
 
             if (  !isOwner)
-                throw new UnauthorizedAccessException("Nemate dozvolu da menjate ovu nekretninu.");
+                throw new UnauthorizedAccessException("You do not have permission to edit this listing.");
 
             realestate.Title = request.Title;
             realestate.Description = request.Description;

@@ -1,0 +1,91 @@
+.chat-toast {
+  position: fixed;
+  top: 72px;
+  right: 20px;
+  z-index: 400;
+  width: 320px;
+  max-width: calc(100% - 40px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  cursor: pointer;
+  border-left: 4px solid #002356;
+  animation: chat-toast-in 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .chat-toast-icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #002356;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .chat-toast-body {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+
+    .chat-toast-name {
+      font-weight: 600;
+      color: #002356;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+    .chat-toast-text {
+      font-size: 0.85rem;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .chat-toast-close {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: #999;
+    cursor: pointer;
+    padding: 0 4px;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+@keyframes chat-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-toast {
+    top: 64px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+}

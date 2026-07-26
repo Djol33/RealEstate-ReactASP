@@ -1,0 +1,38 @@
+using Application;
+using Application.Command;
+using Application.DTO.Command;
+using DataDomain.Entities;
+
+namespace Implementation.Command
+{
+    public class EfEditCompany : IEditCompany
+    {
+        public int Id => 28;
+        public string Name => "Edit Company";
+
+        private readonly AppDbContext db;
+        private readonly IApplicationActor actor;
+
+        public EfEditCompany(AppDbContext db, IApplicationActor actor)
+        {
+            this.db = db;
+            this.actor = actor;
+        }
+
+        public void Execute(EditCompanyDTO request)
+        {
+            var company = db.Companies
+                .FirstOrDefault(c => c.FkId == actor.Id)
+                ?? throw new KeyNotFoundException("Company details not found.");
+
+            company.Name = request.Name;
+            company.Bip = request.BIP;
+
+            // logo se menja samo ako je poslata nova slika
+            if (!string.IsNullOrEmpty(request.Logo))
+                company.Logo = request.Logo;
+
+            db.SaveChanges();
+        }
+    }
+}

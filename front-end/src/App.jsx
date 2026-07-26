@@ -10,12 +10,17 @@ import { RegisterCompany } from "./features/Auth/RegisterCompany/components/Regi
 import { Layout } from "./features/Layout/components/Layout/Layout";
 import { User } from "./features/User/components/User/User";
 import { useAuth } from "./AuthStore";
-import { preLoadUser, UserProfile } from "./features/User/components/UserProfile/UserProfile";
+import { UserProfile } from "./features/User/components/UserProfile/UserProfile";
 import { preload } from "react-dom";
 import { RealEstateWrapper } from "./features/realEstatePage/RealEstateWrapper";
 import {AddRealEstate} from './features/realEstatePage/components/addRealEstate/addRealEstate'
 import {EditRealEstate} from './features/realEstatePage/components/editRealEstate/editRealEstate'
-import { redirect } from 'react-router-dom';
+import { Messages } from './features/chat/components/Messages/Messages'
+import { AdminGuard } from './features/admin/components/AdminGuard/AdminGuard'
+import { AdminLayout } from './features/admin/components/AdminLayout/AdminLayout'
+import { AdminDashboard } from './features/admin/components/AdminDashboard/AdminDashboard'
+import { AdminUsers } from './features/admin/components/AdminUsers/AdminUsers'
+import { AdminRealEstates } from './features/admin/components/AdminRealEstates/AdminRealEstates'
 
 const router = createBrowserRouter([
     {
@@ -31,6 +36,22 @@ const router = createBrowserRouter([
         element: <Login />,
       },
       { path: "/realestate/:id", element: <RealEstatePage /> },
+      { path: "/messages", element: <Messages /> },
+      { path: "/messages/:userId", element: <Messages /> },
+      {
+        path: "admin",
+        element: <AdminGuard />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              { path: "", element: <AdminDashboard /> },
+              { path: "users", element: <AdminUsers /> },
+              { path: "realestates", element: <AdminRealEstates /> },
+            ],
+          },
+        ],
+      },
 
       {
         path: "auth",
@@ -57,15 +78,10 @@ const router = createBrowserRouter([
         children: [
           {
             path: "profile",
-            loader: async () =>{
-              let user = localStorage.getItem("user");
-                if (!user) throw redirect("/auth/login");
-              user = JSON.parse(user);
-              console.log("user", user)
-              return preLoadUser(user);
-
-              
-            },
+            element: <UserProfile />,
+          },
+          {
+            path: ":id",
             element: <UserProfile />,
           },
         ],

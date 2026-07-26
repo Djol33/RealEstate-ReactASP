@@ -61,7 +61,8 @@ namespace Implementation.Command
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Company = user.Company
+                Company = user.Company,
+                UserRole = user.UserRole
             };
         }
     }

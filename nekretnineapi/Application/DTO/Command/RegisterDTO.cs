@@ -20,11 +20,11 @@ namespace Application.DTO.Command
         public string LastName { get; set; }
     }
 
-    public class RegisterCompanyDTO  : RegisterDTO 
+    public class RegisterCompanyDTO  : RegisterDTO
     {
         [JsonPropertyName("companyName")]
         public string Name { get; set; }
         public string BIP { get; set; }
-        
+        public string? Logo { get; set; }
     }
 }

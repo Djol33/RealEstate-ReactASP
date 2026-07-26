@@ -1,60 +1,149 @@
-import React from 'react';
-import User, { BasicUser, CompanyUser } from './../../../../shared/Types/types';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useEffect } from 'react';
-import  './UserProfile.css';
-import { useLoaderData } from 'react-router-dom';
-  export async function preLoadUser(user){
- 
+import { Overlay } from '../../../../shared/components/Overlay/Overlay';
+import { ListRealEstate } from '../../../main/components/ListRealEstate/ListRealEstate';
+import { EditProfileForm } from '../EditProfileForm';
+import { EditCompanyForm } from '../EditCompanyForm/EditCompanyForm';
+import './UserProfile.css';
 
-  let dataFetch =  await  axios.get("https://localhost:7154/api/Profile/")
-  let data = dataFetch.data;
-  console.log(user)
-  let userInstance: User;
-    if (data?.userBasic) {
-      userInstance = {
-        type: "basic",
-        email: data.email,
-        firstName: data.userBasic.firstName,
-        lastName: data.userBasic.lastName
-      } as BasicUser;
-    } else if (data?.userCompany) {
-      userInstance = {
-        type: "company",
-        email: data.email,
-        BIP: data.userCompany.BIP
-      } as CompanyUser;
-    } else {
-      throw new Error("Unknown user type");
-    }
-    console.log("ovde jer re",data);
-  return userInstance;
- }
-export function UserProfile( ) {
-  let data =  useLoaderData()
-  useEffect(()=>{
-    console.log("Podaci",data)
-  })
-  
+export function UserProfile() {
+  const { id } = useParams();
+  const isOwnProfile = !id;
 
-  
-  return <>
+  const [profile, setProfile] = useState<any>(null);
+  const [listings, setListings] = useState<any[]>([]);
+  const [wishlist, setWishlist] = useState<any[]>([]);
+  const [showEdit, setShowEdit] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-<div id="profile">
+  const profileUrl = isOwnProfile
+    ? 'https://localhost:7154/api/Profile'
+    : `https://localhost:7154/api/Profile/${id}`;
 
+  const loadProfile = useCallback(async () => {
+    const res = await axios.get(profileUrl);
+    setProfile(res.data);
+  }, [profileUrl]);
 
-  { data.type =="basic" ?
-<div className="userProfile">
-    <h1> Welcome {data.firstName + " " + data.lastName}</h1>
-    <h2>email: {data.email}</h2>
+  const loadListings = useCallback(() => {
+    const ownerId = isOwnProfile
+      ? JSON.parse(localStorage.getItem('user') || '{}').id
+      : id;
+    if (!ownerId) return;
+    axios
+      .get(`https://localhost:7154/api/Profile/${ownerId}/realestates`)
+      .then((r) => setListings(r.data))
+      .catch(() => setListings([]));
+  }, [id, isOwnProfile]);
 
-</div>:
-<p>Bye</p>
+  const loadWishlist = useCallback(() => {
+    if (!isOwnProfile) return;
+    axios
+      .get('https://localhost:7154/api/Wishlist')
+      .then((r) => setWishlist(r.data))
+      .catch(() => setWishlist([]));
+  }, [isOwnProfile]);
 
+  useEffect(() => {
+    setLoading(true);
 
-  }
+    axios.get(profileUrl).then((res) => {
+      setProfile(res.data);
+      loadListings();
+      loadWishlist();
+    }).catch((err) => {
+      if (err.response?.status === 401) return;
+      setProfile(null);
+    }).finally(() => setLoading(false));
+  }, [id, isOwnProfile]);
 
-    
-</div>
-  </>;
+  if (loading) return <div id="profile"><p>Loading...</p></div>;
+  if (!profile) return <div id="profile"><p>Profile not found.</p></div>;
+
+  const basic = profile.userBasic;
+  const company = profile.userCompany;
+
+  const fullName = company?.name
+    ? company.name
+    : basic
+      ? `${basic.firstName} ${basic.lastName}`
+      : profile.email;
+
+  const initials = company?.name
+    ? company.name[0].toUpperCase()
+    : basic
+      ? `${basic.firstName?.[0] ?? ''}${basic.lastName?.[0] ?? ''}`.toUpperCase()
+      : profile.email?.[0]?.toUpperCase() ?? '?';
+
+  const logoUrl = company?.logo?.startsWith('images/')
+    ? `https://localhost:7154/${company.logo}`
+    : null;
+
+  return (
+    <div id="profile">
+      <div className="profile-hero">
+        {logoUrl ? (
+          <div className="profile-avatar profile-logo">
+            <img src={logoUrl} alt={fullName} />
+          </div>
+        ) : (
+          <div className="profile-avatar">{initials}</div>
+        )}
+
+        <div className="profile-info">
+          <h1>{fullName}</h1>
+          <p className="profile-email">{profile.email}</p>
+          {company?.bip && <p className="profile-bip">Tax ID: {company.bip}</p>}
+          <span className="profile-count">
+            {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
+          </span>
+        </div>
+
+        {isOwnProfile && (
+          <button className="edit-profile-btn" onClick={() => setShowEdit(true)}>
+            Edit profile
+          </button>
+        )}
+      </div>
+
+      <div className="profile-listings">
+        <h2>Listings</h2>
+        <ListRealEstate listResult={listings} onItemDeleted={loadListings} />
+      </div>
+
+      {isOwnProfile && (
+        <div className="profile-listings">
+          <h2>Saved</h2>
+          <ListRealEstate listResult={wishlist} onItemDeleted={loadWishlist} />
+        </div>
+      )}
+
+      {isOwnProfile && basic && (
+        <Overlay isVisible={showEdit} changeVisibility={setShowEdit}>
+          <EditProfileForm
+            initialData={{ firstName: basic.firstName, lastName: basic.lastName }}
+            onSaved={() => {
+              setShowEdit(false);
+              loadProfile();
+            }}
+            onCancel={() => setShowEdit(false)}
+          />
+        </Overlay>
+      )}
+
+      {isOwnProfile && company && (
+        <Overlay isVisible={showEdit} changeVisibility={setShowEdit}>
+          <EditCompanyForm
+            initialData={{ name: company.name, bip: company.bip, logo: company.logo }}
+            onSaved={() => {
+              setShowEdit(false);
+              loadProfile();
+            }}
+            onCancel={() => setShowEdit(false)}
+          />
+        </Overlay>
+      )}
+    </div>
+  );
 }

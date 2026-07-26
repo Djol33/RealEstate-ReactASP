@@ -27,9 +27,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
-            policy.AllowAnyOrigin()  
+            policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 builder.Services.AddHttpContextAccessor();
@@ -62,6 +63,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
             ClockSkew = TimeSpan.FromMinutes(1)
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -108,6 +123,30 @@ builder.Services.AddHttpClient("nominatim", client =>
 });
 builder.Services.AddScoped<IAddRealestate, EfAddRealEstate>();
 builder.Services.AddScoped<IEditRealestate, EfEditRealEstate>();
+builder.Services.AddScoped<nekretnineapi.Services.ImageStorageService>();
+builder.Services.AddScoped<IShowUserRealEstate, Implementation.Query.RealEstate.EfShowUserRealEstate>();
+builder.Services.AddScoped<IEditProfile, Implementation.Command.EfEditProfile>();
+builder.Services.AddScoped<IEditCompany, Implementation.Command.EfEditCompany>();
+builder.Services.AddScoped<IToggleWishlist, Implementation.Command.EfToggleWishlist>();
+builder.Services.AddScoped<IShowWishlist, Implementation.Query.RealEstate.EfShowWishlist>();
+builder.Services.AddScoped<IDeleteRealestate, Implementation.Command.EfDeleteRealEstate>();
+builder.Services.AddScoped<ISendMessage, Implementation.Command.EfSendMessage>();
+builder.Services.AddScoped<IGetConversation, Implementation.Query.Chat.EfGetConversation>();
+builder.Services.AddScoped<IGetConversations, Implementation.Query.Chat.EfGetConversations>();
+builder.Services.AddScoped<IMarkRead, Implementation.Command.EfMarkRead>();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, nekretnineapi.Auth.ClaimUserIdProvider>();
+
+builder.Services.AddScoped<Application.IViewerContext, nekretnineapi.Recommendations.ViewerContext>();
+builder.Services.AddScoped<ITrackView, Implementation.Command.EfTrackView>();
+builder.Services.AddScoped<IShowTrending, Implementation.Query.Recommendations.EfShowTrending>();
+builder.Services.AddScoped<IShowRecentlyViewed, Implementation.Query.Recommendations.EfShowRecentlyViewed>();
+builder.Services.AddScoped<IShowRecommendations, Implementation.Query.Recommendations.EfShowRecommendations>();
+builder.Services.AddScoped<Application.Query.Admin.IAdminListUsers, Implementation.Query.Admin.EfAdminListUsers>();
+builder.Services.AddScoped<Application.Query.Admin.IAdminStats, Implementation.Query.Admin.EfAdminStats>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminDeleteUser, Implementation.Command.Admin.EfAdminDeleteUser>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminSetRole, Implementation.Command.Admin.EfAdminSetRole>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 
@@ -155,12 +194,11 @@ app.UseExceptionHandler(appError =>
 
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new { error = "Došlo je do greške na serveru." });
+        await context.Response.WriteAsJsonAsync(new { error = "A server error occurred." });
     });
 });
 
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -185,6 +223,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<nekretnineapi.Hubs.ChatHub>("/hubs/chat");
 app.MapGet("/uvoz", async (AppDbContext db) =>
 {
     var putanja = @"C:\Users\Nemanja\Desktop\RS.txt";  

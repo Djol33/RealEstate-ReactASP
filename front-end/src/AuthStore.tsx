@@ -8,6 +8,8 @@ export type AuthUser = {
   lname: string;
   email: string;
   token: string;
+  userRole: number;
+  company: string | null;
 }
 
 export type AuthResponse = { code: number; message: string };
@@ -36,57 +38,31 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 
   const login = async (data) => {
-    let resp;
     try {
-      const response = ( axios.post('https://localhost:7154/api/LoginTEST', data))
-        .then((response) => {
+      const response = await axios.post('https://localhost:7154/api/LoginTEST', data);
+      const result = response.data;
 
-          if (response.data.token.code == 401) {
-            resp = {
-              code: 401,
-              message: 'Invalid email or password'
+      const loggedUser: AuthUser = {
+        id: result.id,
+        fname: result.firstName,
+        lname: result.lastName,
+        email: result.email,
+        token: result.token,
+        userRole: result.userRole,
+        company: result.company ?? null,
+      };
 
-            }
-          }
-          else {
-            response=response.data
-            setUser(a => (
-              {
-                id: response.id,
-                fname: response.fIrstName,
-                lname: response.lastName,
-                email: response.email,
-                token: response.token
+      setUser(loggedUser);
+      localStorage.setItem('user', JSON.stringify(loggedUser));
 
-              })
-            )
-
-
-            localStorage.setItem('user', JSON.stringify({
-              id: response.id,
-              fname: response.fIrstName,
-              lname: response.lastName,
-              email: response.email,
-              token: response.token
-            }))
-
-          }
-
-
-
-        });
-      if (resp) return resp;
-      return {
-        code: 200,
-        message: 'Login Successful'
-
+      return { code: 200, message: 'Login Successful' };
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        return { code: 401, message: 'Invalid email or password' };
       }
-
-
-    } catch (err) {
-      console.error('Fetch Error:', err);
+      console.error('Login error:', err);
+      return { code: 500, message: 'Login failed' };
     }
-
   };
 
 

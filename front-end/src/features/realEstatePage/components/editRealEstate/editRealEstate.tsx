@@ -18,6 +18,11 @@ interface FormFields {
 
 type FormErrors = Partial<Record<keyof FormFields, string>>;
 
+const MAX_IMAGES = 10;
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 type ImageItem =
   | { previewUrl: string; removed: boolean; serverId: number; isNew: false }
   | { previewUrl: string; removed: boolean; file: File; isNew: true };
@@ -41,6 +46,7 @@ export function EditRealEstate() {
   const [submitError, setSubmitError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<ImageItem[]>([]);
+  const [imageError, setImageError] = useState('');
 
   useEffect(() => {
     return () => {
@@ -96,16 +102,48 @@ export function EditRealEstate() {
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
+    setImageError('');
     if (!files || files.length === 0) return;
 
-    const newItems: ImageItem[] = Array.from(files).map(file => {
-      const url = URL.createObjectURL(file);
-      blobUrlsRef.current.push(url);
-      return { previewUrl: url, removed: false, file, isNew: true };
-    });
+    const selected = Array.from(files);
+    const rejected: string[] = [];
+    const accepted: File[] = [];
 
-    setImages(prev => [...prev, ...newItems]);
-    // reset input so same files can be re-added if needed
+    for (const file of selected) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        rejected.push(`${file.name} (invalid format)`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        rejected.push(`${file.name} (larger than ${MAX_IMAGE_SIZE_MB} MB)`);
+        continue;
+      }
+      accepted.push(file);
+    }
+
+    const currentCount = images.filter(img => !img.removed).length;
+    const freeSlots = MAX_IMAGES - currentCount;
+
+    let toAdd = accepted;
+    if (accepted.length > freeSlots) {
+      toAdd = accepted.slice(0, Math.max(freeSlots, 0));
+      const overflow = accepted.slice(Math.max(freeSlots, 0));
+      overflow.forEach(f => rejected.push(`${f.name} (image limit of ${MAX_IMAGES} reached)`));
+    }
+
+    if (toAdd.length > 0) {
+      const newItems: ImageItem[] = toAdd.map(file => {
+        const url = URL.createObjectURL(file);
+        blobUrlsRef.current.push(url);
+        return { previewUrl: url, removed: false, file, isNew: true };
+      });
+      setImages(prev => [...prev, ...newItems]);
+    }
+
+    if (rejected.length > 0) {
+      setImageError(`Skipped: ${rejected.join(', ')}.`);
+    }
+
     e.target.value = '';
   }
 
@@ -265,6 +303,8 @@ export function EditRealEstate() {
         <input type="file" multiple id="images" accept="image/jpeg, image/png, image/jpg"
           ref={fileInputRef} onChange={handleFileChange} />
         <label htmlFor="images" id="file">Add images</label>
+
+        {imageError && <span className="error">{imageError}</span>}
 
         <input id="predaj" type="submit"
           value={isLoading ? 'Saving...' : 'Save changes'}

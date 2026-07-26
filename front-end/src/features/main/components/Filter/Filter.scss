@@ -1,52 +1,160 @@
+.filter-fab {
+    display: none;
+}
+
 #filter-form {
-    width:30%;
+    width: 30%;
     box-sizing: border-box;
-    padding:14px;
-    
-    
-    .row{
-        margin-bottom:12px;
+    padding: 14px;
+    position: sticky;
+    top: 72px;
+    align-self: flex-start;
+
+    .row {
+        margin-bottom: 12px;
         width: 100%;
         position: relative;
-        label{
+
+        label {
             display: block;
             text-align: left;
-            margin-bottom:6px;
-            
-        }
-        input[type="text"],
-        select, input[type="number"], input[type=email], input[type=password]{
-            width: 100%;
-            padding:8px;}
-        
-        
-        }
-        .range{
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
-            input{
-                width:45%;
-            }
-        }
-        .options{
-            .option{
-                align-items: center;
-                display: flex;
-                gap:4px;
-                input,label{
-                    margin:0px;
-                    display: inline-block
-                }
-            };
-        }
-        .display-inline-block{
-            display: inline-block !important;
-            text-align: left;
-        }
-        .d-block{
-            display: block;
+            margin-bottom: 6px;
         }
 
+        input[type="text"],
+        select,
+        input[type="number"],
+        input[type=email],
+        input[type=password] {
+            width: 100%;
+            padding: 8px;
+        }
+    }
+
+    .range {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+
+        input {
+            width: 45%;
+        }
+    }
+
+    .options {
+        .option {
+            align-items: center;
+            display: flex;
+            gap: 4px;
+
+            input,
+            label {
+                margin: 0px;
+                display: inline-block;
+            }
+        }
+    }
+
+    .display-inline-block {
+        display: inline-block !important;
+        text-align: left;
+    }
+
+    .d-block {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-fab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #002356;
+        color: #fff;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        z-index: 210;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: #013a8f;
+        }
+    }
+
+    #filter-form {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        height: calc(100% - 56px);
+        width: 85%;
+        max-width: 320px;
+        background: #fff;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+        padding: 20px 20px 100px;
+        z-index: 200;
+        overflow-y: auto;
+
+        transform: translateX(-100%);
+        transition: transform 0.28s ease;
+
+        &.is-open {
+            transform: translateX(0);
+        }
+
+        .row {
+            margin-bottom: 18px;
+
+            label {
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: #002356;
+                margin-bottom: 8px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                border: 1px solid #cbd2dc;
+                border-radius: 8px;
+                padding: 10px;
+                font-size: 0.95rem;
+
+                &:focus {
+                    outline: none;
+                    border-color: #002356;
+                }
+            }
+        }
+
+        .options .option {
+            gap: 8px;
+
+            input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+            }
+
+            label {
+                margin: 0;
+                font-weight: 400;
+            }
+        }
+    }
+
+    .filter-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 190;
+    }
 }

@@ -40,7 +40,7 @@ namespace Implementation.Command
                 Name = request.Name,
                 Bip = request.BIP,
                 Location = "lokacija",
-                Logo= "url adresa neka"
+                Logo = request.Logo ?? string.Empty
             });
             try
             {
@@ -49,15 +49,13 @@ namespace Implementation.Command
             }
             catch (DbUpdateException e)
             {
-                if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx)
+                if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
+                    (sqlEx.Number == 2627 || sqlEx.Number == 2601))
                 {
-                    if (sqlEx.Number == 2627 || sqlEx.Number == 2601)
-                    {
-                        throw new ApplicationException("Email već postoji.");
-                    }
+                    throw new ApplicationException("Email already exists.");
                 }
 
-
+                throw;
             }
         }
     }

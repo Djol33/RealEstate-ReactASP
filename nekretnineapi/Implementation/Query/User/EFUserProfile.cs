@@ -30,13 +30,15 @@ namespace Implementation.Query.User
         }).FirstOrDefault(),
         UserCompany = x.Companies.Select(c => new UserCompanyDTO
         {
-            BIP = c.Bip
+            BIP = c.Bip,
+            Name = c.Name,
+            Logo = c.Logo
         }).FirstOrDefault()
     })
     .FirstOrDefault();
 
             if (profile == null)
-                throw new Exception();   // ili KeyNotFoundException
+                throw new KeyNotFoundException("Profile not found.");
 
             return profile;
         }

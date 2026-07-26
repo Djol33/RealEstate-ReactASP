@@ -18,7 +18,7 @@ public partial class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=BG-C-000MC\\SQLEXPRESS;Database=phpapp;Trusted_Connection=True;TrustServerCertificate=True;", x => x.UseNetTopologySuite());
+        optionsBuilder.UseSqlServer("Server=DESKTOP-F5TETT5;Database=phpapp;Trusted_Connection=True;TrustServerCertificate=True;", x => x.UseNetTopologySuite());
       
     }
 
@@ -64,8 +64,38 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Wishlist> Wishlists { get; set; }
 
+    public virtual DbSet<Message> Messages { get; set; }
+
+    public virtual DbSet<RealestateView> RealestateViews { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<RealestateView>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_realestate_view_id");
+
+            entity.ToTable("realestate_view", "phpapp");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ViewerKey).HasColumnName("viewer_key").HasMaxLength(64);
+            entity.Property(e => e.RealestateId).HasColumnName("realestate_id");
+            entity.Property(e => e.ViewedAt).HasColumnName("viewed_at");
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_message_id");
+
+            entity.ToTable("message", "phpapp");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.SenderId).HasColumnName("sender_id");
+            entity.Property(e => e.ReceiverId).HasColumnName("receiver_id");
+            entity.Property(e => e.Content).HasColumnName("content").HasMaxLength(2000);
+            entity.Property(e => e.SentAt).HasColumnName("sent_at");
+            entity.Property(e => e.IsRead).HasColumnName("is_read");
+        });
+
         modelBuilder.Entity<Checkbox>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_checkbox_id");

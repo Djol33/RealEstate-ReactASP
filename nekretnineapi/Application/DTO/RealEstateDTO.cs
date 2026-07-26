@@ -23,8 +23,14 @@ namespace Application.DTO
         public float NumberOfRooms { get; set; }
         public int? TypeObject { get; set; }
         public bool CanEdit { get; set; }
+        public bool CanDelete { get; set; }
+        public bool IsWishlisted { get; set; }
         public decimal? Lat { get; set; }
         public decimal? Lng { get; set; }
+        public int Owner { get; set; }
+        public string F_name { get; set; }
+        public string L_name { get; set; }
+        public string Email { get; set; }
     }
 
     public class Images

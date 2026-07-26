@@ -5,14 +5,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BasicData } from './../../../Register/components/Register/components/BasicData/BasicData';
 import { CompanyInfo } from './CompanyInfo/components/CompanyInfo/CompanyInfo';
 import { Location } from './../Location/components/Location/Location';
+import { CompanyLogo } from './CompanyLogo/CompanyLogo';
 import '../../../../Auth/auth.scss';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 const stepFields: Record<number, string[]> = {
   0: ['email', 'password'],
   1: ['companyName', 'bip'],
   2: ['address'],
+  3: [],
 };
 
 const fieldStepMap: Record<string, number> = {
@@ -25,6 +27,7 @@ export function RegisterCompany() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [serverError, setServerError] = useState('');
+  const [logo, setLogo] = useState<File | null>(null);
 
   const methods = useForm({
     defaultValues: { email: '', password: '', companyName: '', bip: '', address: '' },
@@ -57,7 +60,15 @@ export function RegisterCompany() {
   const onSubmit = async (data: any) => {
     setServerError('');
     try {
-      await axios.post('https://localhost:7154/api/RegisterCompany', data);
+      const payload = new FormData();
+      payload.append('email', data.email);
+      payload.append('password', data.password);
+      payload.append('companyName', data.companyName);
+      payload.append('bip', data.bip);
+      payload.append('address', data.address);
+      if (logo) payload.append('logo', logo);
+
+      await axios.post('https://localhost:7154/api/RegisterCompany', payload);
       navigate('/auth/login');
     } catch (err: any) {
       if (err.response?.status === 400 && Array.isArray(err.response.data)) {
@@ -90,6 +101,7 @@ export function RegisterCompany() {
             {step === 0 && <BasicData />}
             {step === 1 && <CompanyInfo />}
             {step === 2 && <Location />}
+            {step === 3 && <CompanyLogo onLogoSelected={setLogo} />}
 
             {serverError && <div className="server-error">{serverError}</div>}
 

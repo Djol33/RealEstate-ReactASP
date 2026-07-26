@@ -1,0 +1,22 @@
+.wishlist-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #b91c1c;
+  transition: transform 0.12s ease;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  .fa-regular {
+    color: #888;
+  }
+
+  &.is-saved .fa-solid {
+    color: #e11d48;
+  }
+}

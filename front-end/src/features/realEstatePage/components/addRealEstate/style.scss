@@ -16,7 +16,7 @@ form.estate-form{
         margin-bottom: 25px;
     }
     display: block;
-    width:400px;
+    width:min(400px, 92%);
     box-sizing: border-box;
     margin:0px auto;
     .error{
@@ -91,14 +91,13 @@ form.estate-form{
     input#predaj{
         width:fit-content;
         padding:5px 15px;
-        margin: 0px auto;
+        margin: 28px auto 20px;
         background-color: $blue;
         color:white;
         border:0px;
         display: block;
         border-radius: 25px;
         font-size: 1.2rem;
-        margin-bottom: 20px;
     }
 
     #image-preview-info{

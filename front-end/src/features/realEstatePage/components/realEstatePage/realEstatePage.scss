@@ -9,6 +9,13 @@ $lightgray:#f1f1f1;
     width:60%;
     margin:0px auto;
      text-align: left;
+
+    @media (max-width: 1100px){
+        width: 90%;
+    }
+    @media (max-width: 768px){
+        width: 92%;
+    }
         //margin:30px;
         box-sizing: border-box;
         padding:15px 0px;
@@ -103,10 +110,11 @@ $lightgray:#f1f1f1;
  
                 span.value{
                     background-color: transparent;
-                    width:min-content;
+                    width:auto;
                     height: min-content;
                     display: block;
                     margin:0px;
+                    white-space: nowrap;
                 }
                 span.header{
                     font-size: 1.1rem;
@@ -263,11 +271,84 @@ $lightgray:#f1f1f1;
                     cursor:pointer;
                     box-sizing: border-box;
                     color: white;
-                  
+
                    ; padding:15px;
                     background-color: $darkgray;
                 }
             }
         }
- 
+
+        .message-owner-btn{
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: $blue;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            &:hover{ opacity: 0.9; }
+        }
+
+        #holder_edit{
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+
+            .edit-btn{
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                color: $blue;
+                font-size: 1.4rem;
+                opacity: 0.75;
+                &:hover{ opacity: 1; }
+            }
+        }
+
+        @media (max-width: 768px){
+            #title{
+                font-size: 2rem;
+            }
+            #adress{
+                font-size: 1rem;
+            }
+            #price{
+                max-width: 100%;
+                border-radius: 10px;
+                #textprice{
+                    font-size: 1.5rem;
+                }
+            }
+            div#images{
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, 140px);
+                max-width: 100%;
+
+                .main{
+                    grid-column: 1 / span 2;
+                    grid-row: 1;
+                }
+                .sidebar1{ grid-column: 1; grid-row: 2; }
+                .sidebar2{ grid-column: 2; grid-row: 2; }
+                .sidebar3{ display: none; }
+            }
+            #basic_info{
+                flex-wrap: wrap;
+                gap: 10px;
+                span{
+                    width: calc(50% - 10px);
+                    height: 110px;
+                    margin-right: 0;
+                }
+            }
+            #aditionalDescription{
+                max-width: 100%;
+            }
+        }
         }

@@ -13,34 +13,34 @@ namespace nekretnineapi.Validators
             this.db = db;
 
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Naslov ne sme biti prazan.")
-                .MaximumLength(200).WithMessage("Naslov ne sme biti duži od 200 karaktera.");
+                .NotEmpty().WithMessage("Title cannot be empty.")
+                .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Opis ne sme biti prazan.")
-                .MinimumLength(20).WithMessage("Opis mora imati najmanje 20 karaktera.");
+                .NotEmpty().WithMessage("Description cannot be empty.")
+                .MinimumLength(20).WithMessage("Description must be at least 20 characters.");
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Cena mora biti veća od 0.");
+                .GreaterThan(0).WithMessage("Price must be greater than 0.");
 
             RuleFor(x => x.Area)
-                .GreaterThan(0).WithMessage("Površina mora biti veća od 0.");
+                .GreaterThan(0).WithMessage("Area must be greater than 0.");
 
             RuleFor(x => x.NumberOfRooms)
-                .GreaterThan(0).WithMessage("Broj soba mora biti veći od 0.");
+                .GreaterThan(0).WithMessage("Number of rooms must be greater than 0.");
 
             RuleFor(x => x.Address)
-                .NotEmpty().WithMessage("Adresa ne sme biti prazna.");
+                .NotEmpty().WithMessage("Address cannot be empty.");
 
             RuleFor(x => x.CityId)
-                .GreaterThan(0).WithMessage("Grad mora biti izabran.")
+                .GreaterThan(0).WithMessage("A city must be selected.")
                 .Must(cityId => db.Cities.Any(c => c.Id == cityId))
-                .WithMessage("Izabrani grad ne postoji.");
+                .WithMessage("Selected city does not exist.");
 
             RuleFor(x => x.TypeObjectId)
-                .GreaterThan(0).WithMessage("Tip objekta mora biti izabran.")
+                .GreaterThan(0).WithMessage("A property type must be selected.")
                 .Must(typeId => db.TipObjekta.Any(t => t.Id == typeId))
-                .WithMessage("Izabrani tip objekta ne postoji.");
+                .WithMessage("Selected property type does not exist.");
         }
     }
 }

@@ -1,0 +1,95 @@
+.admin-dashboard {
+  h1 {
+    font-size: 1.6rem;
+    color: #002356;
+    margin-bottom: 20px;
+  }
+
+  .stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #002356;
+      }
+      .stat-label {
+        font-size: 0.9rem;
+        color: #777;
+        margin-top: 4px;
+      }
+    }
+  }
+
+  .dashboard-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    h2 {
+      font-size: 1.2rem;
+      color: #002356;
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .top-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        .count {
+          font-weight: 600;
+          color: #002356;
+        }
+      }
+    }
+
+    .viewed-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        a {
+          color: #002356;
+          text-decoration: none;
+          font-weight: 600;
+          &:hover { text-decoration: underline; }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard .dashboard-cols {
+    grid-template-columns: 1fr;
+  }
+}

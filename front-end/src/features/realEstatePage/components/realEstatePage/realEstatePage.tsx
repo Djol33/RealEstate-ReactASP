@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import   './realEstatePage.scss';
 import axios from 'axios';
 import { Overlay } from '../../../../shared/components/Overlay/Overlay';
 import { ImageCarousel } from '../../../../shared/components/ImageCarousel/ImageCarousel';
 import { PropertyMap } from '../../../../shared/components/PropertyMap/PropertyMap';
+import { WishlistButton } from '../../../../shared/components/WishlistButton';
+import { DeleteRealEstateButton } from '../../../../shared/components/DeleteRealEstateButton';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../../../AuthStore';
 export interface realEstatePageProps {
   prop?: string;
 }
 
 export function RealEstatePage({params} ) {
-  const logged = false;
+  const { user } = useAuth();
+  const logged = !!user;
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false)
   const {id} = useParams();
   const [realEstate, setRealEstate] = useState<any>(null);
@@ -28,6 +34,14 @@ export function RealEstatePage({params} ) {
 
   },[])
 
+  useEffect(() => {
+    if (!id) return;
+    const timer = setTimeout(() => {
+      axios.post(`https://localhost:7154/api/RealEstateMain/${id}/view`).catch(() => {});
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [id]);
+
   function showImage(){
     setIsVisible(true);
   }
@@ -38,13 +52,7 @@ export function RealEstatePage({params} ) {
       {/* Title with wishlist */}
       <h1 id="title1">
         {realEstate.title}{" "}
-        {logged && (
-          <i
-            id="wishlist"
-            data-id={realEstate.id}
-            className={`${realEstate.wishlisted ? "fa-heart" : ""} icon-heart`}
-          ></i>
-        )}
+        <WishlistButton realestateId={realEstate.id} initialSaved={realEstate.isWishlisted} />
       </h1>
 
       {/* Address */}
@@ -79,7 +87,7 @@ export function RealEstatePage({params} ) {
       <div id="basic_info">
         <span>
           <span className="header">Area</span>
-          <span className="value"> {realEstate.area} <sup>2</sup></span>
+          <span className="value">{realEstate.area} m²</span>
         </span>
         <span>
           <span className="header">Balcony</span>
@@ -109,9 +117,13 @@ export function RealEstatePage({params} ) {
       {/* Owner info */}
       <div id="owner">
         <h1>
-          <a href={`userProfile?id=${realEstate.owner}`}>
-            {realEstate.f_name} {realEstate.l_name}
-          </a>
+          {logged ? (
+            <Link to={`/user/${realEstate.owner}`}>
+              {realEstate.f_name} {realEstate.l_name}
+            </Link>
+          ) : (
+            <span>{realEstate.f_name} {realEstate.l_name}</span>
+          )}
         </h1>
         {logged ? (
           <p>Email: <a href={`mailto:${realEstate.email}`}>{realEstate.email}</a></p>
@@ -125,16 +137,35 @@ export function RealEstatePage({params} ) {
             to see full email
           </p>
         )}
+        {logged && user?.id !== realEstate.owner && (
+          <button
+            type="button"
+            className="message-owner-btn"
+            onClick={() => navigate(`/messages/${realEstate.owner}`)}
+          >
+            <i className="fa-solid fa-envelope" /> Send message
+          </button>
+        )}
       </div>
 
-      {/* Edit/Delete for owner */}
-      {logged && realEstate.ownerId === logged.id && (
+      {/* Edit/Delete for owner or admin */}
+      {(realEstate.canEdit || realEstate.canDelete) && (
         <div id="holder_edit">
-          <form action="deleteRealEstate" method="POST">
-            <input type="hidden" name="id_post" value={realEstate.id} />
-            <input type="submit" id="submit" value="DELETE" />
-          </form>
-          <a href={`editRealEstate?id=${realEstate.id}`}>EDIT</a>
+          {realEstate.canEdit && (
+            <button
+              type="button"
+              className="edit-btn"
+              title="Edit"
+              onClick={() => navigate(`/apartment/edit/${realEstate.id}`)}
+            >
+              <i className="fa-solid fa-pencil" />
+            </button>
+          )}
+          <DeleteRealEstateButton
+            realestateId={realEstate.id}
+            canDelete={realEstate.canDelete}
+            onDeleted={() => navigate('/')}
+          />
         </div>
       )}
 

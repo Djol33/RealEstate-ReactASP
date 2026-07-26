@@ -12,6 +12,7 @@ export interface FilterProps {
 
 export function Filter({ setPagedResult, page }: FilterProps) {
   const [city, setCity] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
   const [typeObject, setTYPEoBJECT] = useState<{ id: number; naziv: string }[]>([])
   const [formav, setForma] = useState({
     select:0,
@@ -50,12 +51,17 @@ setForma(prev => {
 }
   useEffect(()=>{
 axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
-  
+
       setTYPEoBJECT(response.data);
 
 
     })
   }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = filterOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [filterOpen]);
   useEffect(() => {
     const queryParams = [];
     if (formav.city.length) queryParams.push('city=' + formav.city.map(x => x.id).join(','));
@@ -93,7 +99,22 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
 
   }
   return <>
-    <form id="filter-form" action="">
+    <button
+      type="button"
+      className={`filter-fab ${filterOpen ? 'is-open' : ''}`}
+      onClick={() => setFilterOpen(o => !o)}
+      aria-label={filterOpen ? 'Close filters' : 'Open filters'}
+    >
+      {filterOpen
+        ? <i className="fa-solid fa-xmark" />
+        : <i className="fa-solid fa-filter" />}
+    </button>
+
+    {filterOpen && (
+      <div className="filter-backdrop" onClick={() => setFilterOpen(false)} />
+    )}
+
+    <form id="filter-form" className={filterOpen ? 'is-open' : ''} action="">
       <div className="row">
             <label >City</label>
 <InputWithOptions name="city" id="city" setCity={setForma} selectedCity={formav}  /> 

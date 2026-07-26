@@ -44,11 +44,17 @@ namespace Implementation.Query.RealEstate
                         Location = x.Location
                     }).ToList(),
                     CanEdit = a.Owner == actor.Id ,
+                    CanDelete = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
+                    IsWishlisted = a.Wishlists.Any(w => w.UserId == actor.Id),
                     Lng = a.Lng ?? null,
-                    Lat = a.Lat ??null
+                    Lat = a.Lat ??null,
+                    Owner = a.Owner,
+                    Email = db.Users.Where(u => u.Id == a.Owner).Select(u => u.Email).FirstOrDefault(),
+                    F_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.FirstName).FirstOrDefault(),
+                    L_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.LastName).FirstOrDefault()
                 })
                 .FirstOrDefault()
-                ?? throw new KeyNotFoundException("Nekretnina nije pronađena.");
+                ?? throw new KeyNotFoundException("Listing not found.");
 
             return realestate;
         }

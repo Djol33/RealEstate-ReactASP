@@ -4,6 +4,8 @@ import './Main.scss';
 import { ListRealEstate } from '../ListRealEstate/ListRealEstate';
 import { Suspense } from 'react';
 import { Placeholder } from '../../../../shared/components/Placeholder/Placeholder';
+import { RecommendationShelf } from '../RecommendationShelf/RecommendationShelf';
+import { useAuth } from '../../../../AuthStore';
 
 interface PagedResult {
   data: any[];
@@ -13,6 +15,7 @@ interface PagedResult {
 }
 
 export function Main() {
+  const { user } = useAuth();
   const [listResult, setListResult] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -24,6 +27,14 @@ export function Main() {
 
   return (
     <>
+      {user && (
+        <RecommendationShelf title="Preporučeno za vas" endpoint="/api/Recommendations/for-you" />
+      )}
+      {user && (
+        <RecommendationShelf title="Nedavno ste gledali" endpoint="/api/Recommendations/recently-viewed" />
+      )}
+      <RecommendationShelf title="Najgledanije" endpoint="/api/Recommendations/trending" />
+
       <div className="wrapper">
         <Filter setPagedResult={handlePagedResult} page={page} />
         <Suspense fallback={<Placeholder />}>

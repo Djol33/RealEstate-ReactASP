@@ -16,15 +16,17 @@ export function ImageCarousel({imageArray} ) {
   function next() {
     setCount(i => (i + 1) % imageArray.length);
   }
-  return <div className='wrap-parent'>  
+  return <div className='wrap-parent'>
     <i onClick={prev} className="fa-solid fa-angle-left arr"></i>
 
-     {imageArray && imageArray.length > 0 ? (
-      <img  src={'https://localhost:7154/'+imageArray[count].location} alt="Real estate" />
-    ) : (
-      <p>Slika se učitava...</p>
-      
-    )}
+    <div className="image-stage">
+      {imageArray && imageArray.length > 0 ? (
+        <img src={'https://localhost:7154/'+imageArray[count].location} alt="Real estate" />
+      ) : (
+        <p>Loading image...</p>
+      )}
+    </div>
+
     <i onClick={next} className="fa-solid fa-angle-right arr" ></i>
     </div>
 }

@@ -6,6 +6,7 @@ using Application.Query;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.DTO;
+using nekretnineapi.Services;
 
 namespace nekretnineapi.Controllers
 {
@@ -14,12 +15,12 @@ namespace nekretnineapi.Controllers
     public class RealEstateMain : ControllerBase
     {
         private readonly UseCaseExecutor executor;
-        private readonly IWebHostEnvironment env;
+        private readonly ImageStorageService imageStorage;
 
-        public RealEstateMain(UseCaseExecutor executor, IWebHostEnvironment env)
+        public RealEstateMain(UseCaseExecutor executor, ImageStorageService imageStorage)
         {
             this.executor = executor;
-            this.env = env;
+            this.imageStorage = imageStorage;
         }
 
         [AllowAnonymous]
@@ -35,12 +36,13 @@ namespace nekretnineapi.Controllers
         [Authorize]
         [HttpPost]
         [Consumes("multipart/form-data")]
+        [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
         public IActionResult Post(
             [FromForm] AddRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
             [FromServices] IAddRealestate service)
         {
-            var imagePaths = SaveImages(images);
+            var imagePaths = imageStorage.Save(images);
 
             var dto = new AddRealestateDTO
             {
@@ -63,13 +65,14 @@ namespace nekretnineapi.Controllers
         [Authorize]
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
+        [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
         public IActionResult Put(
             long id,
             [FromForm] EditRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
             [FromServices] IEditRealestate service)
         {
-            var imagePaths = SaveImages(images);
+            var imagePaths = imageStorage.Save(images);
 
             var dto = new EditRealestateDTO
             {
@@ -90,21 +93,20 @@ namespace nekretnineapi.Controllers
             return NoContent();
         }
 
-        private List<string> SaveImages(List<IFormFile> images)
+        [Authorize]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id, [FromServices] IDeleteRealestate service)
         {
-            var paths = new List<string>();
-            if (images == null || !images.Any()) return paths;
+            executor.ExecuteCommand(service, id);
+            return NoContent();
+        }
 
-            var uploadsFolder = Path.Combine(env.ContentRootPath, "uploads");
-            foreach (var file in images)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using var stream = new FileStream(filePath, FileMode.Create);
-                file.CopyTo(stream);
-                paths.Add("images/" + fileName);
-            }
-            return paths;
+        [AllowAnonymous]
+        [HttpPost("{id}/view")]
+        public IActionResult TrackView(long id, [FromServices] ITrackView service)
+        {
+            executor.ExecuteCommand(service, id);
+            return NoContent();
         }
     }
 }

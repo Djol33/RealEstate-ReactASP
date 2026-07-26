@@ -1,0 +1,46 @@
+.edit-profile-card {
+  .ecf-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .ecf-logo-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #e0e0e0;
+    }
+
+    .ecf-logo-placeholder {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #999;
+      text-align: center;
+      border: 1px dashed #cbd2dc;
+    }
+
+    .ecf-logo-btn {
+      background: #eaf0fa;
+      color: #002356;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+
+      &:hover {
+        background: #d8e3f5;
+      }
+
+      input {
+        display: none;
+      }
+    }
+  }
+}

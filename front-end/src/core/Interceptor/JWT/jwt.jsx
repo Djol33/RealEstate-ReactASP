@@ -17,8 +17,11 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const stored = localStorage.getItem('user');
-      if (!stored) {
+      const wasLoggedIn = !!localStorage.getItem('user');
+      localStorage.removeItem('user');
+
+      const onAuthPage = window.location.pathname.startsWith('/auth');
+      if (wasLoggedIn && !onAuthPage) {
         window.location.href = '/auth/login';
       }
     }

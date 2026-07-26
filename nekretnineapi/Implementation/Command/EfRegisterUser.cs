@@ -53,7 +53,7 @@ namespace Implementation.Command
                 {
                     if (sqlEx.Number == 2627 || sqlEx.Number == 2601)
                     {
-                        throw new ApplicationException("Email već postoji.");
+                        throw new ApplicationException("Email already exists.");
                     }
                 }
 

@@ -4,6 +4,7 @@ using Application.DTO.Command;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.DTO;
+using nekretnineapi.Services;
 
 namespace nekretnineapi.Controllers
 {
@@ -12,17 +13,18 @@ namespace nekretnineapi.Controllers
     public class RealEstateEdit : ControllerBase
     {
         private readonly UseCaseExecutor executor;
-        private readonly IWebHostEnvironment env;
+        private readonly ImageStorageService imageStorage;
 
-        public RealEstateEdit(UseCaseExecutor executor, IWebHostEnvironment env)
+        public RealEstateEdit(UseCaseExecutor executor, ImageStorageService imageStorage)
         {
             this.executor = executor;
-            this.env = env;
+            this.imageStorage = imageStorage;
         }
 
         [Authorize]
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
+        [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
         public IActionResult Put(
             long id,
             [FromForm] EditRealestateRequest request,
@@ -30,17 +32,7 @@ namespace nekretnineapi.Controllers
             [FromForm(Name = "existingImageIds[]")] List<long> existingImageIds,
             [FromServices] IEditRealestate service)
         {
-            var uploadsFolder = Path.Combine(env.ContentRootPath, "uploads");
-            var newImagePaths = new List<string>();
-
-            foreach (var file in images ?? new List<IFormFile>())
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using var stream = new FileStream(filePath, FileMode.Create);
-                file.CopyTo(stream);
-                newImagePaths.Add("images/" + fileName);
-            }
+            var newImagePaths = imageStorage.Save(images);
 
             var dto = new EditRealestateDTO
             {

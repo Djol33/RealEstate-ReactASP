@@ -71,7 +71,9 @@ namespace Implementation.Query
                     Adress = x.Adress,
                     NumberOfRooms = x.NumberOfRooms,
                     CityId = x.City,
-                    CanEdit = x.Owner == actor.Id
+                    CanEdit = x.Owner == actor.Id,
+                    CanDelete = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
+                    IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)
                 })
                 .ToList();
 

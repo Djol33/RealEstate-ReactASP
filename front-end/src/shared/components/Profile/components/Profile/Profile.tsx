@@ -1,65 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../../../../AuthStore'; 
-import { Link, useLocation } from 'react-router-dom';
-import "./Profile.scss";
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../../../../../AuthStore';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import './Profile.scss';
+
 export function Profile() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
- 
   const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-   const location = useLocation();
-  const toggleDropdown = () => {
-    setIsOpen(prev => !prev);
-  };
-  useEffect(()=>{
-    if(user == null)  setIsOpen(X=>false)
-  },[user])
-  useEffect(()=>{
-   setIsOpen(X=>false)
-  },[location])
+  const toggleDropdown = () => setIsOpen((prev) => !prev);
+  const close = () => setIsOpen(false);
+
+  useEffect(() => {
+    if (user == null) setIsOpen(false);
+  }, [user]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setIsOpen(false);
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [isOpen]);
+
+  if (!user) return null;
+
   return (
-    <div style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}>
-      <div onClick={toggleDropdown} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-        {user && <Link to="user/profile" style={{ textDecoration:"none",color:"white" }}>{user.fname} {user.lname}</Link>} 
-        <span
-          style={{
-            display: 'inline-block',
-            transition: 'transform 0.3s',
-            transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)'
-          }}
-        >
-         {user &&  <i className="fa-solid fa-caret-right"></i>}
+    <div className="profile-menu" ref={rootRef}>
+      <button
+        type="button"
+        className={`profile-trigger ${isOpen ? 'is-open' : ''}`}
+        onClick={toggleDropdown}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+      >
+        <span className="profile-name">
+          {user.company
+            ? user.company
+            : (user.fname || user.lname)
+              ? `${user.fname ?? ''} ${user.lname ?? ''}`.trim()
+              : user.email}
         </span>
-      </div>
+        <i className="fa-solid fa-chevron-down profile-caret" />
+      </button>
 
-
-      {   isOpen&& (
-        <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: "8px",
-            background: 'white',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-            padding: '10px',
-            zIndex: 10,
-            display:"flex",
-            flexDirection:"column",
-            alignItems:"flex-start",
-            justifyContent:"center",
-            color:"black",
-           
+      <div className={`profile-dropdown ${isOpen ? 'is-open' : ''}`}>
+        <Link to="/user/profile" className="profile-item" onClick={close}>
+          <i className="fa-solid fa-user" /> Profil
+        </Link>
+        <button
+          type="button"
+          className="profile-item"
+          onClick={() => {
+            close();
+            logout();
+            navigate('/');
           }}
         >
-         {user && <div onClick={logout} style={{ cursor: 'pointer' }}>Logout</div>}
-                  {user && <div onClick={logout} style={{ cursor: 'pointer' }}>Edit Profile</div>}
-           {!user && <Link onClick={toggleDropdown} to="/auth/login">Login</Link>}
-             {!user && <Link onClick={toggleDropdown} to="/">Register</Link>}
-        </div>
-      )}
+          <i className="fa-solid fa-right-from-bracket" /> Odjava
+        </button>
+      </div>
     </div>
   );
 }

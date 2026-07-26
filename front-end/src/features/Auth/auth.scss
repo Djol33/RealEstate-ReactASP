@@ -4,7 +4,7 @@ $lightgray: #f1f1f1;
 $red: #e74c3c;
 
 .auth-card {
-  width: 420px;
+  width: min(420px, 92%);
   margin: 60px auto;
   border-radius: 16px;
   box-shadow: 0 4px 28px rgba(0, 0, 0, 0.12);

@@ -8,7 +8,6 @@
 
 }
 
-
 .list-real-estate-row a{
 
             width:100%;
@@ -16,6 +15,18 @@
 
         margin-bottom:16px;
 
- 
+
 gap:16px;
+}
+
+@media (max-width: 768px) {
+    .list-real-estate-row{
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .list-real-estate-row a{
+        height: auto;
+    }
 }

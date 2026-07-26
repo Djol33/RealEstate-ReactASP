@@ -24,6 +24,11 @@ interface PreviewImage {
   enabled: boolean;
 }
 
+const MAX_IMAGES = 10;
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 export function AddRealEstate() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +50,7 @@ export function AddRealEstate() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState('');
+  const [imageError, setImageError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
@@ -81,20 +87,50 @@ export function AddRealEstate() {
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    blobUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-    if (!files || files.length === 0) {
-      blobUrlsRef.current = [];
-      setPreviewImages([]);
-      return;
+    setImageError('');
+    if (!files || files.length === 0) return;
+
+    const selected = Array.from(files);
+    const rejected: string[] = [];
+    const accepted: File[] = [];
+
+    for (const file of selected) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        rejected.push(`${file.name} (invalid format)`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        rejected.push(`${file.name} (larger than ${MAX_IMAGE_SIZE_MB} MB)`);
+        continue;
+      }
+      accepted.push(file);
     }
-    const newImages: PreviewImage[] = Array.from(files).map(file => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      enabled: true,
-    }));
-    blobUrlsRef.current = newImages.map(img => img.previewUrl);
-    setPreviewImages(newImages);
-    setPreviewIndex(0);
+
+    const currentCount = previewImages.filter(img => img.enabled).length;
+    const freeSlots = MAX_IMAGES - currentCount;
+
+    let toAdd = accepted;
+    if (accepted.length > freeSlots) {
+      toAdd = accepted.slice(0, Math.max(freeSlots, 0));
+      const overflow = accepted.slice(Math.max(freeSlots, 0));
+      overflow.forEach(f => rejected.push(`${f.name} (image limit of ${MAX_IMAGES} reached)`));
+    }
+
+    if (toAdd.length > 0) {
+      const newImages: PreviewImage[] = toAdd.map(file => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+        enabled: true,
+      }));
+      blobUrlsRef.current.push(...newImages.map(img => img.previewUrl));
+      setPreviewImages(prev => [...prev, ...newImages]);
+    }
+
+    if (rejected.length > 0) {
+      setImageError(`Skipped: ${rejected.join(', ')}.`);
+    }
+
+    e.target.value = '';
   }
 
   function toggleImage(visibleIndex: number) {
@@ -125,28 +161,28 @@ export function AddRealEstate() {
     const newErrors: FormErrors = {};
 
     if (!formData.title.trim() || formData.title.trim().length < 3) {
-      newErrors.title = 'Naslov mora imati najmanje 3 karaktera.';
+      newErrors.title = 'Title must be at least 3 characters.';
     }
     if (!formData.cityId) {
-      newErrors.cityId = 'Odaberite grad.';
+      newErrors.cityId = 'Select a city.';
     }
     if (!formData.address.trim()) {
-      newErrors.address = 'Adresa je obavezna.';
+      newErrors.address = 'Address is required.';
     }
     if (!formData.typeObjectId) {
-      newErrors.typeObjectId = 'Odaberite tip objekta.';
+      newErrors.typeObjectId = 'Select a property type.';
     }
     const rooms = parseFloat(formData.numberOfRooms);
     if (!formData.numberOfRooms || isNaN(rooms) || rooms < 0.5 || rooms > 10) {
-      newErrors.numberOfRooms = 'Broj soba mora biti između 0.5 i 10.';
+      newErrors.numberOfRooms = 'Number of rooms must be between 0.5 and 10.';
     }
     const area = parseFloat(formData.area);
     if (!formData.area || isNaN(area) || area <= 0) {
-      newErrors.area = 'Kvadratura mora biti pozitivan broj.';
+      newErrors.area = 'Area must be a positive number.';
     }
     const price = parseFloat(formData.price);
     if (!formData.price || isNaN(price) || price < 0) {
-      newErrors.price = 'Cena mora biti pozitivan broj.';
+      newErrors.price = 'Price must be a positive number.';
     }
 
     setErrors(newErrors);
@@ -181,11 +217,11 @@ export function AddRealEstate() {
       navigate('/');
     } catch (err: any) {
       if (err.response?.status === 400) {
-        setSubmitError('Proverite unete podatke i pokušajte ponovo.');
+        setSubmitError('Please check your data and try again.');
       } else if (err.response?.status === 401) {
-        setSubmitError('Morate biti prijavljeni da dodate oglas.');
+        setSubmitError('You must be logged in to add a listing.');
       } else {
-        setSubmitError('Greška pri dodavanju nekretnine. Pokušajte ponovo.');
+        setSubmitError('Error adding listing. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -198,7 +234,7 @@ export function AddRealEstate() {
   return (
     <div>
       <form className="estate-form" onSubmit={handleSubmit} encType="multipart/form-data">
-        <h1>Dodaj nekretninu</h1>
+        <h1>Add listing</h1>
 
         {submitError && <div id="error"><span className="error">{submitError}</span></div>}
 
@@ -215,7 +251,7 @@ export function AddRealEstate() {
 
         <label htmlFor="city">Select city</label>
         <select name="cityId" id="city" value={formData.cityId} onChange={handleChange}>
-          <option value="">-- Odaberite grad --</option>
+          <option value="">-- Select a city --</option>
           {city.map((a) => (
             <option key={a.id} value={a.id}>{a.cityName}</option>
           ))}
@@ -235,7 +271,7 @@ export function AddRealEstate() {
 
         <label htmlFor="tipObjekta">Type Of Building</label>
         <select name="typeObjectId" id="tipObjekta" value={formData.typeObjectId} onChange={handleChange}>
-          <option value="">-- Odaberite tip --</option>
+          <option value="">-- Select a type --</option>
           {typeObject.map((el) => (
             <option key={el.id} value={el.id}>{el.naziv}</option>
           ))}
@@ -324,6 +360,8 @@ export function AddRealEstate() {
         />
         <label htmlFor="images" id="file">Add images</label>
 
+        {imageError && <span className="error">{imageError}</span>}
+
         {visibleImages.length > 0 && (
           <div id="image-preview-info">
             <button type="button" id="preview-btn" onClick={() => setPreviewVisible(true)}>
@@ -335,7 +373,7 @@ export function AddRealEstate() {
         <input
           id="predaj"
           type="submit"
-          value={isLoading ? "Slanje..." : "Submit"}
+          value={isLoading ? "Sending..." : "Submit"}
           disabled={isLoading}
         />
       </form>
