@@ -68,8 +68,29 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<RealestateView> RealestateViews { get; set; }
 
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_password_reset_token_id");
+
+            entity.ToTable("password_reset_token", "phpapp");
+
+            entity.HasIndex(e => e.TokenHash, "IX_password_reset_token_hash");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.TokenHash).HasMaxLength(128).HasColumnName("token_hash");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime").HasColumnName("expires_at");
+            entity.Property(e => e.UsedAt).HasColumnType("datetime").HasColumnName("used_at");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+        });
+
         modelBuilder.Entity<RealestateView>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_realestate_view_id");

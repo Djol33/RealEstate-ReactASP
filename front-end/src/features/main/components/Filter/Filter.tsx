@@ -8,9 +8,10 @@ export interface FilterProps {
   prop?: string;
   setPagedResult: (paged: { data: any[]; currentPage: number; totalPages: number; totalCount: number }) => void;
   page: number;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
-export function Filter({ setPagedResult, page }: FilterProps) {
+export function Filter({ setPagedResult, page, onLoadingChange }: FilterProps) {
   const [city, setCity] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [typeObject, setTYPEoBJECT] = useState<{ id: number; naziv: string }[]>([])
@@ -71,6 +72,7 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
     if (formav.typeObject !== null) queryParams.push(`typeObject=${formav.typeObject}`);
     queryParams.push(`page=${page}`);
 
+    onLoadingChange?.(true);
     axios.get(`https://localhost:7154/api/RealEstateMain?${queryParams.join('&')}`).then((response) => {
       const paged = response.data;
       setPagedResult({
@@ -79,6 +81,8 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
         totalPages: paged.totalPages ?? paged.TotalPages ?? 1,
         totalCount: paged.totalCount ?? paged.TotalCount ?? 0,
       });
+    }).finally(() => {
+      onLoadingChange?.(false);
     });
   }, [formav, page]);
   function handleChange(e) {

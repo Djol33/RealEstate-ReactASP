@@ -60,6 +60,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       if (err.response?.status === 401) {
         return { code: 401, message: 'Invalid email or password' };
       }
+      if (err.response?.status === 403) {
+        return { code: 403, message: err.response?.data?.error ?? 'This account has been deactivated.' };
+      }
       console.error('Login error:', err);
       return { code: 500, message: 'Login failed' };
     }

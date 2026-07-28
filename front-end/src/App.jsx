@@ -2,6 +2,8 @@ import "./App.scss";
 import { Main } from "./features/main/components/Main/Main";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Login from "./features/Auth/Login/components/Login/Login";
+import ForgotPassword from "./features/Auth/ForgotPassword/components/ForgotPassword/ForgotPassword";
+import ResetPassword from "./features/Auth/ResetPassword/components/ResetPassword/ResetPassword";
 import { RealEstatePage } from "./features/realEstatePage/components/realEstatePage/realEstatePage";
 import { RegisterUser } from "./features/Auth/Register/components/Register/Register";
 import { Header } from "./shared/components/Header/Header";
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "/reset-password",
+        element: <ResetPassword />,
       },
       { path: "/realestate/:id", element: <RealEstatePage /> },
       { path: "/messages", element: <Messages /> },

@@ -1,0 +1,132 @@
+import { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import '../../../../../features/Auth/auth.scss';
+
+type Inputs = {
+  Password: string;
+  Confirm: string;
+};
+
+export default function ResetPassword() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const token = params.get('token') ?? '';
+  const [serverError, setServerError] = useState('');
+  const [done, setDone] = useState(false);
+
+  const {
+    handleSubmit,
+    register,
+    watch,
+    formState: { errors, touchedFields, isValid, isSubmitting },
+  } = useForm<Inputs>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
+
+  const password = watch('Password');
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    setServerError('');
+    try {
+      await axios.post('https://localhost:7154/api/password/reset', {
+        token,
+        newPassword: data.Password,
+      });
+      setDone(true);
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err: any) {
+      const first = err.response?.data?.errors?.[0];
+      setServerError(first?.error ?? 'Could not reset password. The link may have expired.');
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Invalid link</h2>
+          <p>This reset link is missing or malformed.</p>
+        </div>
+        <div className="auth-footer">
+          <Link to="/forgot-password">Request a new link</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (done) {
+    return (
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Password updated</h2>
+          <p>You can now log in with your new password. Redirecting...</p>
+        </div>
+        <div className="auth-footer">
+          <Link to="/login">Go to login</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-card">
+      <div className="auth-header">
+        <h2>Set a new password</h2>
+        <p>Choose a strong password</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="auth-body">
+          <div className="auth-field">
+            <label htmlFor="Password">New password</label>
+            <input
+              id="Password"
+              type="password"
+              placeholder="At least 6 characters"
+              className={touchedFields.Password && errors.Password ? 'has-error' : ''}
+              {...register('Password', {
+                required: 'Password is required.',
+                minLength: { value: 6, message: 'Password must be at least 6 characters.' },
+              })}
+            />
+            {touchedFields.Password && errors.Password && (
+              <span className="field-error">{errors.Password.message}</span>
+            )}
+          </div>
+
+          <div className="auth-field">
+            <label htmlFor="Confirm">Confirm password</label>
+            <input
+              id="Confirm"
+              type="password"
+              placeholder="Repeat password"
+              className={touchedFields.Confirm && errors.Confirm ? 'has-error' : ''}
+              {...register('Confirm', {
+                required: 'Please confirm your password.',
+                validate: (v) => v === password || 'Passwords do not match.',
+              })}
+            />
+            {touchedFields.Confirm && errors.Confirm && (
+              <span className="field-error">{errors.Confirm.message}</span>
+            )}
+          </div>
+
+          {serverError && <div className="server-error">{serverError}</div>}
+
+          <div className="auth-actions">
+            <button type="submit" className="btn-primary" disabled={!isValid || isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Reset password'}
+            </button>
+          </div>
+        </div>
+
+        <div className="auth-footer">
+          <Link to="/login">Back to login</Link>
+        </div>
+      </form>
+    </div>
+  );
+}

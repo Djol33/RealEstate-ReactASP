@@ -7,6 +7,7 @@ namespace Application.DTO.Admin
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int UserRole { get; set; }
+        public bool IsActive { get; set; }
         public int RealEstateCount { get; set; }
     }
 }

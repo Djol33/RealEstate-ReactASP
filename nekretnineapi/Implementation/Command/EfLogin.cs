@@ -37,6 +37,7 @@ namespace Implementation.Command
                     x.Email,
                     x.Password,
                     x.UserRole,
+                    x.IsActive,
                     FirstName = x.UserBasics.Select(b => b.FirstName).FirstOrDefault(),
                     LastName = x.UserBasics.Select(b => b.LastName).FirstOrDefault(),
                     Company = x.Companies.Select(c => c.Name).FirstOrDefault(),
@@ -47,10 +48,11 @@ namespace Implementation.Command
                 throw new InvalidCredentialsException();    
 
             var ok = passwordHasher.Verify(request.Password, user.Password);
-            Console.WriteLine(request.Password);
-            Console.WriteLine(user.Password);
             if (!ok)
                 throw new InvalidCredentialsException();
+
+            if (user.IsActive != 1)
+                throw new AccountDeactivatedException();
 
             var token = tokenFactory.Create(user.Id, user.Email, user.UserRole);
 

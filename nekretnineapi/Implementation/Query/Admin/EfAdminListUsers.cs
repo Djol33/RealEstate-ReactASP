@@ -25,6 +25,7 @@ namespace Implementation.Query.Admin
                     Id = u.Id,
                     Email = u.Email,
                     UserRole = u.UserRole,
+                    IsActive = u.IsActive == 1,
                     FirstName = u.UserBasics.Select(b => b.FirstName).FirstOrDefault(),
                     LastName = u.UserBasics.Select(b => b.LastName).FirstOrDefault(),
                     RealEstateCount = db.Realestates.Count(r => r.Owner == u.Id)

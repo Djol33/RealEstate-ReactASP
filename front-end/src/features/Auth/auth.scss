@@ -104,6 +104,21 @@ border-radius: 25px;
       font-size: 0.78rem;
       margin: 4px 0 0 10px;
     }
+
+    .auth-forgot {
+      text-align: right;
+      margin-top: 10px;
+
+      a {
+        color: $blue;
+        font-size: 0.82rem;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
   }
 
   .auth-actions {

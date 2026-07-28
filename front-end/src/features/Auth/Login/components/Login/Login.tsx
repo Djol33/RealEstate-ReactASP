@@ -29,6 +29,7 @@ export default function Login() {
     try {
       const res = await login(data);
       if (res?.code === 401) setServerError('Invalid email or password.');
+      else if (res?.code === 403) setServerError(res.message);
       else if (res?.code === 200) navigate('/');
       else setServerError('Login failed. Please try again.');
     } catch {
@@ -80,6 +81,10 @@ export default function Login() {
           </div>
 
           {serverError && <div className="server-error">{serverError}</div>}
+
+          <div className="auth-forgot">
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
 
           <div className="auth-actions">
             <button

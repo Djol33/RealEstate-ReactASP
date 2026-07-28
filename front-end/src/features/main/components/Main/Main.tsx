@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Filter } from '../Filter/Filter';
 import './Main.scss';
 import { ListRealEstate } from '../ListRealEstate/ListRealEstate';
-import { Suspense } from 'react';
 import { Placeholder } from '../../../../shared/components/Placeholder/Placeholder';
 import { RecommendationShelf } from '../RecommendationShelf/RecommendationShelf';
 import { useAuth } from '../../../../AuthStore';
@@ -19,6 +18,7 @@ export function Main() {
   const [listResult, setListResult] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   function handlePagedResult(paged: PagedResult) {
     setListResult(paged.data);
@@ -28,18 +28,18 @@ export function Main() {
   return (
     <>
       {user && (
-        <RecommendationShelf title="Preporučeno za vas" endpoint="/api/Recommendations/for-you" />
+        <RecommendationShelf title="Recommended for you" endpoint="/api/Recommendations/for-you" />
       )}
       {user && (
-        <RecommendationShelf title="Nedavno ste gledali" endpoint="/api/Recommendations/recently-viewed" />
+        <RecommendationShelf title="Recently viewed" endpoint="/api/Recommendations/recently-viewed" />
       )}
-      <RecommendationShelf title="Najgledanije" endpoint="/api/Recommendations/trending" />
+      <RecommendationShelf title="Most viewed" endpoint="/api/Recommendations/trending" />
 
       <div className="wrapper">
-        <Filter setPagedResult={handlePagedResult} page={page} />
-        <Suspense fallback={<Placeholder />}>
-          <ListRealEstate listResult={listResult} />
-        </Suspense>
+        <Filter setPagedResult={handlePagedResult} page={page} onLoadingChange={setLoading} />
+        {loading
+          ? <Placeholder />
+          : <ListRealEstate listResult={listResult} />}
       </div>
 
       {totalPages > 1 && (

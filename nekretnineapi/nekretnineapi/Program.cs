@@ -147,6 +147,14 @@ builder.Services.AddScoped<Application.Query.Admin.IAdminListUsers, Implementati
 builder.Services.AddScoped<Application.Query.Admin.IAdminStats, Implementation.Query.Admin.EfAdminStats>();
 builder.Services.AddScoped<Application.Command.Admin.IAdminDeleteUser, Implementation.Command.Admin.EfAdminDeleteUser>();
 builder.Services.AddScoped<Application.Command.Admin.IAdminSetRole, Implementation.Command.Admin.EfAdminSetRole>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminEditUser, Implementation.Command.Admin.EfAdminEditUser>();
+
+var emailSettings = builder.Configuration.GetSection(nekretnineapi.Services.EmailSettings.SectionName)
+    .Get<nekretnineapi.Services.EmailSettings>() ?? new nekretnineapi.Services.EmailSettings();
+builder.Services.AddSingleton(emailSettings);
+builder.Services.AddSingleton<Application.Email.IEmailSender, nekretnineapi.Services.SmtpEmailSender>();
+builder.Services.AddScoped<Application.Command.IRequestPasswordReset, Implementation.Command.EfRequestPasswordReset>();
+builder.Services.AddScoped<Application.Command.IResetPassword, Implementation.Command.EfResetPassword>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 
@@ -171,6 +179,14 @@ app.UseExceptionHandler(appError =>
         if (ex is InvalidCredentialsException)
         {
             context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            return;
+        }
+
+        if (ex is AccountDeactivatedException)
+        {
+            context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             return;

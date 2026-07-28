@@ -35,9 +35,32 @@ namespace nekretnineapi.Controllers.Admin
             return NoContent();
         }
 
+        [HttpPut("{id}")]
+        public IActionResult Edit(int id, [FromBody] EditUserRequest body, [FromServices] IAdminEditUser service)
+        {
+            EnsureAdmin();
+            executor.ExecuteCommand(service, new AdminEditUserDTO
+            {
+                UserId = id,
+                FirstName = body.FirstName,
+                LastName = body.LastName,
+                Email = body.Email,
+                IsActive = body.IsActive
+            });
+            return NoContent();
+        }
+
         public class SetRoleRequest
         {
             public int Role { get; set; }
+        }
+
+        public class EditUserRequest
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+            public bool IsActive { get; set; }
         }
     }
 }
