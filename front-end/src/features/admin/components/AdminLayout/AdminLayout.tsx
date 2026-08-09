@@ -1,11 +1,17 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../../../AuthStore';
+import { SEO } from '../../../../shared/components/SEO/SEO';
 import './AdminLayout.scss';
 
 const items = [
   { to: '/admin', end: true, icon: 'fa-gauge-high', label: 'Dashboard' },
   { to: '/admin/users', end: false, icon: 'fa-users', label: 'Users' },
   { to: '/admin/realestates', end: false, icon: 'fa-building', label: 'Listings' },
+  { to: '/admin/hero-banner', end: false, icon: 'fa-star', label: 'Hero banner' },
+  { to: '/admin/reports', end: false, icon: 'fa-flag', label: 'Reports' },
+  { to: '/admin/amenities', end: false, icon: 'fa-list-check', label: 'Amenities' },
+  { to: '/admin/contact-messages', end: false, icon: 'fa-envelope-open-text', label: 'Contact messages' },
+  { to: '/admin/contact-reasons', end: false, icon: 'fa-tags', label: 'Contact reasons' },
 ];
 
 export function AdminLayout() {
@@ -13,6 +19,7 @@ export function AdminLayout() {
 
   return (
     <div className="admin-shell">
+      <SEO title="Admin panel" noIndex />
       <aside className="admin-sidebar">
         <div className="admin-brand">
           <i className="fa-solid fa-shield-halved" />

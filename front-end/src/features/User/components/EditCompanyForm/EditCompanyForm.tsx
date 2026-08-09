@@ -86,10 +86,12 @@ export function EditCompanyForm({ initialData, onSaved, onCancel }: EditCompanyF
           <label htmlFor="name">Company name</label>
           <input
             id="name"
+            maxLength={50}
             className={errors.name ? 'has-error' : ''}
             {...register('name', {
               required: 'Name is required.',
               minLength: { value: 2, message: 'At least 2 characters.' },
+              maxLength: { value: 50, message: 'Company name cannot exceed 50 characters.' },
             })}
           />
           {errors.name && <span className="epf-error">{errors.name.message}</span>}
@@ -99,8 +101,12 @@ export function EditCompanyForm({ initialData, onSaved, onCancel }: EditCompanyF
           <label htmlFor="bip">Tax ID</label>
           <input
             id="bip"
+            maxLength={40}
             className={errors.bip ? 'has-error' : ''}
-            {...register('bip', { required: 'Tax ID is required.' })}
+            {...register('bip', {
+              required: 'Tax ID is required.',
+              maxLength: { value: 40, message: 'Tax ID cannot exceed 40 characters.' },
+            })}
           />
           {errors.bip && <span className="epf-error">{errors.bip.message}</span>}
         </div>

@@ -1,8 +1,10 @@
 using Application;
 using Application.Command;
 using Application.DTO.Command;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers
 {
@@ -21,22 +23,34 @@ namespace nekretnineapi.Controllers
         [HttpPost("forgot")]
         public IActionResult Forgot([FromBody] ForgotRequest body, [FromServices] IRequestPasswordReset service)
         {
-            executor.ExecuteCommand(service, new RequestPasswordResetDTO
+            var dto = new RequestPasswordResetDTO
             {
-                Email = body.Email,
+                Email = (body.Email ?? "").Trim(),
                 ResetUrlBase = body.ResetUrlBase
-            });
+            };
+
+            var result = new RequestPasswordResetValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return Ok(new { message = "If an account exists for that email, a reset link has been sent." });
         }
 
         [HttpPost("reset")]
         public IActionResult Reset([FromBody] ResetRequest body, [FromServices] IResetPassword service)
         {
-            executor.ExecuteCommand(service, new ResetPasswordDTO
+            var dto = new ResetPasswordDTO
             {
                 Token = body.Token,
                 NewPassword = body.NewPassword
-            });
+            };
+
+            var result = new ResetPasswordValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return NoContent();
         }
 

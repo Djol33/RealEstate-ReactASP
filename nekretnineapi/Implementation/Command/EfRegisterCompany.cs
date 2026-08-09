@@ -39,7 +39,7 @@ namespace Implementation.Command
             {
                 Name = request.Name,
                 Bip = request.BIP,
-                Location = "lokacija",
+                Location = request.Address ?? string.Empty,
                 Logo = request.Logo ?? string.Empty
             });
             try

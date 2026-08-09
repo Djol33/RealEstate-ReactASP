@@ -48,6 +48,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Support> Supports { get; set; }
 
+    public virtual DbSet<ContactReason> ContactReasons { get; set; }
+
     public virtual DbSet<Survey> Surveys { get; set; }
 
     public virtual DbSet<SurveyAnswer> SurveyAnswers { get; set; }
@@ -70,8 +72,80 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
+    public virtual DbSet<HeroBannerRequest> HeroBannerRequests { get; set; }
+
+    public virtual DbSet<RealestateReport> RealestateReports { get; set; }
+
+    public virtual DbSet<Amenity> Amenities { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Amenity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_amenity_id");
+
+            entity.ToTable("amenity", "phpapp");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasMaxLength(50).HasColumnName("name");
+            entity.Property(e => e.IsFilterable).HasColumnName("is_filterable");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+
+            entity.HasMany(e => e.Realestates)
+                .WithMany(r => r.Amenities)
+                .UsingEntity(
+                    "realestate_amenity",
+                    l => l.HasOne(typeof(Realestate)).WithMany().HasForeignKey("realestate_id").HasPrincipalKey(nameof(Realestate.Id)),
+                    r => r.HasOne(typeof(Amenity)).WithMany().HasForeignKey("amenity_id").HasPrincipalKey(nameof(Amenity.Id)),
+                    j => j.ToTable("realestate_amenity", "phpapp"));
+        });
+
+        modelBuilder.Entity<RealestateReport>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_realestate_report_id");
+
+            entity.ToTable("realestate_report", "phpapp");
+
+            entity.HasIndex(e => e.Status, "IX_realestate_report_status");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.RealestateId).HasColumnName("realestate_id");
+            entity.Property(e => e.ReportedBy).HasColumnName("reported_by");
+            entity.Property(e => e.Reason).HasMaxLength(50).HasColumnName("reason");
+            entity.Property(e => e.Details).HasMaxLength(1000).HasColumnName("details");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<HeroBannerRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_hero_banner_request_id");
+
+            entity.ToTable("hero_banner_request", "phpapp");
+
+            entity.HasIndex(e => e.Status, "IX_hero_banner_request_status");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.RealestateId).HasColumnName("realestate_id");
+            entity.Property(e => e.RequestedBy).HasColumnName("requested_by");
+            entity.Property(e => e.Days).HasColumnName("days");
+            entity.Property(e => e.PricePerDay).HasColumnType("decimal(10, 2)").HasColumnName("price_per_day");
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(10, 2)").HasColumnName("total_price");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.StartsAt).HasColumnType("datetime").HasColumnName("starts_at");
+            entity.Property(e => e.EndsAt).HasColumnType("datetime").HasColumnName("ends_at");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+        });
+
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_password_reset_token_id");
@@ -101,6 +175,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ViewerKey).HasColumnName("viewer_key").HasMaxLength(64);
             entity.Property(e => e.RealestateId).HasColumnName("realestate_id");
             entity.Property(e => e.ViewedAt).HasColumnName("viewed_at");
+            entity.Property(e => e.DurationSeconds).HasColumnName("duration_seconds");
         });
 
         modelBuilder.Entity<Message>(entity =>
@@ -374,6 +449,25 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(30)
                 .HasColumnName("title");
+            entity.Property(e => e.ReasonId).HasColumnName("reason_id");
+
+            entity.HasOne(d => d.ReasonNavigation).WithMany(p => p.Supports)
+                .HasForeignKey(d => d.ReasonId)
+                .HasConstraintName("FK_support_reason");
+        });
+
+        modelBuilder.Entity<ContactReason>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_contact_reason_id");
+
+            entity.ToTable("contact_reason", "phpapp");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasMaxLength(80).HasColumnName("name");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
         });
 
         modelBuilder.Entity<Survey>(entity =>
@@ -506,6 +600,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.LastName)
                 .HasMaxLength(30)
                 .HasColumnName("last_name");
+            entity.Property(e => e.Address)
+                .HasMaxLength(200)
+                .HasColumnName("address");
 
             entity.HasOne(d => d.Fk).WithMany(p => p.UserBasics)
                 .HasForeignKey(d => d.FkId)

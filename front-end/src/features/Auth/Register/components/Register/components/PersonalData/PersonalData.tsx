@@ -13,9 +13,14 @@ export function PersonalData() {
         <input
           id="firstName"
           type="text"
+          maxLength={30}
           placeholder="Your first name"
           className={touchedFields.firstName && errors.firstName ? 'has-error' : ''}
-          {...register("firstName", { required: "First name is required.", pattern: Validate.firstName })}
+          {...register("firstName", {
+            required: "First name is required.",
+            pattern: Validate.firstName,
+            maxLength: { value: 30, message: "First name cannot exceed 30 characters." },
+          })}
         />
         {touchedFields.firstName && errors.firstName && (
           <span className="field-error">{String(errors.firstName.message)}</span>
@@ -27,9 +32,14 @@ export function PersonalData() {
         <input
           id="lastName"
           type="text"
+          maxLength={30}
           placeholder="Your last name"
           className={touchedFields.lastName && errors.lastName ? 'has-error' : ''}
-          {...register("lastName", { required: "Last name is required.", pattern: Validate.lastName })}
+          {...register("lastName", {
+            required: "Last name is required.",
+            pattern: Validate.lastName,
+            maxLength: { value: 30, message: "Last name cannot exceed 30 characters." },
+          })}
         />
         {touchedFields.lastName && errors.lastName && (
           <span className="field-error">{String(errors.lastName.message)}</span>

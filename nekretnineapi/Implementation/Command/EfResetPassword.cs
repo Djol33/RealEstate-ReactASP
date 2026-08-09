@@ -22,12 +22,6 @@ namespace Implementation.Command
 
         public void Execute(ResetPasswordDTO request)
         {
-            if (string.IsNullOrWhiteSpace(request.Token))
-                throw Fail("token", "Reset token is missing.");
-
-            if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 6)
-                throw Fail("newPassword", "Password must be at least 6 characters.");
-
             var tokenHash = EfRequestPasswordReset.Hash(request.Token.Trim());
 
             var token = db.PasswordResetTokens

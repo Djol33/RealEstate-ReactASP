@@ -56,8 +56,26 @@ export function AdminUsers() {
     setFormError('');
   }
 
+  function validateForm(): string | null {
+    if (!form.firstName.trim() || form.firstName.trim().length < 3) {
+      return 'First name must be at least 3 characters.';
+    }
+    if (!form.lastName.trim() || form.lastName.trim().length < 3) {
+      return 'Last name must be at least 3 characters.';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      return 'Please enter a valid email address.';
+    }
+    return null;
+  }
+
   async function saveEdit() {
     if (!editing) return;
+    const clientError = validateForm();
+    if (clientError) {
+      setFormError(clientError);
+      return;
+    }
     setSaving(true);
     setFormError('');
     try {
@@ -166,6 +184,7 @@ export function AdminUsers() {
               First name
               <input
                 value={form.firstName}
+                maxLength={30}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
               />
             </label>
@@ -173,6 +192,7 @@ export function AdminUsers() {
               Last name
               <input
                 value={form.lastName}
+                maxLength={30}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
               />
             </label>

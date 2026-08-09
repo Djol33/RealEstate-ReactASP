@@ -24,7 +24,7 @@ const placeholder = [1,2,3,4,5,6,7,8,9,10];
            ) : (
           
             listResult.map((item) => (
-                <Link key={item.id} to={'realestate/'+item.id} style={{textDecoration:"none", color:'black', display:"block"}}>
+                <Link key={item.id} to={'/realestate/'+item.id} style={{textDecoration:"none", color:'black', display:"block"}}>
                     <RealEstateBlock data={item} onItemDeleted={onItemDeleted} />
                 </Link>
             ))

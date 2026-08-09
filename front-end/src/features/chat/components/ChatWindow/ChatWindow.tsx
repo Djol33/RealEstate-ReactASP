@@ -20,17 +20,23 @@ interface ChatWindowProps {
 
 export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loadError, setLoadError] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const myId = JSON.parse(localStorage.getItem('user') || '{}').id;
 
-  useEffect(() => {
+  function loadMessages() {
+    setLoadError(false);
     axios
       .get(`https://localhost:7154/api/Messages/${otherUserId}`)
       .then((res) => setMessages(res.data))
-      .catch(() => setMessages([]));
+      .catch(() => setLoadError(true));
+  }
+
+  useEffect(() => {
+    loadMessages();
   }, [otherUserId]);
 
   useEffect(() => {
@@ -80,7 +86,14 @@ export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWi
       <div className="chat-header">{otherUserName ?? 'Conversation'}</div>
 
       <div className="chat-messages">
-        {messages.length === 0 ? (
+        {loadError ? (
+          <div className="chat-empty chat-error">
+            Could not load messages.{' '}
+            <button type="button" className="chat-retry" onClick={loadMessages}>
+              Try again
+            </button>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="chat-empty">No messages yet. Start the conversation.</div>
         ) : (
           messages.map((m) => (

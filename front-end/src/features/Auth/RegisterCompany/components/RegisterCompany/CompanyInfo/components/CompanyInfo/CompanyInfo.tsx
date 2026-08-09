@@ -12,9 +12,13 @@ export function CompanyInfo() {
         <input
           id="companyName"
           type="text"
+          maxLength={50}
           placeholder="Your company name"
           className={touchedFields.companyName && errors.companyName ? 'has-error' : ''}
-          {...register("companyName", { required: "Company name is required." })}
+          {...register("companyName", {
+            required: "Company name is required.",
+            maxLength: { value: 50, message: "Company name cannot exceed 50 characters." },
+          })}
         />
         {touchedFields.companyName && errors.companyName && (
           <span className="field-error">{String(errors.companyName.message)}</span>
@@ -26,9 +30,13 @@ export function CompanyInfo() {
         <input
           id="bip"
           type="text"
+          maxLength={40}
           placeholder="Enter BIP number"
           className={touchedFields.bip && errors.bip ? 'has-error' : ''}
-          {...register("bip", { required: "BIP number is required." })}
+          {...register("bip", {
+            required: "BIP number is required.",
+            maxLength: { value: 40, message: "BIP number cannot exceed 40 characters." },
+          })}
         />
         {touchedFields.bip && errors.bip && (
           <span className="field-error">{String(errors.bip.message)}</span>

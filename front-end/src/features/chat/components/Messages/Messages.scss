@@ -1,5 +1,6 @@
 .messages-page {
   display: flex;
+  position: relative;
   max-width: 1000px;
   margin: 24px auto;
   height: 70vh;
@@ -7,6 +8,20 @@
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+
+  .chat-status-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    text-align: center;
+    padding: 4px 0;
+    font-size: 0.8rem;
+    color: #7a5b00;
+    background: #fff6da;
+    border-bottom: 1px solid #f0dca0;
+  }
 
   .conversation-list {
     width: 320px;
@@ -27,6 +42,20 @@
       padding: 20px;
       color: #888;
       font-size: 0.9rem;
+    }
+
+    .conv-error {
+      color: #b91c1c;
+    }
+
+    .conv-retry {
+      border: none;
+      background: none;
+      color: #002356;
+      text-decoration: underline;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0;
     }
 
     .conv-item {

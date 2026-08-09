@@ -3,6 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Validate } from '../../../../../shared/Validation/AuthValidate';
+import { SEO } from '../../../../../shared/components/SEO/SEO';
 import '../../../../../features/Auth/auth.scss';
 
 type Inputs = {
@@ -38,6 +39,7 @@ export default function ForgotPassword() {
   if (sent) {
     return (
       <div className="auth-card">
+        <SEO title="Check your email" noIndex />
         <div className="auth-header">
           <h2>Check your email</h2>
           <p>If an account exists for that address, we've sent a reset link.</p>
@@ -51,6 +53,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="auth-card">
+      <SEO title="Forgot password" description="Reset your Nekretnine account password." />
       <div className="auth-header">
         <h2>Forgot password</h2>
         <p>Enter your email and we'll send a reset link</p>

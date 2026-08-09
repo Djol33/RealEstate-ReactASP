@@ -31,6 +31,10 @@ namespace Application.DTO
         public string F_name { get; set; }
         public string L_name { get; set; }
         public string Email { get; set; }
+        public bool CanRequestHeroBanner { get; set; }
+        public string HeroBannerStatus { get; set; }
+        public bool CanViewAnalytics { get; set; }
+        public List<AmenityDTO> Amenities { get; set; } = new();
     }
 
     public class Images

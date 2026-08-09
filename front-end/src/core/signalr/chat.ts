@@ -3,6 +3,25 @@ import * as signalR from '@microsoft/signalr';
 let connection: signalR.HubConnection | null = null;
 let startPromise: Promise<signalR.HubConnection> | null = null;
 
+export type ChatConnectionStatus = 'connected' | 'reconnecting' | 'disconnected';
+
+let status: ChatConnectionStatus = 'disconnected';
+const statusListeners = new Set<(status: ChatConnectionStatus) => void>();
+
+function setStatus(next: ChatConnectionStatus) {
+  status = next;
+  statusListeners.forEach((listener) => listener(status));
+}
+
+export function getChatStatus(): ChatConnectionStatus {
+  return status;
+}
+
+export function subscribeChatStatus(listener: (status: ChatConnectionStatus) => void): () => void {
+  statusListeners.add(listener);
+  return () => statusListeners.delete(listener);
+}
+
 function getToken(): string | null {
   const stored = localStorage.getItem('user');
   return stored ? JSON.parse(stored).token : null;
@@ -18,6 +37,10 @@ export function getChatConnection(): signalR.HubConnection {
     .withAutomaticReconnect()
     .build();
 
+  connection.onreconnecting(() => setStatus('reconnecting'));
+  connection.onreconnected(() => setStatus('connected'));
+  connection.onclose(() => setStatus('disconnected'));
+
   return connection;
 }
 
@@ -31,9 +54,13 @@ export function startChatConnection(): Promise<signalR.HubConnection> {
   if (!startPromise) {
     startPromise = conn
       .start()
-      .then(() => conn)
+      .then(() => {
+        setStatus('connected');
+        return conn;
+      })
       .catch((err) => {
         startPromise = null;
+        setStatus('disconnected');
         throw err;
       });
   }
@@ -47,4 +74,5 @@ export async function stopChatConnection(): Promise<void> {
   }
   connection = null;
   startPromise = null;
+  setStatus('disconnected');
 }

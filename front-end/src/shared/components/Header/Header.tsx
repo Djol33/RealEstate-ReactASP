@@ -91,6 +91,9 @@ export function Header() {
               <Link to="/admin" onClick={close}>Admin</Link>
             </li>
           )}
+          <li>
+            <Link to="/contact" onClick={close}>Contact</Link>
+          </li>
 
           {/* Desktop: profil dropdown */}
           {user && (

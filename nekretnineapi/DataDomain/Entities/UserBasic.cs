@@ -11,6 +11,8 @@ public partial class UserBasic
 
     public string LastName { get; set; } = null!;
 
+    public string? Address { get; set; }
+
     public int FkId { get; set; }
 
     public virtual User Fk { get; set; } = null!;

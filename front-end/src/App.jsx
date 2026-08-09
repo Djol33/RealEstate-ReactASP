@@ -23,6 +23,13 @@ import { AdminLayout } from './features/admin/components/AdminLayout/AdminLayout
 import { AdminDashboard } from './features/admin/components/AdminDashboard/AdminDashboard'
 import { AdminUsers } from './features/admin/components/AdminUsers/AdminUsers'
 import { AdminRealEstates } from './features/admin/components/AdminRealEstates/AdminRealEstates'
+import { AdminHeroBanner } from './features/admin/components/AdminHeroBanner/AdminHeroBanner'
+import { AdminReports } from './features/admin/components/AdminReports/AdminReports'
+import { AdminAmenities } from './features/admin/components/AdminAmenities/AdminAmenities'
+import { AdminContactMessages } from './features/admin/components/AdminContactMessages/AdminContactMessages'
+import { AdminContactReasons } from './features/admin/components/AdminContactReasons/AdminContactReasons'
+import { NotFound } from './features/NotFound/components/NotFound/NotFound'
+import { Contact } from './features/Contact/components/Contact/Contact'
 
 const router = createBrowserRouter([
     {
@@ -48,6 +55,7 @@ const router = createBrowserRouter([
       { path: "/realestate/:id", element: <RealEstatePage /> },
       { path: "/messages", element: <Messages /> },
       { path: "/messages/:userId", element: <Messages /> },
+      { path: "/contact", element: <Contact /> },
       {
         path: "admin",
         element: <AdminGuard />,
@@ -58,6 +66,11 @@ const router = createBrowserRouter([
               { path: "", element: <AdminDashboard /> },
               { path: "users", element: <AdminUsers /> },
               { path: "realestates", element: <AdminRealEstates /> },
+              { path: "hero-banner", element: <AdminHeroBanner /> },
+              { path: "reports", element: <AdminReports /> },
+              { path: "amenities", element: <AdminAmenities /> },
+              { path: "contact-messages", element: <AdminContactMessages /> },
+              { path: "contact-reasons", element: <AdminContactReasons /> },
             ],
           },
         ],
@@ -107,7 +120,8 @@ const router = createBrowserRouter([
           path: "edit/:id",
           element: <EditRealEstate />,
         }
-      ]}
+      ]},
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

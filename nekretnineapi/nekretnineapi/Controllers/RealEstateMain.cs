@@ -3,10 +3,13 @@ using Application.Command;
 using Application.DTO.Command;
 using Application.DTO.Query;
 using Application.Query;
+using DataDomain.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.DTO;
 using nekretnineapi.Services;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers
 {
@@ -40,10 +43,10 @@ namespace nekretnineapi.Controllers
         public IActionResult Post(
             [FromForm] AddRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
-            [FromServices] IAddRealestate service)
+            [FromForm(Name = "amenityIds[]")] List<int> amenityIds,
+            [FromServices] IAddRealestate service,
+            [FromServices] AppDbContext db)
         {
-            var imagePaths = imageStorage.Save(images);
-
             var dto = new AddRealestateDTO
             {
                 Title = request.Title,
@@ -55,8 +58,14 @@ namespace nekretnineapi.Controllers
                 Area = request.Area,
                 Address = request.Address,
                 NumberOfRooms = request.NumberOfRooms,
-                ImagePaths = imagePaths
+                AmenityIds = amenityIds ?? new List<int>()
             };
+
+            var result = new AddRealestateValidator(db).Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            dto.ImagePaths = imageStorage.Save(images);
 
             executor.ExecuteCommand(service, dto);
             return StatusCode(201);
@@ -70,10 +79,9 @@ namespace nekretnineapi.Controllers
             long id,
             [FromForm] EditRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
-            [FromServices] IEditRealestate service)
+            [FromServices] IEditRealestate service,
+            [FromServices] AppDbContext db)
         {
-            var imagePaths = imageStorage.Save(images);
-
             var dto = new EditRealestateDTO
             {
                 Id = id,
@@ -86,8 +94,13 @@ namespace nekretnineapi.Controllers
                 Area = request.Area,
                 Address = request.Address,
                 NumberOfRooms = request.NumberOfRooms,
-                ImagePaths = imagePaths
             };
+
+            var result = new EditRealestateValidator(db).Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            dto.ImagePaths = imageStorage.Save(images);
 
             executor.ExecuteCommand(service, dto);
             return NoContent();
@@ -108,5 +121,23 @@ namespace nekretnineapi.Controllers
             executor.ExecuteCommand(service, id);
             return NoContent();
         }
+
+        [Authorize]
+        [HttpPost("{id}/view-duration")]
+        public IActionResult TrackViewDuration(long id, [FromBody] TrackViewDurationRequest body, [FromServices] ITrackViewDuration service)
+        {
+            executor.ExecuteCommand(service, new TrackViewDurationDTO { RealestateId = id, DurationSeconds = body.DurationSeconds });
+            return NoContent();
+        }
+
+        public class TrackViewDurationRequest
+        {
+            public int DurationSeconds { get; set; }
+        }
+
+        [Authorize]
+        [HttpGet("{id}/analytics")]
+        public IActionResult Analytics(long id, [FromServices] IGetRealestateAnalytics service)
+            => Ok(executor.ExecuteQuery(service, id));
     }
 }

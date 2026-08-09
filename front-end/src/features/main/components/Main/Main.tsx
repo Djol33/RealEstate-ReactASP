@@ -4,6 +4,8 @@ import './Main.scss';
 import { ListRealEstate } from '../ListRealEstate/ListRealEstate';
 import { Placeholder } from '../../../../shared/components/Placeholder/Placeholder';
 import { RecommendationShelf } from '../RecommendationShelf/RecommendationShelf';
+import { HeroBanner } from '../HeroBanner/HeroBanner';
+import { SEO } from '../../../../shared/components/SEO/SEO';
 import { useAuth } from '../../../../AuthStore';
 
 interface PagedResult {
@@ -27,6 +29,11 @@ export function Main() {
 
   return (
     <>
+      <SEO
+        title="Find your next home"
+        description="Browse apartments and houses for sale or rent. List your property and reach buyers and renters near you."
+      />
+      <HeroBanner />
       {user && (
         <RecommendationShelf title="Recommended for you" endpoint="/api/Recommendations/for-you" />
       )}
@@ -36,7 +43,7 @@ export function Main() {
       <RecommendationShelf title="Most viewed" endpoint="/api/Recommendations/trending" />
 
       <div className="wrapper">
-        <Filter setPagedResult={handlePagedResult} page={page} onLoadingChange={setLoading} />
+        <Filter setPagedResult={handlePagedResult} page={page} onLoadingChange={setLoading} onFilterChange={() => setPage(1)} />
         {loading
           ? <Placeholder />
           : <ListRealEstate listResult={listResult} />}

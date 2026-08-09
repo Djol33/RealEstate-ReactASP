@@ -9,6 +9,20 @@
     width: 100%;
   }
 
+  .admin-error {
+    color: #b91c1c;
+
+    button {
+      border: none;
+      background: none;
+      color: #002356;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: inherit;
+      padding: 0;
+    }
+  }
+
   .admin-pagination {
     display: flex;
     align-items: center;

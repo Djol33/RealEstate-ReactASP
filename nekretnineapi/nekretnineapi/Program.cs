@@ -137,9 +137,13 @@ builder.Services.AddScoped<IMarkRead, Implementation.Command.EfMarkRead>();
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, nekretnineapi.Auth.ClaimUserIdProvider>();
+builder.Services.AddScoped<Application.Chat.IChatNotifier, nekretnineapi.Hubs.SignalRChatNotifier>();
+builder.Services.AddScoped<Application.Command.ISendSystemMessage, Implementation.Command.EfSendSystemMessage>();
 
 builder.Services.AddScoped<Application.IViewerContext, nekretnineapi.Recommendations.ViewerContext>();
 builder.Services.AddScoped<ITrackView, Implementation.Command.EfTrackView>();
+builder.Services.AddScoped<Application.Command.ITrackViewDuration, Implementation.Command.EfTrackViewDuration>();
+builder.Services.AddScoped<Application.Query.IGetRealestateAnalytics, Implementation.Query.EfGetRealestateAnalytics>();
 builder.Services.AddScoped<IShowTrending, Implementation.Query.Recommendations.EfShowTrending>();
 builder.Services.AddScoped<IShowRecentlyViewed, Implementation.Query.Recommendations.EfShowRecentlyViewed>();
 builder.Services.AddScoped<IShowRecommendations, Implementation.Query.Recommendations.EfShowRecommendations>();
@@ -156,6 +160,31 @@ builder.Services.AddSingleton<Application.Email.IEmailSender, nekretnineapi.Serv
 builder.Services.AddScoped<Application.Command.IRequestPasswordReset, Implementation.Command.EfRequestPasswordReset>();
 builder.Services.AddScoped<Application.Command.IResetPassword, Implementation.Command.EfResetPassword>();
 
+var heroBannerSettings = builder.Configuration.GetSection(nekretnineapi.Services.HeroBannerSettings.SectionName)
+    .Get<nekretnineapi.Services.HeroBannerSettings>() ?? new nekretnineapi.Services.HeroBannerSettings();
+builder.Services.AddSingleton(heroBannerSettings);
+builder.Services.AddSingleton<Application.HeroBanner.IHeroBannerPricing>(heroBannerSettings);
+builder.Services.AddScoped<Application.Query.IGetHeroBannerQuote, Implementation.Query.EfGetHeroBannerQuote>();
+builder.Services.AddScoped<Application.Query.IGetActiveHeroBanners, Implementation.Query.EfGetActiveHeroBanners>();
+builder.Services.AddScoped<Application.Query.IGetMyHeroBannerRequests, Implementation.Query.EfGetMyHeroBannerRequests>();
+builder.Services.AddScoped<Application.Command.IRequestHeroBanner, Implementation.Command.EfRequestHeroBanner>();
+builder.Services.AddScoped<Application.Query.Admin.IAdminListHeroBannerRequests, Implementation.Query.Admin.EfAdminListHeroBannerRequests>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminDecideHeroBanner, Implementation.Command.Admin.EfAdminDecideHeroBanner>();
+builder.Services.AddScoped<Application.Command.IReportRealestate, Implementation.Command.EfReportRealestate>();
+builder.Services.AddScoped<Application.Query.Admin.IAdminListReports, Implementation.Query.Admin.EfAdminListReports>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminDecideReport, Implementation.Command.Admin.EfAdminDecideReport>();
+
+builder.Services.AddScoped<Application.Query.IListAmenities, Implementation.Query.EfListAmenities>();
+builder.Services.AddScoped<Application.Command.Admin.ISaveAmenity, Implementation.Command.Admin.EfSaveAmenity>();
+builder.Services.AddScoped<Application.Command.Admin.IDeleteAmenity, Implementation.Command.Admin.EfDeleteAmenity>();
+
+builder.Services.AddScoped<Application.Query.IListContactReasons, Implementation.Query.EfListContactReasons>();
+builder.Services.AddScoped<Application.Command.Admin.ISaveContactReason, Implementation.Command.Admin.EfSaveContactReason>();
+builder.Services.AddScoped<Application.Command.Admin.IDeleteContactReason, Implementation.Command.Admin.EfDeleteContactReason>();
+builder.Services.AddScoped<Application.Command.ISubmitContactMessage, Implementation.Command.EfSubmitContactMessage>();
+builder.Services.AddScoped<Application.Query.Admin.IAdminListContactMessages, Implementation.Query.Admin.EfAdminListContactMessages>();
+builder.Services.AddScoped<Application.Command.Admin.IMarkContactMessageRead, Implementation.Command.Admin.EfMarkContactMessageRead>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 
 var app = builder.Build();
@@ -166,6 +195,7 @@ app.UseExceptionHandler(appError =>
     {
         var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
         var ex = feature?.Error;
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
         if (ex is FluentValidation.ValidationException validationEx)
         {
@@ -207,6 +237,16 @@ app.UseExceptionHandler(appError =>
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             return;
         }
+
+        if (ex is ApplicationException)
+        {
+            context.Response.StatusCode = 409;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            return;
+        }
+
+        logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
 
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";

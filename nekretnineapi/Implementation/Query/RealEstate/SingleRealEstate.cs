@@ -2,6 +2,7 @@ using Application;
 using Application.DTO;
 using Application.Query;
 using DataDomain.Entities;
+using HeroBannerStatusConst = Application.HeroBannerStatus;
 
 namespace Implementation.Query.RealEstate
 {
@@ -43,6 +44,12 @@ namespace Implementation.Query.RealEstate
                         Id = x.Id,
                         Location = x.Location
                     }).ToList(),
+                    Amenities = a.Amenities.Select(am => new AmenityDTO
+                    {
+                        Id = am.Id,
+                        Name = am.Name,
+                        IsFilterable = am.IsFilterable
+                    }).ToList(),
                     CanEdit = a.Owner == actor.Id ,
                     CanDelete = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     IsWishlisted = a.Wishlists.Any(w => w.UserId == actor.Id),
@@ -55,6 +62,28 @@ namespace Implementation.Query.RealEstate
                 })
                 .FirstOrDefault()
                 ?? throw new KeyNotFoundException("Listing not found.");
+
+            if (realestate.Owner == actor.Id)
+            {
+                var isCompany = db.Companies.Any(c => c.FkId == actor.Id);
+                var latestRequest = db.HeroBannerRequests
+                    .Where(h => h.RealestateId == realestate.Id)
+                    .OrderByDescending(h => h.Id)
+                    .FirstOrDefault();
+
+                var hasPendingOrActive = latestRequest != null &&
+                    (latestRequest.Status == HeroBannerStatusConst.Pending ||
+                     (latestRequest.Status == HeroBannerStatusConst.Approved && latestRequest.EndsAt > DateTime.Now));
+
+                realestate.CanRequestHeroBanner = isCompany && !hasPendingOrActive;
+                realestate.HeroBannerStatus = latestRequest?.Status switch
+                {
+                    HeroBannerStatusConst.Pending => "Pending",
+                    HeroBannerStatusConst.Approved when latestRequest.EndsAt > DateTime.Now => "Approved",
+                    _ => null
+                };
+                realestate.CanViewAnalytics = isCompany;
+            }
 
             return realestate;
         }

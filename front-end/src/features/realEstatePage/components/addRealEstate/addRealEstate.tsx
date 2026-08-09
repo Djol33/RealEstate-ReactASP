@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Overlay } from "../../../../shared/components/Overlay/Overlay";
+import { SEO } from "../../../../shared/components/SEO/SEO";
+import { AmenityCheckboxList } from "../../../../shared/components/AmenityCheckboxList/AmenityCheckboxList";
 import './style.scss'
 
 interface FormFields {
@@ -29,9 +31,17 @@ const MAX_IMAGE_SIZE_MB = 5;
 const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+const TOTAL_STEPS = 2;
+
+const step1Fields: (keyof FormFields)[] = [
+  'title', 'description', 'cityId', 'address', 'typeObjectId', 'numberOfRooms', 'area', 'price',
+];
+
 export function AddRealEstate() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [step, setStep] = useState(0);
 
   const [typeObject, setTypeObject] = useState<{ id: number; naziv: string }[]>([]);
   const [city, setCity] = useState<{ id: number; cityName: string }[]>([]);
@@ -47,6 +57,8 @@ export function AddRealEstate() {
     price: '',
     description: '',
   });
+
+  const [amenityIds, setAmenityIds] = useState<number[]>([]);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState('');
@@ -157,11 +169,16 @@ export function AddRealEstate() {
     setPreviewIndex(i => (i + 1) % len);
   }
 
-  function validate(): boolean {
+  function computeErrors(): FormErrors {
     const newErrors: FormErrors = {};
 
     if (!formData.title.trim() || formData.title.trim().length < 3) {
       newErrors.title = 'Title must be at least 3 characters.';
+    } else if (formData.title.trim().length > 200) {
+      newErrors.title = 'Title cannot exceed 200 characters.';
+    }
+    if (!formData.description.trim() || formData.description.trim().length < 20) {
+      newErrors.description = 'Description must be at least 20 characters.';
     }
     if (!formData.cityId) {
       newErrors.cityId = 'Select a city.';
@@ -179,19 +196,51 @@ export function AddRealEstate() {
     const area = parseFloat(formData.area);
     if (!formData.area || isNaN(area) || area <= 0) {
       newErrors.area = 'Area must be a positive number.';
+    } else if (area > 10000) {
+      newErrors.area = 'Area cannot exceed 10,000 m².';
     }
     const price = parseFloat(formData.price);
-    if (!formData.price || isNaN(price) || price < 0) {
+    if (!formData.price || isNaN(price) || price <= 0) {
       newErrors.price = 'Price must be a positive number.';
+    } else if (price > 100000000) {
+      newErrors.price = 'Price cannot exceed 100,000,000.';
     }
 
+    return newErrors;
+  }
+
+  function validate(): boolean {
+    const newErrors = computeErrors();
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
+  function validateStep1(): boolean {
+    const allErrors = computeErrors();
+    const step1Errors: FormErrors = {};
+    step1Fields.forEach((field) => {
+      if (allErrors[field]) step1Errors[field] = allErrors[field];
+    });
+    setErrors((prev) => ({ ...prev, ...step1Errors, ...Object.fromEntries(step1Fields.filter(f => !step1Errors[f]).map(f => [f, undefined])) }));
+    return Object.keys(step1Errors).length === 0;
+  }
+
+  function handleNext() {
+    if (validateStep1()) setStep(1);
+  }
+
+  function handleBack() {
+    setStep(0);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      const allErrors = computeErrors();
+      const hasStep1Error = step1Fields.some((f) => allErrors[f]);
+      if (hasStep1Error) setStep(0);
+      return;
+    }
 
     setIsLoading(true);
     setSubmitError('');
@@ -211,6 +260,8 @@ export function AddRealEstate() {
       previewImages
         .filter(img => img.enabled)
         .forEach(img => payload.append('images[]', img.file));
+
+      amenityIds.forEach(id => payload.append('amenityIds[]', String(id)));
 
       await axios.post('https://localhost:7154/api/RealEstateMain', payload);
 
@@ -233,149 +284,184 @@ export function AddRealEstate() {
 
   return (
     <div>
+      <SEO title="Add listing" noIndex />
       <form className="estate-form" onSubmit={handleSubmit} encType="multipart/form-data">
         <h1>Add listing</h1>
 
-        {submitError && <div id="error"><span className="error">{submitError}</span></div>}
-
-        <label htmlFor="title1">Title</label>
-        <input
-          type="text"
-          id="title1"
-          name="title"
-          placeholder="Title"
-          value={formData.title}
-          onChange={handleChange}
-        />
-        {errors.title && <span className="error">{errors.title}</span>}
-
-        <label htmlFor="city">Select city</label>
-        <select name="cityId" id="city" value={formData.cityId} onChange={handleChange}>
-          <option value="">-- Select a city --</option>
-          {city.map((a) => (
-            <option key={a.id} value={a.id}>{a.cityName}</option>
-          ))}
-        </select>
-        {errors.cityId && <span className="error">{errors.cityId}</span>}
-
-        <label htmlFor="adresa">Address</label>
-        <input
-          type="text"
-          id="adresa"
-          name="address"
-          placeholder="Ruzveltova 12"
-          value={formData.address}
-          onChange={handleChange}
-        />
-        {errors.address && <span className="error">{errors.address}</span>}
-
-        <label htmlFor="tipObjekta">Type Of Building</label>
-        <select name="typeObjectId" id="tipObjekta" value={formData.typeObjectId} onChange={handleChange}>
-          <option value="">-- Select a type --</option>
-          {typeObject.map((el) => (
-            <option key={el.id} value={el.id}>{el.naziv}</option>
-          ))}
-        </select>
-        {errors.typeObjectId && <span className="error">{errors.typeObjectId}</span>}
-
-        <label htmlFor="numberrooms">Number of rooms</label>
-        <input
-          type="number"
-          id="numberrooms"
-          name="numberOfRooms"
-          min="0.5"
-          step="0.5"
-          max="10"
-          value={formData.numberOfRooms}
-          onChange={handleChange}
-        />
-        {errors.numberOfRooms && <span className="error">{errors.numberOfRooms}</span>}
-
-        <label htmlFor="terasa">Does it have a terrace/balcony</label>
-        <div id="terasa">
-          <div>
-            <input
-              type="radio"
-              name="terrace"
-              id="prvi"
-              value="true"
-              checked={formData.terrace === true}
-              onChange={() => setFormData(prev => ({ ...prev, terrace: true }))}
+        <div className="estate-steps">
+          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+            <span
+              key={i}
+              className={`step-dot ${i === step ? 'active' : i < step ? 'done' : ''}`}
             />
-            <label htmlFor="prvi">Yes</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              name="terrace"
-              id="drugi"
-              value="false"
-              checked={formData.terrace === false}
-              onChange={() => setFormData(prev => ({ ...prev, terrace: false }))}
-            />
-            <label htmlFor="drugi">No</label>
-          </div>
+          ))}
         </div>
 
-        <label htmlFor="kvadratura">Area (m²)</label>
-        <input
-          type="number"
-          id="kvadratura"
-          name="area"
-          min="1"
-          value={formData.area}
-          onChange={handleChange}
-        />
-        {errors.area && <span className="error">{errors.area}</span>}
+        {submitError && <div id="error"><span className="error">{submitError}</span></div>}
 
-        <label htmlFor="cena">Total price (€)</label>
-        <input
-          type="number"
-          id="cena"
-          name="price"
-          min="0"
-          step="500"
-          value={formData.price}
-          onChange={handleChange}
-        />
-        {errors.price && <span className="error">{errors.price}</span>}
+        {step === 0 && (
+          <>
+            <label htmlFor="title1">Title</label>
+            <input
+              type="text"
+              id="title1"
+              name="title"
+              placeholder="Title"
+              value={formData.title}
+              onChange={handleChange}
+            />
+            {errors.title && <span className="error">{errors.title}</span>}
 
-        <label htmlFor="dodatniopis">Description</label>
-        <input
-          type="text"
-          id="dodatniopis"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-        />
+            <label htmlFor="dodatniopis">Description</label>
+            <input
+              type="text"
+              id="dodatniopis"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+            />
+            {errors.description && <span className="error">{errors.description}</span>}
 
-        <input
-          type="file"
-          multiple
-          id="images"
-          name="images[]"
-          accept="image/jpeg, image/png, image/jpg"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
-        <label htmlFor="images" id="file">Add images</label>
+            <label htmlFor="city">Select city</label>
+            <select name="cityId" id="city" value={formData.cityId} onChange={handleChange}>
+              <option value="">-- Select a city --</option>
+              {city.map((a) => (
+                <option key={a.id} value={a.id}>{a.cityName}</option>
+              ))}
+            </select>
+            {errors.cityId && <span className="error">{errors.cityId}</span>}
 
-        {imageError && <span className="error">{imageError}</span>}
+            <label htmlFor="adresa">Address</label>
+            <input
+              type="text"
+              id="adresa"
+              name="address"
+              placeholder="Ruzveltova 12"
+              value={formData.address}
+              onChange={handleChange}
+            />
+            {errors.address && <span className="error">{errors.address}</span>}
 
-        {visibleImages.length > 0 && (
-          <div id="image-preview-info">
-            <button type="button" id="preview-btn" onClick={() => setPreviewVisible(true)}>
-              Preview
-            </button>
-          </div>
+            <label htmlFor="tipObjekta">Type Of Building</label>
+            <select name="typeObjectId" id="tipObjekta" value={formData.typeObjectId} onChange={handleChange}>
+              <option value="">-- Select a type --</option>
+              {typeObject.map((el) => (
+                <option key={el.id} value={el.id}>{el.naziv}</option>
+              ))}
+            </select>
+            {errors.typeObjectId && <span className="error">{errors.typeObjectId}</span>}
+
+            <label htmlFor="numberrooms">Number of rooms</label>
+            <input
+              type="number"
+              id="numberrooms"
+              name="numberOfRooms"
+              min="0.5"
+              step="0.5"
+              max="10"
+              value={formData.numberOfRooms}
+              onChange={handleChange}
+            />
+            {errors.numberOfRooms && <span className="error">{errors.numberOfRooms}</span>}
+
+            <label htmlFor="kvadratura">Area (m²)</label>
+            <input
+              type="number"
+              id="kvadratura"
+              name="area"
+              min="1"
+              max="10000"
+              value={formData.area}
+              onChange={handleChange}
+            />
+            {errors.area && <span className="error">{errors.area}</span>}
+
+            <label htmlFor="cena">Total price (€)</label>
+            <input
+              type="number"
+              id="cena"
+              name="price"
+              min="0"
+              max="100000000"
+              step="500"
+              value={formData.price}
+              onChange={handleChange}
+            />
+            {errors.price && <span className="error">{errors.price}</span>}
+
+            <label htmlFor="terasa">Does it have a terrace/balcony</label>
+            <div id="terasa">
+              <div>
+                <input
+                  type="radio"
+                  name="terrace"
+                  id="prvi"
+                  value="true"
+                  checked={formData.terrace === true}
+                  onChange={() => setFormData(prev => ({ ...prev, terrace: true }))}
+                />
+                <label htmlFor="prvi">Yes</label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  name="terrace"
+                  id="drugi"
+                  value="false"
+                  checked={formData.terrace === false}
+                  onChange={() => setFormData(prev => ({ ...prev, terrace: false }))}
+                />
+                <label htmlFor="drugi">No</label>
+              </div>
+            </div>
+
+            <div id="holdButtons">
+              <button type="button" id="predaj" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </>
         )}
 
-        <input
-          id="predaj"
-          type="submit"
-          value={isLoading ? "Sending..." : "Submit"}
-          disabled={isLoading}
-        />
+        {step === 1 && (
+          <>
+            <label>Amenities</label>
+            <AmenityCheckboxList selectedIds={amenityIds} onChange={setAmenityIds} />
+
+            <input
+              type="file"
+              multiple
+              id="images"
+              name="images[]"
+              accept="image/jpeg, image/png, image/jpg"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+            <label htmlFor="images" id="file">Add images</label>
+
+            {imageError && <span className="error">{imageError}</span>}
+
+            {visibleImages.length > 0 && (
+              <div id="image-preview-info">
+                <button type="button" id="preview-btn" onClick={() => setPreviewVisible(true)}>
+                  Preview
+                </button>
+              </div>
+            )}
+
+            <div id="holdButtons">
+              <button type="button" className="noBorder" onClick={handleBack}>
+                Back
+              </button>
+              <input
+                id="predaj"
+                type="submit"
+                value={isLoading ? "Sending..." : "Submit"}
+                disabled={isLoading}
+              />
+            </div>
+          </>
+        )}
       </form>
 
       <Overlay isVisible={previewVisible} changeVisibility={setPreviewVisible}>

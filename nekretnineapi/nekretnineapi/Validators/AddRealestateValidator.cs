@@ -21,13 +21,15 @@ namespace nekretnineapi.Validators
                 .MinimumLength(20).WithMessage("Description must be at least 20 characters.");
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than 0.");
+                .GreaterThan(0).WithMessage("Price must be greater than 0.")
+                .LessThanOrEqualTo(100_000_000).WithMessage("Price cannot exceed 100,000,000.");
 
             RuleFor(x => x.Area)
-                .GreaterThan(0).WithMessage("Area must be greater than 0.");
+                .GreaterThan(0).WithMessage("Area must be greater than 0.")
+                .LessThanOrEqualTo(10_000).WithMessage("Area cannot exceed 10,000 m².");
 
             RuleFor(x => x.NumberOfRooms)
-                .GreaterThan(0).WithMessage("Number of rooms must be greater than 0.");
+                .InclusiveBetween(0.5f, 10f).WithMessage("Number of rooms must be between 0.5 and 10.");
 
             RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("Address cannot be empty.");

@@ -44,6 +44,7 @@ namespace nekretnineapi.Controllers
             [FromForm] string password,
             [FromForm] string companyName,
             [FromForm] string bip,
+            [FromForm] string? address,
             [FromForm] IFormFile? logo,
             [FromServices] IRegisterCompany service)
         {
@@ -52,7 +53,8 @@ namespace nekretnineapi.Controllers
                 Email = email,
                 Password = password,
                 Name = companyName,
-                BIP = bip
+                BIP = bip,
+                Address = address
             };
 
             var validator = new CompanyUserValidation(AppDbContext);

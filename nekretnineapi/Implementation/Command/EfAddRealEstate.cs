@@ -57,6 +57,13 @@ namespace Implementation.Command
                 });
             }
 
+            if (request.AmenityIds.Count > 0)
+            {
+                var amenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id)).ToList();
+                foreach (var amenity in amenities)
+                    realestate.Amenities.Add(amenity);
+            }
+
             db.Realestates.Add(realestate);
             db.SaveChanges();
         }

@@ -1,0 +1,87 @@
+.report-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.report-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+
+  h2 {
+    font-size: 1.2rem;
+    color: #002356;
+    margin: 0 0 8px;
+  }
+
+  .report-modal-sub {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0 0 18px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 16px;
+
+    select,
+    textarea {
+      padding: 10px 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: #002356;
+      }
+    }
+  }
+
+  .report-modal-error {
+    color: #b91c1c;
+    font-size: 0.85rem;
+    margin: 0 0 12px;
+  }
+
+  .report-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+
+      &:disabled { opacity: 0.6; cursor: default; }
+    }
+    .btn-cancel {
+      background: #eef1f5;
+      color: #444;
+      &:hover:not(:disabled) { background: #e2e6ec; }
+    }
+    .btn-submit {
+      background: #b91c1c;
+      color: #fff;
+      &:hover:not(:disabled) { background: #991515; }
+    }
+  }
+}

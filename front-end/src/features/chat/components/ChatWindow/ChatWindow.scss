@@ -28,6 +28,20 @@
       font-size: 0.9rem;
     }
 
+    .chat-error {
+      color: #b91c1c;
+    }
+
+    .chat-retry {
+      border: none;
+      background: none;
+      color: #002356;
+      text-decoration: underline;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0;
+    }
+
     .chat-bubble {
       max-width: 72%;
       padding: 8px 12px;

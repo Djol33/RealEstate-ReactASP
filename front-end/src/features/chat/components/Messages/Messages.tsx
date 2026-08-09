@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChatWindow } from '../ChatWindow/ChatWindow';
-import { startChatConnection, getChatConnection } from '../../../../core/signalr/chat';
+import { startChatConnection, getChatConnection, subscribeChatStatus, getChatStatus, ChatConnectionStatus } from '../../../../core/signalr/chat';
+import { SEO } from '../../../../shared/components/SEO/SEO';
 import './Messages.scss';
 
 interface Conversation {
@@ -19,6 +20,8 @@ export function Messages() {
   const activeId = userId ? Number(userId) : null;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadError, setLoadError] = useState(false);
+  const [chatStatus, setChatStatus] = useState<ChatConnectionStatus>(getChatStatus());
 
   const activeIdRef = useRef<number | null>(activeId);
   activeIdRef.current = activeId;
@@ -28,13 +31,14 @@ export function Messages() {
       .get('https://localhost:7154/api/Messages/conversations')
       .then((res) => {
         const active = activeIdRef.current;
+        setLoadError(false);
         setConversations(
           res.data.map((c: Conversation) =>
             c.otherUserId === active ? { ...c, unreadCount: 0 } : c
           )
         );
       })
-      .catch(() => setConversations([]));
+      .catch(() => setLoadError(true));
   }, []);
 
   useEffect(() => {
@@ -62,13 +66,28 @@ export function Messages() {
     };
   }, [loadConversations]);
 
+  useEffect(() => {
+    return subscribeChatStatus(setChatStatus);
+  }, []);
+
   const activeConv = conversations.find((c) => c.otherUserId === activeId);
 
   return (
     <div className={`messages-page ${activeId ? 'has-active' : ''}`}>
+      <SEO title="Messages" noIndex />
+      {chatStatus === 'reconnecting' && (
+        <div className="chat-status-banner">Reconnecting...</div>
+      )}
       <aside className="conversation-list">
         <h2>Messages</h2>
-        {conversations.length === 0 ? (
+        {loadError ? (
+          <div className="conv-empty conv-error">
+            Could not load conversations.{' '}
+            <button type="button" className="conv-retry" onClick={loadConversations}>
+              Try again
+            </button>
+          </div>
+        ) : conversations.length === 0 ? (
           <div className="conv-empty">No conversations.</div>
         ) : (
           conversations.map((c) => (

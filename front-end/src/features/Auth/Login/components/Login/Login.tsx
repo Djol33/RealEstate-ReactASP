@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../AuthStore';
 import { Validate } from '../../../../../shared/Validation/AuthValidate';
+import { SEO } from '../../../../../shared/components/SEO/SEO';
 import '../../../../../features/Auth/auth.scss';
 import './Login.scss';
 type Inputs = {
@@ -14,6 +15,14 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [serverError, setServerError] = useState('');
+
+  useEffect(() => {
+    const flash = sessionStorage.getItem('auth-flash');
+    if (flash) {
+      setServerError(flash);
+      sessionStorage.removeItem('auth-flash');
+    }
+  }, []);
 
   const {
     handleSubmit,
@@ -39,6 +48,7 @@ export default function Login() {
 
   return (
     <div className="auth-card">
+      <SEO title="Login" description="Log in to your Nekretnine account to manage listings, messages, and your profile." />
       <div className="auth-header">
         <h2>Login</h2>
         <p>Welcome back</p>
@@ -78,13 +88,12 @@ export default function Login() {
             {touchedFields.Password && errors.Password && (
               <span className="field-error">{errors.Password.message}</span>
             )}
+            <div className="auth-forgot">
+              <Link to="/forgot-password">Forgot password?</Link>
+            </div>
           </div>
 
           {serverError && <div className="server-error">{serverError}</div>}
-
-          <div className="auth-forgot">
-            <Link to="/forgot-password">Forgot password?</Link>
-          </div>
 
           <div className="auth-actions">
             <button

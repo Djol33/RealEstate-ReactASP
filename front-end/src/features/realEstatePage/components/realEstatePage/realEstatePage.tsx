@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import   './realEstatePage.scss';
 import axios from 'axios';
@@ -7,8 +7,14 @@ import { ImageCarousel } from '../../../../shared/components/ImageCarousel/Image
 import { PropertyMap } from '../../../../shared/components/PropertyMap/PropertyMap';
 import { WishlistButton } from '../../../../shared/components/WishlistButton';
 import { DeleteRealEstateButton } from '../../../../shared/components/DeleteRealEstateButton';
+import { HeroBannerRequestModal } from '../../../../shared/components/HeroBannerRequestModal/HeroBannerRequestModal';
+import { ReportListingModal } from '../../../../shared/components/ReportListingModal/ReportListingModal';
+import { RealEstateAnalyticsModal } from '../../../../shared/components/RealEstateAnalyticsModal/RealEstateAnalyticsModal';
+import { SEO } from '../../../../shared/components/SEO/SEO';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../../AuthStore';
+import { NotFound } from '../../../NotFound/components/NotFound/NotFound';
+import { formatPrice } from '../../../../shared/utils/format';
 export interface realEstatePageProps {
   prop?: string;
 }
@@ -20,19 +26,25 @@ export function RealEstatePage({params} ) {
   const [isVisible, setIsVisible] = useState(false)
   const {id} = useParams();
   const [realEstate, setRealEstate] = useState<any>(null);
-  useEffect(()=>{
+  const [notFound, setNotFound] = useState(false);
+  const [showHeroModal, setShowHeroModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportSent, setReportSent] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+
+  function loadRealEstate() {
     axios.get(`https://localhost:7154/api/RealEstateMain/${id}` ).then((response)=>{
- 
- console.log(response.data)
       setRealEstate(response.data);
-
-
-   
-
-
+    }).catch(() => {
+      setNotFound(true);
     })
+  }
 
-  },[])
+  useEffect(()=>{
+    setRealEstate(null);
+    setNotFound(false);
+    loadRealEstate();
+  },[id])
 
   useEffect(() => {
     if (!id) return;
@@ -42,13 +54,40 @@ export function RealEstatePage({params} ) {
     return () => clearTimeout(timer);
   }, [id]);
 
+  useEffect(() => {
+    if (!id) return;
+    const startedAt = Date.now();
+
+    function sendDuration() {
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      if (seconds < 3) return;
+      axios.post(
+        `https://localhost:7154/api/RealEstateMain/${id}/view-duration`,
+        { durationSeconds: seconds },
+        { timeout: 2000 }
+      ).catch(() => {});
+    }
+
+    window.addEventListener('beforeunload', sendDuration);
+    return () => {
+      window.removeEventListener('beforeunload', sendDuration);
+      sendDuration();
+    };
+  }, [id]);
+
   function showImage(){
     setIsVisible(true);
   }
 
+  if (notFound) return <NotFound />;
   if (!realEstate) return null;
 
   return <div id="realestatepost">
+      <SEO
+        title={realEstate.title}
+        description={`${realEstate.title} in ${realEstate.cityName} — ${realEstate.area} m², ${realEstate.numberOfRooms} rooms, € ${realEstate.price}.`}
+        image={realEstate.images?.[0]?.location ? `https://localhost:7154/${realEstate.images[0].location}` : undefined}
+      />
       {/* Title with wishlist */}
       <h1 id="title1">
         {realEstate.title}{" "}
@@ -80,7 +119,7 @@ export function RealEstatePage({params} ) {
 
       {/* Price */}
       <h2 id="price">
-        <div id="textprice">{realEstate.price} &euro;</div>
+        <div id="textprice">{formatPrice(realEstate.price)} &euro;</div>
       </h2>
 
       {/* Basic info */}
@@ -102,6 +141,20 @@ export function RealEstatePage({params} ) {
           <span className="value">{realEstate.typeObjectName}</span>
         </span>
       </div>
+
+      {/* Amenities */}
+      {realEstate.amenities && realEstate.amenities.length > 0 && (
+        <div id="amenities">
+          <h2>Amenities</h2>
+          <div className="amenities-list">
+            {realEstate.amenities.map((a) => (
+              <span className="amenity-tag" key={a.id}>
+                {a.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Description */}
       <div id="aditionalDescription">
@@ -146,6 +199,20 @@ export function RealEstatePage({params} ) {
             <i className="fa-solid fa-envelope" /> Send message
           </button>
         )}
+        {logged && user?.id !== realEstate.owner && !reportSent && (
+          <button
+            type="button"
+            className="report-listing-btn"
+            onClick={() => setShowReportModal(true)}
+          >
+            <i className="fa-solid fa-flag" /> Report listing
+          </button>
+        )}
+        {reportSent && (
+          <span className="report-sent-note">
+            <i className="fa-solid fa-check" /> Report sent, thank you
+          </span>
+        )}
       </div>
 
       {/* Edit/Delete for owner or admin */}
@@ -166,7 +233,63 @@ export function RealEstatePage({params} ) {
             canDelete={realEstate.canDelete}
             onDeleted={() => navigate('/')}
           />
+          {realEstate.canViewAnalytics && (
+            <button
+              type="button"
+              className="analytics-btn"
+              title="View analytics"
+              onClick={() => setShowAnalyticsModal(true)}
+            >
+              <i className="fa-solid fa-chart-line" />
+            </button>
+          )}
         </div>
+      )}
+
+      {/* Hero banner request (company owners only) */}
+      {realEstate.canRequestHeroBanner && (
+        <button type="button" className="hero-banner-request-btn" onClick={() => setShowHeroModal(true)}>
+          <i className="fa-solid fa-star" /> Request hero banner placement
+        </button>
+      )}
+      {realEstate.heroBannerStatus === 'Pending' && (
+        <div className="hero-banner-status pending">
+          <i className="fa-solid fa-clock" /> Hero banner request pending admin approval
+        </div>
+      )}
+      {realEstate.heroBannerStatus === 'Approved' && (
+        <div className="hero-banner-status approved">
+          <i className="fa-solid fa-star" /> This listing is currently featured on the homepage
+        </div>
+      )}
+
+      {showHeroModal && (
+        <HeroBannerRequestModal
+          realestateId={realEstate.id}
+          onClose={() => setShowHeroModal(false)}
+          onSuccess={() => {
+            setShowHeroModal(false);
+            loadRealEstate();
+          }}
+        />
+      )}
+
+      {showReportModal && (
+        <ReportListingModal
+          realestateId={realEstate.id}
+          onClose={() => setShowReportModal(false)}
+          onSuccess={() => {
+            setShowReportModal(false);
+            setReportSent(true);
+          }}
+        />
+      )}
+
+      {showAnalyticsModal && (
+        <RealEstateAnalyticsModal
+          realestateId={realEstate.id}
+          onClose={() => setShowAnalyticsModal(false)}
+        />
       )}
 
       <Overlay isVisible={isVisible} changeVisibility={setIsVisible}>
@@ -174,5 +297,5 @@ export function RealEstatePage({params} ) {
 
       </Overlay>
     </div>
-  
+
 }

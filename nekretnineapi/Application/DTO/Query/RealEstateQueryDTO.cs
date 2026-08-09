@@ -9,5 +9,7 @@ namespace Application.DTO.Query
         public string? Title { get; set; }
         public float? MinRooms { get; set; }
         public int Page { get; set; } = 1;
+        public string? SortBy { get; set; }
+        public string? AmenityIds { get; set; }
     }
 }

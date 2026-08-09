@@ -22,4 +22,8 @@ public partial class Support
     public DateTime DateReported { get; set; }
 
     public int IsRead { get; set; }
+
+    public int? ReasonId { get; set; }
+
+    public virtual ContactReason? ReasonNavigation { get; set; }
 }

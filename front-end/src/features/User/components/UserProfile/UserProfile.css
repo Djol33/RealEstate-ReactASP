@@ -102,6 +102,20 @@
   align-items: center;
 }
 
+.profile-error {
+  color: #b91c1c;
+}
+
+.profile-error button {
+  border: none;
+  background: none;
+  color: #002356;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+}
+
 .profile-listings h2 {
   align-self: flex-start;
   font-size: 1.4rem;

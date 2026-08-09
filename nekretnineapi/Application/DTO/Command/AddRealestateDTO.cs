@@ -12,5 +12,6 @@ namespace Application.DTO.Command
         public string Address { get; set; }
         public float NumberOfRooms { get; set; }
         public List<string> ImagePaths { get; set; } = new();
+        public List<int> AmenityIds { get; set; } = new();
     }
 }

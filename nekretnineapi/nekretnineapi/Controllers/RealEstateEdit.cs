@@ -1,10 +1,13 @@
 using Application;
 using Application.Command;
 using Application.DTO.Command;
+using DataDomain.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.DTO;
 using nekretnineapi.Services;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers
 {
@@ -30,10 +33,10 @@ namespace nekretnineapi.Controllers
             [FromForm] EditRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
             [FromForm(Name = "existingImageIds[]")] List<long> existingImageIds,
-            [FromServices] IEditRealestate service)
+            [FromForm(Name = "amenityIds[]")] List<int> amenityIds,
+            [FromServices] IEditRealestate service,
+            [FromServices] AppDbContext db)
         {
-            var newImagePaths = imageStorage.Save(images);
-
             var dto = new EditRealestateDTO
             {
                 Id = id,
@@ -46,9 +49,15 @@ namespace nekretnineapi.Controllers
                 Area = request.Area,
                 Address = request.Address,
                 NumberOfRooms = request.NumberOfRooms,
-                ImagePaths = newImagePaths,
-                ExistingImageIds = existingImageIds ?? new List<long>()
+                ExistingImageIds = existingImageIds ?? new List<long>(),
+                AmenityIds = amenityIds ?? new List<int>()
             };
+
+            var result = new EditRealestateValidator(db).Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            dto.ImagePaths = imageStorage.Save(images);
 
             executor.ExecuteCommand(service, dto);
             return NoContent();

@@ -30,8 +30,6 @@ namespace Implementation.Command
 
         public void  Execute(RegisterUserDTO request)
         {
-
-            Console.WriteLine(this.db.Users == null);
             var user = new User();
             user.Email = request.Email;
             user.Password = passwordHasher.Hash(request.Password);
@@ -41,30 +39,24 @@ namespace Implementation.Command
             user.UserBasics.Add(new UserBasic
             {
                 FirstName = request.FirstName,
-                LastName = request.LastName
+                LastName = request.LastName,
+                Address = request.Address
             });
             try
             {
                 this.db.Users.Add(user);
                 this.db.SaveChanges();
-            }catch(DbUpdateException e)
+            }
+            catch (DbUpdateException e)
             {
-                if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx)
+                if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
+                    (sqlEx.Number == 2627 || sqlEx.Number == 2601))
                 {
-                    if (sqlEx.Number == 2627 || sqlEx.Number == 2601)
-                    {
-                        throw new ApplicationException("Email already exists.");
-                    }
+                    throw new ApplicationException("Email already exists.");
                 }
 
-
-            }catch(Exception e)
-            {
-                Console.WriteLine(e?.ToString());
+                throw;
             }
-
-
-
         }
     }
 }

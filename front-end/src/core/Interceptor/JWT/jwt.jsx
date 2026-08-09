@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+axios.defaults.timeout = 20000;
+
 axios.interceptors.request.use(
   (config) => {
     const stored = localStorage.getItem('user');
@@ -22,6 +24,7 @@ axios.interceptors.response.use(
 
       const onAuthPage = window.location.pathname.startsWith('/auth');
       if (wasLoggedIn && !onAuthPage) {
+        sessionStorage.setItem('auth-flash', 'Your session has expired. Please log in again.');
         window.location.href = '/auth/login';
       }
     }

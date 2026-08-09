@@ -38,4 +38,6 @@ public partial class Realestate
     public virtual TipObjektum TypeObjectNavigation { get; set; } = null!;
 
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
+
+    public virtual ICollection<Amenity> Amenities { get; set; } = new List<Amenity>();
 }

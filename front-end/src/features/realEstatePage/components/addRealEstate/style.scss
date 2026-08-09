@@ -58,7 +58,11 @@ form.estate-form{
         margin-bottom: 25px;
         justify-content: space-between;
 
-        a, input[type='submit']{
+        &:has(> :only-child){
+            justify-content: center;
+        }
+
+        a, button, input[type='submit']{
             display: flex;
             justify-content: center;
             align-items: center;
@@ -69,11 +73,43 @@ form.estate-form{
             box-sizing: border-box;
             border-radius: 25px;
             cursor:pointer;
+            font-size: 1rem;
             &.border{
                 @include border();
             }
             &.noBorder{
                 @include noBorder();
+            }
+        }
+
+        #predaj{
+            margin:0px;
+        }
+    }
+
+    .estate-steps{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 12px 0 8px;
+
+        .step-dot{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: $lightgray;
+            border: 2px solid darken($lightgray, 15%);
+            transition: all 0.2s;
+
+            &.active{
+                background: $blue;
+                border-color: $blue;
+                transform: scale(1.25);
+            }
+
+            &.done{
+                background: lighten($blue, 30%);
+                border-color: lighten($blue, 30%);
             }
         }
     }
@@ -88,16 +124,23 @@ form.estate-form{
         }
 
     }
-    input#predaj{
+    input#predaj, button#predaj{
         width:fit-content;
         padding:5px 15px;
         margin: 28px auto 20px;
         background-color: $blue;
         color:white;
         border:0px;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 25px;
         font-size: 1.2rem;
+        cursor: pointer;
+
+        &:hover{
+            opacity: 0.9;
+        }
     }
 
     #image-preview-info{

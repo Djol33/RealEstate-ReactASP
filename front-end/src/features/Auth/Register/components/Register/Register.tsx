@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BasicData } from './components/BasicData/BasicData';
 import { PersonalData } from './components/PersonalData/PersonalData';
 import { Location } from '../../../RegisterCompany/components/Location/components/Location/Location';
+import { SEO } from '../../../../../shared/components/SEO/SEO';
 import '../../../auth.scss';
 
 const TOTAL_STEPS = 3;
@@ -49,6 +50,7 @@ export function RegisterUser() {
 
   return (
     <div className="auth-card">
+      <SEO title="Sign Up" description="Create a free account to list properties, save favorites, and message owners." />
       <div className="auth-header">
         <h2>Sign Up</h2>
         <p>Create your account</p>

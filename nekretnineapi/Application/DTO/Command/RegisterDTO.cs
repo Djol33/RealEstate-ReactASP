@@ -18,6 +18,7 @@ namespace Application.DTO.Command
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string? Address { get; set; }
     }
 
     public class RegisterCompanyDTO  : RegisterDTO
@@ -26,5 +27,6 @@ namespace Application.DTO.Command
         public string Name { get; set; }
         public string BIP { get; set; }
         public string? Logo { get; set; }
+        public string? Address { get; set; }
     }
 }

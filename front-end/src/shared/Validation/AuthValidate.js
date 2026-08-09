@@ -4,7 +4,7 @@ export const Validate = {
         message: "Invalid email address"
     },
     password: {
-        value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+        value: /^(?=.*[A-Za-z])(?=.*\d)\S{8,}$/,
         message: "Password must be at least 8 characters long and contain at least one letter and one number"
     },
     firstName: {

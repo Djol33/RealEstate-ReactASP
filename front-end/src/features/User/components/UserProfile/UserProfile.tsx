@@ -5,6 +5,8 @@ import { Overlay } from '../../../../shared/components/Overlay/Overlay';
 import { ListRealEstate } from '../../../main/components/ListRealEstate/ListRealEstate';
 import { EditProfileForm } from '../EditProfileForm';
 import { EditCompanyForm } from '../EditCompanyForm/EditCompanyForm';
+import { MyHeroBannerRequests } from '../MyHeroBannerRequests/MyHeroBannerRequests';
+import { SEO } from '../../../../shared/components/SEO/SEO';
 import './UserProfile.css';
 
 export function UserProfile() {
@@ -16,6 +18,8 @@ export function UserProfile() {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [showEdit, setShowEdit] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [listingsError, setListingsError] = useState(false);
+  const [wishlistError, setWishlistError] = useState(false);
 
   const profileUrl = isOwnProfile
     ? 'https://localhost:7154/api/Profile'
@@ -33,16 +37,22 @@ export function UserProfile() {
     if (!ownerId) return;
     axios
       .get(`https://localhost:7154/api/Profile/${ownerId}/realestates`)
-      .then((r) => setListings(r.data))
-      .catch(() => setListings([]));
+      .then((r) => {
+        setListingsError(false);
+        setListings(r.data);
+      })
+      .catch(() => setListingsError(true));
   }, [id, isOwnProfile]);
 
   const loadWishlist = useCallback(() => {
     if (!isOwnProfile) return;
     axios
       .get('https://localhost:7154/api/Wishlist')
-      .then((r) => setWishlist(r.data))
-      .catch(() => setWishlist([]));
+      .then((r) => {
+        setWishlistError(false);
+        setWishlist(r.data);
+      })
+      .catch(() => setWishlistError(true));
   }, [isOwnProfile]);
 
   useEffect(() => {
@@ -82,6 +92,10 @@ export function UserProfile() {
 
   return (
     <div id="profile">
+      <SEO
+        title={fullName}
+        description={`${listings.length} listing${listings.length === 1 ? '' : 's'} by ${fullName} on Nekretnine.`}
+      />
       <div className="profile-hero">
         {logoUrl ? (
           <div className="profile-avatar profile-logo">
@@ -109,15 +123,29 @@ export function UserProfile() {
 
       <div className="profile-listings">
         <h2>Listings</h2>
-        <ListRealEstate listResult={listings} onItemDeleted={loadListings} />
+        {listingsError ? (
+          <p className="profile-error">
+            Could not load listings. <button type="button" onClick={loadListings}>Try again</button>
+          </p>
+        ) : (
+          <ListRealEstate listResult={listings} onItemDeleted={loadListings} />
+        )}
       </div>
 
       {isOwnProfile && (
         <div className="profile-listings">
           <h2>Saved</h2>
-          <ListRealEstate listResult={wishlist} onItemDeleted={loadWishlist} />
+          {wishlistError ? (
+            <p className="profile-error">
+              Could not load saved listings. <button type="button" onClick={loadWishlist}>Try again</button>
+            </p>
+          ) : (
+            <ListRealEstate listResult={wishlist} onItemDeleted={loadWishlist} />
+          )}
         </div>
       )}
+
+      {isOwnProfile && company && <MyHeroBannerRequests />}
 
       {isOwnProfile && basic && (
         <Overlay isVisible={showEdit} changeVisibility={setShowEdit}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './AdminDashboard.scss';
+import { formatPrice } from '../../../../shared/utils/format';
 
 interface Stats {
   totalUsers: number;
@@ -37,7 +38,7 @@ export function AdminDashboard() {
     { label: 'Messages', value: stats.totalMessages },
     { label: 'Views', value: stats.totalViews },
     { label: 'Avg. viewed area', value: `${stats.avgViewedArea} m²` },
-    { label: 'Avg. viewed price', value: `€ ${stats.avgViewedPrice.toLocaleString('en-US')}` },
+    { label: 'Avg. viewed price', value: `€ ${formatPrice(stats.avgViewedPrice)}` },
   ];
 
   return (

@@ -2,6 +2,8 @@ using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace Implementation.Command
 {
@@ -25,8 +27,27 @@ namespace Implementation.Command
                 .FirstOrDefault(c => c.FkId == actor.Id)
                 ?? throw new KeyNotFoundException("Company details not found.");
 
-            company.Name = request.Name;
-            company.Bip = request.BIP;
+            var name = (request.Name ?? "").Trim();
+            var bip = (request.BIP ?? "").Trim();
+
+            var failures = new List<ValidationFailure>();
+            if (string.IsNullOrWhiteSpace(name))
+                failures.Add(new("name", "Company name cannot be empty."));
+            else if (name.Length > 50)
+                failures.Add(new("name", "Company name cannot exceed 50 characters."));
+
+            if (string.IsNullOrWhiteSpace(bip))
+                failures.Add(new("bip", "Tax ID cannot be empty."));
+            else if (bip.Length > 40)
+                failures.Add(new("bip", "Tax ID cannot exceed 40 characters."));
+            else if (db.Companies.Any(c => c.Bip == bip && c.Id != company.Id))
+                failures.Add(new("bip", "This Tax ID is already in use."));
+
+            if (failures.Count > 0)
+                throw new ValidationException(failures);
+
+            company.Name = name;
+            company.Bip = bip;
 
             // logo se menja samo ako je poslata nova slika
             if (!string.IsNullOrEmpty(request.Logo))

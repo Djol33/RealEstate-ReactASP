@@ -9,22 +9,26 @@ export interface FilterProps {
   setPagedResult: (paged: { data: any[]; currentPage: number; totalPages: number; totalCount: number }) => void;
   page: number;
   onLoadingChange?: (loading: boolean) => void;
+  onFilterChange?: () => void;
 }
 
-export function Filter({ setPagedResult, page, onLoadingChange }: FilterProps) {
+export function Filter({ setPagedResult, page, onLoadingChange, onFilterChange }: FilterProps) {
   const [city, setCity] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [typeObject, setTYPEoBJECT] = useState<{ id: number; naziv: string }[]>([])
+  const [filterableAmenities, setFilterableAmenities] = useState<{ id: number; name: string; icon: string | null }[]>([])
   const [formav, setForma] = useState({
     select:0,
     text:'',
-    
+
     city: [] as any[],
     registered:null,
     minPrice:0,
     maxPrice:10000000,
     typeObject:null,
     minRooms:0,
+    sortBy:'',
+    amenityIds: [] as number[],
 
 
   })
@@ -60,20 +64,39 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
   }, [])
 
   useEffect(() => {
+    axios.get("https://localhost:7154/api/amenities").then((response) => {
+      setFilterableAmenities(response.data.filter((a: any) => a.isFilterable));
+    })
+  }, [])
+
+  useEffect(() => {
     document.body.style.overflow = filterOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [filterOpen]);
+  const isFirstFilterRun = useRef(true);
   useEffect(() => {
+    if (isFirstFilterRun.current) {
+      isFirstFilterRun.current = false;
+    } else {
+      onFilterChange?.();
+    }
+  }, [formav]);
+
+  useEffect(() => {
+    let ignore = false;
     const queryParams = [];
     if (formav.city.length) queryParams.push('city=' + formav.city.map(x => x.id).join(','));
     queryParams.push(`minRooms=${formav.minRooms}`);
     queryParams.push(`minPrice=${formav.minPrice}`);
     queryParams.push(`maxPrice=${formav.maxPrice}`);
     if (formav.typeObject !== null) queryParams.push(`typeObject=${formav.typeObject}`);
+    if (formav.sortBy) queryParams.push(`sortBy=${formav.sortBy}`);
+    if (formav.amenityIds.length) queryParams.push(`amenityIds=${formav.amenityIds.join(',')}`);
     queryParams.push(`page=${page}`);
 
     onLoadingChange?.(true);
     axios.get(`https://localhost:7154/api/RealEstateMain?${queryParams.join('&')}`).then((response) => {
+      if (ignore) return;
       const paged = response.data;
       setPagedResult({
         data: paged.data ?? paged.Data ?? [],
@@ -82,9 +105,20 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
         totalCount: paged.totalCount ?? paged.TotalCount ?? 0,
       });
     }).finally(() => {
-      onLoadingChange?.(false);
+      if (!ignore) onLoadingChange?.(false);
     });
+
+    return () => { ignore = true; };
   }, [formav, page]);
+  function toggleAmenity(amenityId: number) {
+    setForma((prev) => ({
+      ...prev,
+      amenityIds: prev.amenityIds.includes(amenityId)
+        ? prev.amenityIds.filter((id) => id !== amenityId)
+        : [...prev.amenityIds, amenityId]
+    }));
+  }
+
   function handleChange(e) {
     console.log(e.target.value)
     const { name, value, type, checked } = e.target;
@@ -103,6 +137,16 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
 
   }
   return <>
+    <div className="sort-bar">
+      <label htmlFor="sortBy">Sort by</label>
+      <select name="sortBy" id="sortBy" value={formav.sortBy} onChange={(e) => handleChange(e)}>
+        <option value="">Newest</option>
+        <option value="priceAsc">Price: low to high</option>
+        <option value="priceDesc">Price: high to low</option>
+        <option value="areaDesc">Largest area</option>
+      </select>
+    </div>
+
     <button
       type="button"
       className={`filter-fab ${filterOpen ? 'is-open' : ''}`}
@@ -154,16 +198,33 @@ axios.get("https://localhost:7154/api/TypeOfObject").then((response)=>{
 </div>
 
 <div className="row ">
-<div className=" options d-block">
-  <div className="option display-inline-block"> 
-    
+<div className="options">
+  <div className="option">
+
     <input type="checkbox" name="registered" id="registered" value="true" onChange={(e)=>handleChange(e)} />   <label htmlFor="registered">Registered</label>
 </div>
 
 </div>
  </div>
-     
-  
+
+{filterableAmenities.length > 0 && (
+  <div className="row">
+    <label>Amenities</label>
+    <div className="options">
+      {filterableAmenities.map((a) => (
+        <div className="option" key={a.id}>
+          <input
+            type="checkbox"
+            id={`amenity-${a.id}`}
+            checked={formav.amenityIds.includes(a.id)}
+            onChange={() => toggleAmenity(a.id)}
+          />
+          <label htmlFor={`amenity-${a.id}`}>{a.name}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
 
     </form>

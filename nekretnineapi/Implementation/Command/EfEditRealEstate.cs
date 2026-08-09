@@ -2,6 +2,7 @@ using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Implementation.Command
 {
@@ -22,6 +23,7 @@ namespace Implementation.Command
         public void Execute(EditRealestateDTO request)
         {
             var realestate = db.Realestates
+                .Include(r => r.Amenities)
                 .FirstOrDefault(r => r.Id == request.Id)
                 ?? throw new KeyNotFoundException("Listing not found.");
 
@@ -56,6 +58,11 @@ namespace Implementation.Command
                     Alt = Path.GetFileName(path)
                 });
             }
+
+            var selectedAmenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id)).ToList();
+            realestate.Amenities.Clear();
+            foreach (var amenity in selectedAmenities)
+                realestate.Amenities.Add(amenity);
 
             db.SaveChanges();
         }

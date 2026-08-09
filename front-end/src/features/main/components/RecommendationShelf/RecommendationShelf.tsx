@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './RecommendationShelf.scss';
 import { ShelfPlaceholder } from '../../../../shared/components/Placeholder/Placeholder';
+import { formatPrice } from '../../../../shared/utils/format';
 
 interface RecommendationShelfProps {
   title: string;
@@ -92,7 +93,7 @@ export function RecommendationShelf({ title, endpoint, count = 8 }: Recommendati
                 <div className="rec-card-meta">
                   {item.cityName} · {item.numberOfRooms} rooms
                 </div>
-                <div className="rec-card-price">€ {item.price}</div>
+                <div className="rec-card-price">€ {formatPrice(item.price)}</div>
               </div>
             </Link>
           ))}

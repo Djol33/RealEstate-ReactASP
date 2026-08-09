@@ -64,11 +64,6 @@ namespace nekretnineapi.Controllers.User
             [FromForm] IFormFile? logo,
             [FromServices] IEditCompany service)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ValidationException("Company name cannot be empty.");
-            if (string.IsNullOrWhiteSpace(bip))
-                throw new ValidationException("Tax ID cannot be empty.");
-
             var dto = new EditCompanyDTO { Name = name, BIP = bip };
 
             if (logo != null)

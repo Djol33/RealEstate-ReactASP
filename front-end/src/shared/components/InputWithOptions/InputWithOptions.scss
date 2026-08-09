@@ -1,32 +1,101 @@
-.options{
-    position:absolute;
-    width:100%;
-    top:100%;
-    left:0px;
-    z-index: 9999;
-    display: none;
-    span{
-        padding:6px;
-        background-color: #c2c2c2;
-        border:1px solid black;
-        display: block;
+.city-picker {
+    position: relative;
+    width: 100%;
+}
+
+.city-picker-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .city-picker-icon {
+        position: absolute;
+        left: 10px;
+        color: #94a0b3;
+        font-size: 0.85rem;
+        pointer-events: none;
+    }
+
+}
+
+.city-picker-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 50;
+}
+
+.city-picker-status {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.city-picker-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    background: none;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+
+    i {
+        color: #94a0b3;
+        font-size: 0.8rem;
+    }
+
+    &:hover {
+        background: #f2f5fa;
     }
 }
 
-
-input:focus + .options{
-    display: block;
-}
-
-.selectedOptions{
-    
+.city-picker-chips {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-    span{ 
-        padding:2px;
-        background-color: #c2c2c2;
-        border:1px solid black;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.city-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 10px;
+    background: #eaf0fa;
+    color: #002356;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.city-chip-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 35, 86, 0.12);
+    color: #002356;
+    font-size: 0.65rem;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        background: #002356;
+        color: #fff;
     }
 }

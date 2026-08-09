@@ -6,6 +6,7 @@ import { BasicData } from './../../../Register/components/Register/components/Ba
 import { CompanyInfo } from './CompanyInfo/components/CompanyInfo/CompanyInfo';
 import { Location } from './../Location/components/Location/Location';
 import { CompanyLogo } from './CompanyLogo/CompanyLogo';
+import { SEO } from '../../../../../shared/components/SEO/SEO';
 import '../../../../Auth/auth.scss';
 
 const TOTAL_STEPS = 4;
@@ -81,6 +82,7 @@ export function RegisterCompany() {
 
   return (
     <div className="auth-card">
+      <SEO title="Company Sign Up" description="Register your company on Nekretnine to list properties and reach more buyers and renters." />
       <div className="auth-header">
         <h2>Company Sign Up</h2>
         <p>Create your business account</p>

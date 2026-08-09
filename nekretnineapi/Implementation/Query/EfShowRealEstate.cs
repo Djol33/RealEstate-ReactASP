@@ -45,11 +45,31 @@ namespace Implementation.Query
             if (req.MinRooms.HasValue) query = query.Where(x => x.NumberOfRooms >= req.MinRooms.Value);
             if (!string.IsNullOrWhiteSpace(req.Title)) query = query.Where(x => x.Title.Contains(req.Title));
 
+            if (!string.IsNullOrWhiteSpace(req.AmenityIds))
+            {
+                var amenityIds = req.AmenityIds
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                foreach (var amenityId in amenityIds)
+                    query = query.Where(x => x.Amenities.Any(a => a.Id == amenityId));
+            }
+
             var totalCount = query.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
+            query = req.SortBy switch
+            {
+                "priceAsc" => query.OrderBy(x => x.Price),
+                "priceDesc" => query.OrderByDescending(x => x.Price),
+                "areaDesc" => query.OrderByDescending(x => x.Area),
+                _ => query.OrderByDescending(x => x.Id)
+            };
+
             var data = query
-                .OrderByDescending(x => x.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new RealEstateDTO
@@ -62,6 +82,12 @@ namespace Implementation.Query
                     {
                         Id = o.Id,
                         Location = o.Location
+                    }).ToList(),
+                    Amenities = x.Amenities.Select(am => new AmenityDTO
+                    {
+                        Id = am.Id,
+                        Name = am.Name,
+                        IsFilterable = am.IsFilterable
                     }).ToList(),
                     Price = x.Price,
                     Terrace = x.Terrace,

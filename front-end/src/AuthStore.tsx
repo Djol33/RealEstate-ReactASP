@@ -21,19 +21,29 @@ interface AuthContextType {
 }
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function readStoredUser(): AuthUser | null {
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) return null;
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    localStorage.removeItem('user');
+    return null;
+  }
+}
+
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-
-  });
+  const [user, setUser] = useState<AuthUser | null>(() => readStoredUser());
   useEffect(() => {
+    setUser(readStoredUser());
 
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      console.log("parsiaran je", JSON.parse(storedUser))
+    function onStorage(e: StorageEvent) {
+      if (e.key === 'user') {
+        setUser(readStoredUser());
+      }
     }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
 

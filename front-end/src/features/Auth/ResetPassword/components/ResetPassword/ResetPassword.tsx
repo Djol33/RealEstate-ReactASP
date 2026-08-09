@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { Validate } from '../../../../../shared/Validation/AuthValidate';
+import { SEO } from '../../../../../shared/components/SEO/SEO';
 import '../../../../../features/Auth/auth.scss';
 
 type Inputs = {
@@ -46,6 +48,7 @@ export default function ResetPassword() {
   if (!token) {
     return (
       <div className="auth-card">
+        <SEO title="Invalid link" noIndex />
         <div className="auth-header">
           <h2>Invalid link</h2>
           <p>This reset link is missing or malformed.</p>
@@ -60,6 +63,7 @@ export default function ResetPassword() {
   if (done) {
     return (
       <div className="auth-card">
+        <SEO title="Password updated" noIndex />
         <div className="auth-header">
           <h2>Password updated</h2>
           <p>You can now log in with your new password. Redirecting...</p>
@@ -73,6 +77,7 @@ export default function ResetPassword() {
 
   return (
     <div className="auth-card">
+      <SEO title="Set a new password" noIndex />
       <div className="auth-header">
         <h2>Set a new password</h2>
         <p>Choose a strong password</p>
@@ -85,11 +90,11 @@ export default function ResetPassword() {
             <input
               id="Password"
               type="password"
-              placeholder="At least 6 characters"
+              placeholder="Min. 8 characters, letter + number"
               className={touchedFields.Password && errors.Password ? 'has-error' : ''}
               {...register('Password', {
                 required: 'Password is required.',
-                minLength: { value: 6, message: 'Password must be at least 6 characters.' },
+                pattern: Validate.password,
               })}
             />
             {touchedFields.Password && errors.Password && (

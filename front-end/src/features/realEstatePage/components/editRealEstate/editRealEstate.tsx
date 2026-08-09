@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { SEO } from "../../../../shared/components/SEO/SEO";
+import { AmenityCheckboxList } from "../../../../shared/components/AmenityCheckboxList/AmenityCheckboxList";
 import '../addRealEstate/style.scss';
 import './editImages.scss';
 
@@ -47,6 +49,7 @@ export function EditRealEstate() {
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<ImageItem[]>([]);
   const [imageError, setImageError] = useState('');
+  const [amenityIds, setAmenityIds] = useState<number[]>([]);
 
   useEffect(() => {
     return () => {
@@ -83,6 +86,10 @@ export function EditRealEstate() {
           serverId: img.id,
           isNew: false,
         })));
+      }
+
+      if (e.amenities?.length > 0) {
+        setAmenityIds(e.amenities.map((a: { id: number }) => a.id));
       }
 
       setPageLoading(false);
@@ -155,6 +162,10 @@ export function EditRealEstate() {
     const newErrors: FormErrors = {};
     if (!formData.title.trim() || formData.title.trim().length < 3)
       newErrors.title = 'Title must be at least 3 characters.';
+    else if (formData.title.trim().length > 200)
+      newErrors.title = 'Title cannot exceed 200 characters.';
+    if (!formData.description.trim() || formData.description.trim().length < 20)
+      newErrors.description = 'Description must be at least 20 characters.';
     if (!formData.cityId) newErrors.cityId = 'Select a city.';
     if (!formData.address.trim()) newErrors.address = 'Address is required.';
     if (!formData.typeObjectId) newErrors.typeObjectId = 'Select a building type.';
@@ -164,9 +175,13 @@ export function EditRealEstate() {
     const area = parseFloat(formData.area);
     if (!formData.area || isNaN(area) || area <= 0)
       newErrors.area = 'Area must be a positive number.';
+    else if (area > 10000)
+      newErrors.area = 'Area cannot exceed 10,000 m².';
     const price = parseFloat(formData.price);
-    if (!formData.price || isNaN(price) || price < 0)
+    if (!formData.price || isNaN(price) || price <= 0)
       newErrors.price = 'Price must be a positive number.';
+    else if (price > 100000000)
+      newErrors.price = 'Price cannot exceed 100,000,000.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -198,6 +213,8 @@ export function EditRealEstate() {
         .filter(img => img.isNew && !img.removed)
         .forEach(img => payload.append('images[]', (img as any).file));
 
+      amenityIds.forEach(amenityId => payload.append('amenityIds[]', String(amenityId)));
+
       await axios.put(`https://localhost:7154/api/RealEstateEdit/${id}`, payload);
       navigate(`/realestate/${id}`);
     } catch (err: any) {
@@ -219,6 +236,7 @@ export function EditRealEstate() {
 
   return (
     <div>
+      <SEO title={formData.title ? `Edit: ${formData.title}` : 'Edit listing'} noIndex />
       <form className="estate-form" onSubmit={handleSubmit} encType="multipart/form-data">
         <h1>Edit listing</h1>
 
@@ -269,19 +287,23 @@ export function EditRealEstate() {
           </div>
         </div>
 
+        <label>Amenities</label>
+        <AmenityCheckboxList selectedIds={amenityIds} onChange={setAmenityIds} />
+
         <label htmlFor="kvadratura">Area (m²)</label>
-        <input type="number" id="kvadratura" name="area" min="1"
+        <input type="number" id="kvadratura" name="area" min="1" max="10000"
           value={formData.area} onChange={handleChange} />
         {errors.area && <span className="error">{errors.area}</span>}
 
         <label htmlFor="cena">Total price (€)</label>
-        <input type="number" id="cena" name="price" min="0" step="500"
+        <input type="number" id="cena" name="price" min="0" max="100000000" step="500"
           value={formData.price} onChange={handleChange} />
         {errors.price && <span className="error">{errors.price}</span>}
 
         <label htmlFor="dodatniopis">Description</label>
         <input type="text" id="dodatniopis" name="description"
           value={formData.description} onChange={handleChange} />
+        {errors.description && <span className="error">{errors.description}</span>}
 
         {/* Image grid */}
         <label>Images</label>

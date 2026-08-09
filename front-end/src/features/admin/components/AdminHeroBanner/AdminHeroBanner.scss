@@ -1,0 +1,98 @@
+.admin-hero-banner {
+  h1 {
+    font-size: 1.6rem;
+    color: #002356;
+    margin-bottom: 20px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    th {
+      background: #f7f9fc;
+      color: #002356;
+      font-weight: 600;
+    }
+
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 24px;
+    }
+
+    .listing-link {
+      color: #002356;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+
+      &.pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      &.approved {
+        background: #dcfce7;
+        color: #166534;
+      }
+      &.rejected {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+
+      button {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+
+        &:disabled { opacity: 0.6; cursor: default; }
+      }
+      .btn-approve {
+        background: #dcfce7;
+        color: #166534;
+        &:hover:not(:disabled) { background: #bbf7d0; }
+      }
+      .btn-reject {
+        background: #fee2e2;
+        color: #b91c1c;
+        &:hover:not(:disabled) { background: #fecaca; }
+      }
+      .muted {
+        color: #999;
+        font-style: italic;
+      }
+    }
+  }
+}
