@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './AmenityCheckboxList.scss';
 
 interface Amenity {
@@ -16,7 +17,7 @@ export function AmenityCheckboxList({ selectedIds, onChange }: AmenityCheckboxLi
   const [amenities, setAmenities] = useState<Amenity[]>([]);
 
   useEffect(() => {
-    axios.get('https://localhost:7154/api/amenities').then((res) => setAmenities(res.data));
+    axios.get(`${API_URL}/api/amenities`).then((res) => setAmenities(res.data));
   }, []);
 
   function toggle(id: number) {

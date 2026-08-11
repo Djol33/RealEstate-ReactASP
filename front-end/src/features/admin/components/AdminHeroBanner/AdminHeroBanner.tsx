@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './AdminHeroBanner.scss';
 import { formatPrice } from '../../../../shared/utils/format';
+import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../../config';
 
 interface HeroBannerRequest {
   id: number;
@@ -17,21 +19,27 @@ interface HeroBannerRequest {
   startsAt: string | null;
   endsAt: string | null;
   createdAt: string;
+  revokedAt: string | null;
 }
 
 const STATUS_LABEL: Record<number, string> = { 0: 'Pending', 1: 'Approved', 2: 'Rejected' };
 const STATUS_CLASS: Record<number, string> = { 0: 'pending', 1: 'approved', 2: 'rejected' };
+
+function isCurrentlyActive(r: HeroBannerRequest): boolean {
+  return r.status === 1 && !!r.endsAt && new Date(r.endsAt) > new Date();
+}
 
 export function AdminHeroBanner() {
   const [requests, setRequests] = useState<HeroBannerRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [revokingId, setRevokingId] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/hero-banner-requests')
+      .get(`${API_URL}/api/admin/hero-banner-requests`)
       .then((res) => setRequests(res.data))
       .catch(() => setError('Failed to load hero banner requests.'))
       .finally(() => setLoading(false));
@@ -44,10 +52,25 @@ export function AdminHeroBanner() {
   async function decide(id: number, approve: boolean) {
     setBusyId(id);
     try {
-      await axios.post(`https://localhost:7154/api/admin/hero-banner-requests/${id}/${approve ? 'approve' : 'reject'}`);
+      await axios.post(`${API_URL}/api/admin/hero-banner-requests/${id}/${approve ? 'approve' : 'reject'}`);
       load();
     } catch {
       alert('Failed to update the request.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function confirmRevoke() {
+    if (revokingId == null) return;
+    const id = revokingId;
+    setRevokingId(null);
+    setBusyId(id);
+    try {
+      await axios.post(`${API_URL}/api/admin/hero-banner-requests/${id}/revoke`);
+      load();
+    } catch {
+      alert('Failed to remove the listing from the banner.');
     } finally {
       setBusyId(null);
     }
@@ -88,11 +111,11 @@ export function AdminHeroBanner() {
                 <td>{r.days}</td>
                 <td>€ {formatPrice(r.totalPrice)}</td>
                 <td>
-                  <span className={`status-badge ${STATUS_CLASS[r.status]}`}>
-                    {STATUS_LABEL[r.status]}
+                  <span className={`status-badge ${r.revokedAt ? 'revoked' : STATUS_CLASS[r.status]}`}>
+                    {r.revokedAt ? 'Revoked' : STATUS_LABEL[r.status]}
                   </span>
                 </td>
-                <td>{r.endsAt ? new Date(r.endsAt).toLocaleDateString() : '—'}</td>
+                <td>{r.endsAt ? new Date(r.endsAt).toLocaleDateString() : '-'}</td>
                 <td className="actions">
                   {r.status === 0 ? (
                     <>
@@ -111,8 +134,16 @@ export function AdminHeroBanner() {
                         Reject
                       </button>
                     </>
+                  ) : isCurrentlyActive(r) ? (
+                    <button
+                      className="btn-reject"
+                      disabled={busyId === r.id}
+                      onClick={() => setRevokingId(r.id)}
+                    >
+                      Remove from banner
+                    </button>
                   ) : (
-                    <span className="muted">—</span>
+                    <span className="muted">-</span>
                   )}
                 </td>
               </tr>
@@ -120,6 +151,17 @@ export function AdminHeroBanner() {
           </tbody>
         </table>
       </div>
+
+      {revokingId != null && (
+        <ConfirmDialog
+          title="Remove from banner"
+          message="Remove this listing from the hero banner? The owner will be notified."
+          confirmLabel="Remove"
+          danger
+          onConfirm={confirmRevoke}
+          onCancel={() => setRevokingId(null)}
+        />
+      )}
     </div>
   );
 }

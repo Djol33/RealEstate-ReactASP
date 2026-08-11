@@ -16,5 +16,6 @@ namespace Application.DTO.HeroBanner
         public DateTime? StartsAt { get; set; }
         public DateTime? EndsAt { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? RevokedAt { get; set; }
     }
 }

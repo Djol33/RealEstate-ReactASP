@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../../config';
 import './AdminReports.scss';
 
 interface Report {
@@ -31,11 +33,12 @@ export function AdminReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/reports')
+      .get(`${API_URL}/api/admin/reports`)
       .then((res) => setReports(res.data))
       .catch(() => setError('Failed to load reports.'))
       .finally(() => setLoading(false));
@@ -48,7 +51,7 @@ export function AdminReports() {
   async function dismiss(id: number) {
     setBusyId(id);
     try {
-      await axios.post(`https://localhost:7154/api/admin/reports/${id}/dismiss`);
+      await axios.post(`${API_URL}/api/admin/reports/${id}/dismiss`);
       load();
     } catch {
       alert('Failed to dismiss the report.');
@@ -57,11 +60,13 @@ export function AdminReports() {
     }
   }
 
-  async function deleteListing(id: number) {
-    if (!window.confirm('Delete the reported listing? This cannot be undone.')) return;
+  async function confirmDeleteListing() {
+    if (deletingId == null) return;
+    const id = deletingId;
+    setDeletingId(null);
     setBusyId(id);
     try {
-      await axios.post(`https://localhost:7154/api/admin/reports/${id}/delete-listing`);
+      await axios.post(`${API_URL}/api/admin/reports/${id}/delete-listing`);
       load();
     } catch {
       alert('Failed to delete the listing.');
@@ -106,7 +111,7 @@ export function AdminReports() {
                 </td>
                 <td>{r.reportedByEmail}</td>
                 <td>{REASON_LABEL[r.reason] ?? r.reason}</td>
-                <td className="details">{r.details ?? '—'}</td>
+                <td className="details">{r.details ?? '-'}</td>
                 <td>
                   <span className={`status-badge ${STATUS_CLASS[r.status]}`}>
                     {STATUS_LABEL[r.status]}
@@ -125,13 +130,13 @@ export function AdminReports() {
                       <button
                         className="btn-delete"
                         disabled={busyId === r.id}
-                        onClick={() => deleteListing(r.id)}
+                        onClick={() => setDeletingId(r.id)}
                       >
                         Delete listing
                       </button>
                     </>
                   ) : (
-                    <span className="muted">—</span>
+                    <span className="muted">-</span>
                   )}
                 </td>
               </tr>
@@ -139,6 +144,17 @@ export function AdminReports() {
           </tbody>
         </table>
       </div>
+
+      {deletingId != null && (
+        <ConfirmDialog
+          title="Delete listing"
+          message="Delete the reported listing? This cannot be undone."
+          confirmLabel="Delete"
+          danger
+          onConfirm={confirmDeleteListing}
+          onCancel={() => setDeletingId(null)}
+        />
+      )}
     </div>
   );
 }

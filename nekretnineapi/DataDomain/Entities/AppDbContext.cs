@@ -89,6 +89,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name).HasMaxLength(50).HasColumnName("name");
             entity.Property(e => e.IsFilterable).HasColumnName("is_filterable");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -144,6 +145,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
+            entity.Property(e => e.RevokedAt).HasColumnType("datetime").HasColumnName("revoked_at");
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
@@ -377,6 +379,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("decimal(10, 0)")
                 .HasColumnName("price");
             entity.Property(e => e.Terrace).HasColumnName("terrace");
+            entity.Property(e => e.Registered).HasColumnName("registered");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.TypeObject).HasColumnName("typeObject");
             entity.Property(e => e.Lat).HasColumnType("decimal(9, 6)").HasColumnName("lat");

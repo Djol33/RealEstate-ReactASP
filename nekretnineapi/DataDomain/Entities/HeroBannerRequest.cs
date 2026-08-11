@@ -23,4 +23,6 @@ public partial class HeroBannerRequest
     public DateTime? EndsAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public DateTime? RevokedAt { get; set; }
 }

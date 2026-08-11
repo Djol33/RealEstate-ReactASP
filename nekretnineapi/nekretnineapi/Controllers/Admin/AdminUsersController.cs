@@ -1,5 +1,6 @@
 using Application;
 using Application.Command.Admin;
+using Application.DTO.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,10 @@ namespace nekretnineapi.Controllers.Admin
             : base(executor, actor) { }
 
         [HttpGet]
-        public IActionResult List([FromServices] IAdminListUsers service)
+        public IActionResult List([FromQuery] string search, [FromQuery] int page, [FromServices] IAdminListUsers service)
         {
             EnsureAdmin();
-            return Ok(executor.ExecuteQuery(service, 0));
+            return Ok(executor.ExecuteQuery(service, new AdminUserQueryDTO { Search = search, Page = page < 1 ? 1 : page }));
         }
 
         [HttpDelete("{id}")]

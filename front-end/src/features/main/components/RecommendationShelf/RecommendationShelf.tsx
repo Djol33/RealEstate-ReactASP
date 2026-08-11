@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './RecommendationShelf.scss';
 import { ShelfPlaceholder } from '../../../../shared/components/Placeholder/Placeholder';
 import { formatPrice } from '../../../../shared/utils/format';
+import { API_URL } from '../../../../config';
 
 interface RecommendationShelfProps {
   title: string;
@@ -20,7 +21,7 @@ export function RecommendationShelf({ title, endpoint, count = 8 }: Recommendati
 
   useEffect(() => {
     axios
-      .get(`https://localhost:7154${endpoint}?count=${count}`)
+      .get(`${API_URL}${endpoint}?count=${count}`)
       .then((res) => setItems(res.data))
       .catch(() => setItems([]))
       .finally(() => setLoaded(true));
@@ -83,7 +84,7 @@ export function RecommendationShelf({ title, endpoint, count = 8 }: Recommendati
                 style={{
                   backgroundImage: `url(${
                     item.images?.[0]?.location
-                      ? 'https://localhost:7154/' + item.images[0].location
+                      ? `${API_URL}/` + item.images[0].location
                       : 'https://placehold.co/300x200?text=No+Image'
                   })`,
                 }}

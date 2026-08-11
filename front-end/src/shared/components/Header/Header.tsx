@@ -3,11 +3,13 @@ import { useAuth } from '../../../AuthStore';
 import './Header.scss';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Profile } from '../Profile/components/Profile/Profile';
+import { useUnreadMessages } from '../../hooks/useUnreadMessages';
 
 export function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const unreadCount = useUnreadMessages();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
@@ -41,7 +43,7 @@ export function Header() {
     <header>
       <h1>
         <Link to="/" onClick={close}>
-          <img src="/src/assets/images/logonekretnine.png" alt="logonekretnine" />
+          <img src="/src/assets/images/logonekretnine1.png" alt="logonekretnine" />
         </Link>
       </h1>
 
@@ -83,7 +85,10 @@ export function Header() {
           )}
           {user && (
             <li>
-              <Link to="/messages" onClick={close}>Messages</Link>
+              <Link to="/messages" onClick={close} className="nav-messages-link">
+                Messages
+                {unreadCount > 0 && <span className="nav-unread-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
+              </Link>
             </li>
           )}
           {user?.userRole === 2 && (

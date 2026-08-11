@@ -6,9 +6,10 @@ const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
 
 interface CompanyLogoProps {
   onLogoSelected: (file: File | null) => void;
+  serverError?: string;
 }
 
-export function CompanyLogo({ onLogoSelected }: CompanyLogoProps) {
+export function CompanyLogo({ onLogoSelected, serverError }: CompanyLogoProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -61,7 +62,7 @@ export function CompanyLogo({ onLogoSelected }: CompanyLogoProps) {
         </label>
       )}
 
-      {error && <span className="field-error">{error}</span>}
+      {(error || serverError) && <span className="field-error">{error || serverError}</span>}
     </div>
   );
 }

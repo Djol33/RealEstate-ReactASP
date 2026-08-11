@@ -19,6 +19,8 @@ public partial class Realestate
 
     public bool Terrace { get; set; }
 
+    public bool Registered { get; set; }
+
     public float Area { get; set; }
 
     public decimal Price { get; set; }

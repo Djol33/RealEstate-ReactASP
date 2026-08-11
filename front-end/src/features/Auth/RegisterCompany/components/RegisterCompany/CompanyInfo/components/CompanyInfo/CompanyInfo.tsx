@@ -30,12 +30,12 @@ export function CompanyInfo() {
         <input
           id="bip"
           type="text"
-          maxLength={40}
+          maxLength={20}
           placeholder="Enter BIP number"
           className={touchedFields.bip && errors.bip ? 'has-error' : ''}
           {...register("bip", {
             required: "BIP number is required.",
-            maxLength: { value: 40, message: "BIP number cannot exceed 40 characters." },
+            maxLength: { value: 20, message: "BIP number cannot exceed 20 characters." },
           })}
         />
         {touchedFields.bip && errors.bip && (

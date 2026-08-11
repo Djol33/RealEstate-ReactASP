@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './HeroBannerRequestModal.scss';
 
 interface HeroBannerRequestModalProps {
@@ -17,7 +18,7 @@ export function HeroBannerRequestModal({ realestateId, onClose, onSuccess }: Her
 
   function loadQuote() {
     setQuoteFailed(false);
-    axios.get('https://localhost:7154/api/hero-banner/quote').then((res) => {
+    axios.get(`${API_URL}/api/hero-banner/quote`).then((res) => {
       setPricePerDay(res.data.pricePerDay);
     }).catch(() => {
       setQuoteFailed(true);
@@ -34,7 +35,7 @@ export function HeroBannerRequestModal({ realestateId, onClose, onSuccess }: Her
     setSubmitting(true);
     setError('');
     try {
-      await axios.post('https://localhost:7154/api/hero-banner/request', {
+      await axios.post(`${API_URL}/api/hero-banner/request`, {
         realestateId,
         days,
       });

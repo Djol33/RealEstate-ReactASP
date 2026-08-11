@@ -45,11 +45,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    transition: opacity 0.15s ease, background 0.15s ease;
-
-    &:hover {
-      background: #f2f4f8;
-    }
+    transition: opacity 0.15s ease;
 
     &.rec-arrow-left {
       left: -8px;
@@ -73,12 +69,6 @@
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-    }
 
     .rec-card-img {
       width: 100%;

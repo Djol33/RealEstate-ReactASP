@@ -27,7 +27,7 @@ namespace Implementation.Query.Admin
                     FirstName = s.FName,
                     LastName = s.LName,
                     Email = s.Email,
-                    ReasonName = s.ReasonNavigation != null ? s.ReasonNavigation.Name : "—",
+                    ReasonName = s.ReasonNavigation != null ? s.ReasonNavigation.Name : "-",
                     Message = s.Content,
                     IsRead = s.IsRead == 1,
                     CreatedAt = s.DateReported

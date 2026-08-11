@@ -7,6 +7,7 @@ import { CompanyInfo } from './CompanyInfo/components/CompanyInfo/CompanyInfo';
 import { Location } from './../Location/components/Location/Location';
 import { CompanyLogo } from './CompanyLogo/CompanyLogo';
 import { SEO } from '../../../../../shared/components/SEO/SEO';
+import { API_URL } from '../../../../../config';
 import '../../../../Auth/auth.scss';
 
 const TOTAL_STEPS = 4;
@@ -20,8 +21,13 @@ const stepFields: Record<number, string[]> = {
 
 const fieldStepMap: Record<string, number> = {
   email: 0, password: 0,
-  companyname: 1, bip: 1,
+  companyname: 1, name: 1, bip: 1,
   address: 2,
+  logo: 3,
+};
+
+const serverFieldToFormField: Record<string, string> = {
+  name: 'companyName',
 };
 
 export function RegisterCompany() {
@@ -29,6 +35,7 @@ export function RegisterCompany() {
   const [step, setStep] = useState(0);
   const [serverError, setServerError] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
+  const [logoError, setLogoError] = useState('');
 
   const methods = useForm({
     defaultValues: { email: '', password: '', companyName: '', bip: '', address: '' },
@@ -44,13 +51,22 @@ export function RegisterCompany() {
   const back = () => setStep(s => s - 1);
 
   const handleServerErrors = (serverErrors: { propertyName: string; errorMessage: string }[]) => {
-    const firstField = serverErrors[0].propertyName.toLowerCase();
-    const targetStep = fieldStepMap[firstField];
-    if (targetStep !== undefined) setStep(targetStep);
+    if (serverErrors.length === 0) return;
+
+    const steps = serverErrors
+      .map(err => fieldStepMap[err.propertyName.toLowerCase()])
+      .filter((s): s is number => s !== undefined);
+    if (steps.length > 0) setStep(Math.min(...steps));
 
     setTimeout(() => {
       serverErrors.forEach(err => {
-        methods.setError(err.propertyName.toLowerCase() as any, {
+        const key = err.propertyName.toLowerCase();
+        if (key === 'logo') {
+          setLogoError(err.errorMessage);
+          return;
+        }
+        const formField = serverFieldToFormField[key] ?? key;
+        methods.setError(formField as any, {
           type: 'server',
           message: err.errorMessage,
         });
@@ -60,6 +76,7 @@ export function RegisterCompany() {
 
   const onSubmit = async (data: any) => {
     setServerError('');
+    setLogoError('');
     try {
       const payload = new FormData();
       payload.append('email', data.email);
@@ -69,7 +86,7 @@ export function RegisterCompany() {
       payload.append('address', data.address);
       if (logo) payload.append('logo', logo);
 
-      await axios.post('https://localhost:7154/api/RegisterCompany', payload);
+      await axios.post(`${API_URL}/api/RegisterCompany`, payload);
       navigate('/auth/login');
     } catch (err: any) {
       if (err.response?.status === 400 && Array.isArray(err.response.data)) {
@@ -103,7 +120,7 @@ export function RegisterCompany() {
             {step === 0 && <BasicData />}
             {step === 1 && <CompanyInfo />}
             {step === 2 && <Location />}
-            {step === 3 && <CompanyLogo onLogoSelected={setLogo} />}
+            {step === 3 && <CompanyLogo onLogoSelected={setLogo} serverError={logoError} />}
 
             {serverError && <div className="server-error">{serverError}</div>}
 

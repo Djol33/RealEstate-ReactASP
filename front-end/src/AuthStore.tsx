@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { API_URL } from './config';
 
 
 export type AuthUser = {
@@ -49,7 +50,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (data) => {
     try {
-      const response = await axios.post('https://localhost:7154/api/LoginTEST', data);
+      const response = await axios.post(`${API_URL}/api/LoginTEST`, data);
       const result = response.data;
 
       const loggedUser: AuthUser = {

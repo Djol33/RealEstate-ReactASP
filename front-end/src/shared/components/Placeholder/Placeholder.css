@@ -1,5 +1,13 @@
 .skeleton-list {
-    width: 100%;
+    width: 65%;
+    padding-top: 14px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .skeleton-list {
+        width: 100%;
+    }
 }
 
 .skeleton-card {

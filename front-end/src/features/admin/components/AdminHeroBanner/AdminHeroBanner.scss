@@ -63,6 +63,10 @@
         background: #fee2e2;
         color: #b91c1c;
       }
+      &.revoked {
+        background: #e5e7eb;
+        color: #444;
+      }
     }
 
     .actions {

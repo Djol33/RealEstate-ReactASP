@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { startChatConnection, getChatConnection } from '../../../../core/signalr/chat';
+import { API_URL } from '../../../../config';
 import './ChatWindow.scss';
 
 interface Message {
@@ -30,7 +31,7 @@ export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWi
   function loadMessages() {
     setLoadError(false);
     axios
-      .get(`https://localhost:7154/api/Messages/${otherUserId}`)
+      .get(`${API_URL}/api/Messages/${otherUserId}`)
       .then((res) => setMessages(res.data))
       .catch(() => setLoadError(true));
   }
@@ -75,7 +76,6 @@ export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWi
       setText('');
       onMessageSent?.();
     } catch {
-      // greška u slanju — poruka ostaje u inputu
     } finally {
       setSending(false);
     }

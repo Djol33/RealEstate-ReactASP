@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ChatWindow } from '../ChatWindow/ChatWindow';
 import { startChatConnection, getChatConnection, subscribeChatStatus, getChatStatus, ChatConnectionStatus } from '../../../../core/signalr/chat';
 import { SEO } from '../../../../shared/components/SEO/SEO';
+import { API_URL } from '../../../../config';
 import './Messages.scss';
 
 interface Conversation {
@@ -28,7 +29,7 @@ export function Messages() {
 
   const loadConversations = useCallback(() => {
     axios
-      .get('https://localhost:7154/api/Messages/conversations')
+      .get(`${API_URL}/api/Messages/conversations`)
       .then((res) => {
         const active = activeIdRef.current;
         setLoadError(false);

@@ -1,29 +1,35 @@
 .amenity-checkbox-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  text-align: left;
 }
 
 .amenity-checkbox {
-  display: flex;
+  display: flex !important;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 6px;
+  width: auto !important;
+  padding: 6px 10px;
+  margin: 0 !important;
   border: 1px solid #cbd2dc;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
   color: #333;
   cursor: pointer;
+  text-align: left !important;
+  transition: border-color 0.15s ease, background 0.15s ease;
 
   input {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     margin: 0;
+    flex-shrink: 0;
   }
 
   i {
     color: #002356;
-    width: 16px;
+    width: 14px;
     text-align: center;
   }
 

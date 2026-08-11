@@ -170,6 +170,7 @@ builder.Services.AddScoped<Application.Query.IGetMyHeroBannerRequests, Implement
 builder.Services.AddScoped<Application.Command.IRequestHeroBanner, Implementation.Command.EfRequestHeroBanner>();
 builder.Services.AddScoped<Application.Query.Admin.IAdminListHeroBannerRequests, Implementation.Query.Admin.EfAdminListHeroBannerRequests>();
 builder.Services.AddScoped<Application.Command.Admin.IAdminDecideHeroBanner, Implementation.Command.Admin.EfAdminDecideHeroBanner>();
+builder.Services.AddScoped<Application.Command.Admin.IAdminRevokeHeroBanner, Implementation.Command.Admin.EfAdminRevokeHeroBanner>();
 builder.Services.AddScoped<Application.Command.IReportRealestate, Implementation.Command.EfReportRealestate>();
 builder.Services.AddScoped<Application.Query.Admin.IAdminListReports, Implementation.Query.Admin.EfAdminListReports>();
 builder.Services.AddScoped<Application.Command.Admin.IAdminDecideReport, Implementation.Command.Admin.EfAdminDecideReport>();
@@ -177,6 +178,7 @@ builder.Services.AddScoped<Application.Command.Admin.IAdminDecideReport, Impleme
 builder.Services.AddScoped<Application.Query.IListAmenities, Implementation.Query.EfListAmenities>();
 builder.Services.AddScoped<Application.Command.Admin.ISaveAmenity, Implementation.Command.Admin.EfSaveAmenity>();
 builder.Services.AddScoped<Application.Command.Admin.IDeleteAmenity, Implementation.Command.Admin.EfDeleteAmenity>();
+builder.Services.AddScoped<Application.Command.Admin.IRestoreAmenity, Implementation.Command.Admin.EfRestoreAmenity>();
 
 builder.Services.AddScoped<Application.Query.IListContactReasons, Implementation.Query.EfListContactReasons>();
 builder.Services.AddScoped<Application.Command.Admin.ISaveContactReason, Implementation.Command.Admin.EfSaveContactReason>();
@@ -184,6 +186,7 @@ builder.Services.AddScoped<Application.Command.Admin.IDeleteContactReason, Imple
 builder.Services.AddScoped<Application.Command.ISubmitContactMessage, Implementation.Command.EfSubmitContactMessage>();
 builder.Services.AddScoped<Application.Query.Admin.IAdminListContactMessages, Implementation.Query.Admin.EfAdminListContactMessages>();
 builder.Services.AddScoped<Application.Command.Admin.IMarkContactMessageRead, Implementation.Command.Admin.EfMarkContactMessageRead>();
+builder.Services.AddScoped<Application.Command.Admin.IReplyToContactMessage, Implementation.Command.Admin.EfReplyToContactMessage>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 

@@ -5,3 +5,6 @@ nekretnineapi/nekretnineapi/appsettings.json
 # Database backups (contain real user data - emails, password hashes, messages)
 database/
 *.bak
+
+# Local environment overrides
+front-end/.env.local

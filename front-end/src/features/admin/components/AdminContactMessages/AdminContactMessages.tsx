@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../../config';
 import './AdminContactMessages.scss';
 
 interface ContactMessage {
@@ -18,11 +19,15 @@ export function AdminContactMessages() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [replyError, setReplyError] = useState('');
+  const [replySentId, setReplySentId] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/contact-messages')
+      .get(`${API_URL}/api/admin/contact-messages`)
       .then((res) => setMessages(res.data))
       .catch(() => setError('Failed to load messages.'))
       .finally(() => setLoading(false));
@@ -35,13 +40,35 @@ export function AdminContactMessages() {
   async function toggleExpand(m: ContactMessage) {
     const opening = expandedId !== m.id;
     setExpandedId(opening ? m.id : null);
+    setReplyText('');
+    setReplyError('');
     if (opening && !m.isRead) {
       try {
-        await axios.post(`https://localhost:7154/api/admin/contact-messages/${m.id}/read`);
+        await axios.post(`${API_URL}/api/admin/contact-messages/${m.id}/read`);
         setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, isRead: true } : x)));
       } catch {
         // ignore
       }
+    }
+  }
+
+  async function sendReply(m: ContactMessage) {
+    const reply = replyText.trim();
+    if (!reply) {
+      setReplyError('Reply cannot be empty.');
+      return;
+    }
+    setSending(true);
+    setReplyError('');
+    try {
+      await axios.post(`${API_URL}/api/admin/contact-messages/${m.id}/reply`, { reply });
+      setReplySentId(m.id);
+      setReplyText('');
+    } catch (err: any) {
+      const first = err.response?.data?.errors?.[0];
+      setReplyError(first?.error ?? 'Could not send reply. Please try again.');
+    } finally {
+      setSending(false);
     }
   }
 
@@ -69,6 +96,33 @@ export function AdminContactMessages() {
               <div className="message-detail">
                 <p><strong>Email:</strong> <a href={`mailto:${m.email}`}>{m.email}</a></p>
                 <p className="message-content">{m.message}</p>
+
+                {replySentId === m.id ? (
+                  <p className="reply-sent">
+                    <i className="fa-solid fa-check" /> Reply sent.
+                  </p>
+                ) : (
+                  <div className="reply-form">
+                    <label htmlFor={`reply-${m.id}`}>Reply</label>
+                    <textarea
+                      id={`reply-${m.id}`}
+                      rows={3}
+                      maxLength={2000}
+                      placeholder="Write your reply..."
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                    />
+                    {replyError && <span className="reply-error">{replyError}</span>}
+                    <button
+                      type="button"
+                      className="btn-reply"
+                      onClick={() => sendReply(m)}
+                      disabled={sending}
+                    >
+                      {sending ? 'Sending...' : 'Send reply'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

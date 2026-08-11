@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './MyHeroBannerRequests.scss';
 import { formatPrice } from '../../../../shared/utils/format';
+import { API_URL } from '../../../../config';
 
 interface MyHeroRequest {
   id: number;
@@ -24,7 +25,7 @@ export function MyHeroBannerRequests() {
 
   useEffect(() => {
     axios
-      .get('https://localhost:7154/api/hero-banner/my-requests')
+      .get(`${API_URL}/api/hero-banner/my-requests`)
       .then((res) => setRequests(res.data))
       .catch(() => setRequests([]));
   }, []);

@@ -1,5 +1,5 @@
 #overlay {
-  
+
     position: fixed;
     top:0px;
     left:0px;
@@ -11,6 +11,7 @@
     align-items: center;
     justify-content: space-around;
     padding:25px;
+    z-index: 2000;
 
     overflow: hidden;
 

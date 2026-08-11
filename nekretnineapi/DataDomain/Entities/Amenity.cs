@@ -11,6 +11,8 @@ public partial class Amenity
 
     public bool IsFilterable { get; set; }
 
+    public bool IsActive { get; set; } = true;
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<Realestate> Realestates { get; set; } = new List<Realestate>();

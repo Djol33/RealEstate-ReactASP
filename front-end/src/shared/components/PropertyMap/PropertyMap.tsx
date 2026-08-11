@@ -29,7 +29,7 @@ export function PropertyMap({ lat, lng, title }: PropertyMapProps) {
     <MapContainer
       center={[lat, lng]}
       zoom={15}
-      style={{ width: '100%', height: 320, borderRadius: 12, marginTop: 16 }}
+      style={{ width: '100%', maxWidth: 800, height: 320, borderRadius: 12, margin: '16px 0 24px' }}
       scrollWheelZoom={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

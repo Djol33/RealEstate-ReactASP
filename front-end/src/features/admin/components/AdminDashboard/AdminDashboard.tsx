@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './AdminDashboard.scss';
 import { formatPrice } from '../../../../shared/utils/format';
+import { API_URL } from '../../../../config';
 
 interface Stats {
   totalUsers: number;
@@ -22,7 +23,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     axios
-      .get('https://localhost:7154/api/admin/stats')
+      .get(`${API_URL}/api/admin/stats`)
       .then((res) => setStats(res.data))
       .catch(() => setStats(null))
       .finally(() => setLoading(false));

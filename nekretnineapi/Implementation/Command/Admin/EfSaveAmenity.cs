@@ -32,8 +32,14 @@ namespace Implementation.Command.Admin
             if (name.Length > 50)
                 throw new ValidationException(new[] { new ValidationFailure("name", "Amenity name cannot exceed 50 characters.") });
 
-            if (db.Amenities.Any(a => a.Name == name && a.Id != request.Id))
-                throw new ValidationException(new[] { new ValidationFailure("name", "An amenity with this name already exists.") });
+            var conflicting = db.Amenities.FirstOrDefault(a => a.Name == name && a.Id != request.Id);
+            if (conflicting != null)
+            {
+                var message = conflicting.IsActive
+                    ? "An amenity with this name already exists."
+                    : "An amenity with this name was previously deleted. Restore it instead of creating a new one.";
+                throw new ValidationException(new[] { new ValidationFailure("name", message) });
+            }
 
             if (request.Id > 0)
             {

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../config';
 import './DeleteRealEstateButton.scss';
 
 interface DeleteRealEstateButtonProps {
@@ -10,20 +12,22 @@ interface DeleteRealEstateButtonProps {
 
 export function DeleteRealEstateButton({ realestateId, canDelete = false, onDeleted }: DeleteRealEstateButtonProps) {
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   if (!canDelete) return null;
 
-  async function handleDelete(e: React.MouseEvent) {
+  function openConfirm(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (busy) return;
+    setConfirming(true);
+  }
 
-    const ok = window.confirm('Are you sure you want to delete this listing? This action cannot be undone.');
-    if (!ok) return;
-
+  async function handleDelete() {
+    setConfirming(false);
     setBusy(true);
     try {
-      await axios.delete(`https://localhost:7154/api/RealEstateMain/${realestateId}`);
+      await axios.delete(`${API_URL}/api/RealEstateMain/${realestateId}`);
       onDeleted?.();
     } catch (err: any) {
       if (err.response?.status === 403) {
@@ -37,15 +41,28 @@ export function DeleteRealEstateButton({ realestateId, canDelete = false, onDele
   }
 
   return (
-    <button
-      type="button"
-      className="delete-re-btn"
-      onClick={handleDelete}
-      disabled={busy}
-      title="Obriši"
-      aria-label="Obriši"
-    >
-      <i className="fa-solid fa-trash" />
-    </button>
+    <>
+      <button
+        type="button"
+        className="delete-re-btn"
+        onClick={openConfirm}
+        disabled={busy}
+        title="Obriši"
+        aria-label="Obriši"
+      >
+        <i className="fa-solid fa-trash" />
+      </button>
+
+      {confirming && (
+        <ConfirmDialog
+          title="Delete listing"
+          message="Are you sure you want to delete this listing? This action cannot be undone."
+          confirmLabel="Delete"
+          danger
+          onConfirm={handleDelete}
+          onCancel={() => setConfirming(false)}
+        />
+      )}
+    </>
   );
 }

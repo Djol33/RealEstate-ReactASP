@@ -46,6 +46,7 @@ namespace nekretnineapi.Controllers
                 CityId = request.CityId,
                 TypeObjectId = request.TypeObjectId,
                 Terrace = request.Terrace,
+                Registered = request.Registered,
                 Area = request.Area,
                 Address = request.Address,
                 NumberOfRooms = request.NumberOfRooms,

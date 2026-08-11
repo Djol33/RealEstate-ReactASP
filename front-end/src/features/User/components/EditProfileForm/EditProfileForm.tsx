@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
+import { API_URL } from '../../../../config';
 import './EditProfileForm.scss';
 
 type Inputs = {
@@ -32,7 +33,7 @@ export function EditProfileForm({ initialData, onSaved, onCancel }: EditProfileF
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setServerError('');
     try {
-      await axios.put('https://localhost:7154/api/Profile', data);
+      await axios.put(`${API_URL}/api/Profile`, data);
       onSaved();
     } catch (err: any) {
       if (err.response?.status === 422) {

@@ -22,7 +22,8 @@ namespace Implementation.Query.RealEstate
 
         public RealEstateDTO Execute(int request)
         {
-    
+            var isLoggedIn = actor.Id > 0;
+
             var realestate = this.db.Realestates
                 .Where(a => a.Id == request)
                 .Select(a => new RealEstateDTO
@@ -34,6 +35,7 @@ namespace Implementation.Query.RealEstate
                     Price = a.Price,
                     NumberOfRooms = a.NumberOfRooms,
                     Terrace = a.Terrace,
+                    Registered = a.Registered,
                     Title = a.Title,
                     CityId = db.Cities.Where(c => c.Id == a.City).Select(c => c.Id).FirstOrDefault(),
                     TypeObject=a.TypeObjectNavigation.Id,
@@ -57,8 +59,9 @@ namespace Implementation.Query.RealEstate
                     Lat = a.Lat ??null,
                     Owner = a.Owner,
                     Email = db.Users.Where(u => u.Id == a.Owner).Select(u => u.Email).FirstOrDefault(),
-                    F_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.FirstName).FirstOrDefault(),
-                    L_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.LastName).FirstOrDefault()
+                    F_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.FirstName).FirstOrDefault()
+                        ?? db.Companies.Where(c => c.FkId == a.Owner).Select(c => c.Name).FirstOrDefault(),
+                    L_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.LastName).FirstOrDefault() ?? string.Empty
                 })
                 .FirstOrDefault()
                 ?? throw new KeyNotFoundException("Listing not found.");
@@ -85,7 +88,25 @@ namespace Implementation.Query.RealEstate
                 realestate.CanViewAnalytics = isCompany;
             }
 
+            if (!isLoggedIn)
+            {
+                realestate.F_name = string.IsNullOrEmpty(realestate.F_name) ? "" : realestate.F_name[0] + ".";
+                realestate.L_name = string.IsNullOrEmpty(realestate.L_name) ? "" : realestate.L_name[0] + ".";
+                realestate.Email = MaskEmail(realestate.Email);
+            }
+
             return realestate;
+        }
+
+        private static string MaskEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return email;
+
+            var atIndex = email.IndexOf('@');
+            if (atIndex <= 1) return email;
+
+            var visible = email.Substring(0, 2);
+            return visible + new string('*', atIndex - 2) + email.Substring(atIndex);
         }
     }
 }

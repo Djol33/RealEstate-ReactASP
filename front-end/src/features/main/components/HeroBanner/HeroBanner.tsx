@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './HeroBanner.scss';
 import { formatPrice } from '../../../../shared/utils/format';
+import { API_URL } from '../../../../config';
 
 interface HeroBannerItem {
   realestateId: number;
@@ -19,7 +20,7 @@ export function HeroBanner() {
 
   useEffect(() => {
     axios
-      .get('https://localhost:7154/api/hero-banner/active')
+      .get(`${API_URL}/api/hero-banner/active`)
       .then((res) => setItems(res.data))
       .catch(() => setItems([]));
   }, []);
@@ -65,7 +66,7 @@ export function HeroBanner() {
         className="hero-banner-slide"
         style={{
           backgroundImage: `url(${
-            item.imageLocation ? 'https://localhost:7154/' + item.imageLocation : 'https://placehold.co/1200x400?text=Featured+Listing'
+            item.imageLocation ? `${API_URL}/` + item.imageLocation : 'https://placehold.co/1200x400?text=Featured+Listing'
           })`,
         }}
       >

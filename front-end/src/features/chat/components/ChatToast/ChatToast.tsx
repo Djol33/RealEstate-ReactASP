@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../../AuthStore';
 import { startChatConnection, stopChatConnection, getChatConnection } from '../../../../core/signalr/chat';
+import { API_URL } from '../../../../config';
 import './ChatToast.scss';
 
 interface IncomingMessage {
@@ -44,7 +45,7 @@ export function ChatToast() {
     async function resolveName(senderId: number): Promise<string> {
       if (nameCache.current[senderId]) return nameCache.current[senderId];
       try {
-        const res = await axios.get(`https://localhost:7154/api/Profile/${senderId}`);
+        const res = await axios.get(`${API_URL}/api/Profile/${senderId}`);
         const b = res.data?.userBasic;
         const name = b ? `${b.firstName} ${b.lastName}` : 'Korisnik';
         nameCache.current[senderId] = name;

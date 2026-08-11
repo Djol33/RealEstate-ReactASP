@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Validate } from '../../../../../shared/Validation/AuthValidate';
 import { SEO } from '../../../../../shared/components/SEO/SEO';
+import { API_URL } from '../../../../../config';
 import '../../../../../features/Auth/auth.scss';
 
 type Inputs = {
@@ -33,12 +34,12 @@ export default function ResetPassword() {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setServerError('');
     try {
-      await axios.post('https://localhost:7154/api/password/reset', {
+      await axios.post(`${API_URL}/api/password/reset`, {
         token,
         newPassword: data.Password,
       });
       setDone(true);
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate('/auth/login'), 2000);
     } catch (err: any) {
       const first = err.response?.data?.errors?.[0];
       setServerError(first?.error ?? 'Could not reset password. The link may have expired.');
@@ -54,7 +55,7 @@ export default function ResetPassword() {
           <p>This reset link is missing or malformed.</p>
         </div>
         <div className="auth-footer">
-          <Link to="/forgot-password">Request a new link</Link>
+          <Link to="/auth/forgot-password">Request a new link</Link>
         </div>
       </div>
     );
@@ -69,7 +70,7 @@ export default function ResetPassword() {
           <p>You can now log in with your new password. Redirecting...</p>
         </div>
         <div className="auth-footer">
-          <Link to="/login">Go to login</Link>
+          <Link to="/auth/login">Go to login</Link>
         </div>
       </div>
     );
@@ -129,7 +130,7 @@ export default function ResetPassword() {
         </div>
 
         <div className="auth-footer">
-          <Link to="/login">Back to login</Link>
+          <Link to="/auth/login">Back to login</Link>
         </div>
       </form>
     </div>

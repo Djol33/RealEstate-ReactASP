@@ -43,6 +43,7 @@ namespace Implementation.Query
             if (req.MaxPrice.HasValue) query = query.Where(x => x.Price <= req.MaxPrice.Value);
             if (req.TypeObject.HasValue) query = query.Where(x => x.TypeObject == req.TypeObject.Value);
             if (req.MinRooms.HasValue) query = query.Where(x => x.NumberOfRooms >= req.MinRooms.Value);
+            if (req.Registered.HasValue) query = query.Where(x => x.Registered == req.Registered.Value);
             if (!string.IsNullOrWhiteSpace(req.Title)) query = query.Where(x => x.Title.Contains(req.Title));
 
             if (!string.IsNullOrWhiteSpace(req.AmenityIds))
@@ -91,6 +92,7 @@ namespace Implementation.Query
                     }).ToList(),
                     Price = x.Price,
                     Terrace = x.Terrace,
+                    Registered = x.Registered,
                     Title = x.Title,
                     TypeObject = x.TypeObject,
                     TypeObjectName = this.db.TipObjekta.Where(t => t.Id == x.TypeObject).Select(t => t.Naziv).FirstOrDefault() ?? string.Empty,

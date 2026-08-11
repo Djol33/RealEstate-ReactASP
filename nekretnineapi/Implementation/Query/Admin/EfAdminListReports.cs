@@ -19,22 +19,36 @@ namespace Implementation.Query.Admin
 
         public List<ReportAdminListItemDTO> Execute(int request)
         {
-            return db.RealestateReports
+            var reports = db.RealestateReports
                 .OrderBy(r => r.Status == ReportStatus.Pending ? 0 : 1)
                 .ThenByDescending(r => r.CreatedAt)
-                .Select(r => new ReportAdminListItemDTO
-                {
-                    Id = r.Id,
-                    RealestateId = r.RealestateId,
-                    RealestateTitle = db.Realestates.Where(x => x.Id == r.RealestateId).Select(x => x.Title).FirstOrDefault(),
-                    RealestateStillExists = db.Realestates.Any(x => x.Id == r.RealestateId),
-                    ReportedByEmail = db.Users.Where(u => u.Id == r.ReportedBy).Select(u => u.Email).FirstOrDefault(),
-                    Reason = r.Reason,
-                    Details = r.Details,
-                    Status = r.Status,
-                    CreatedAt = r.CreatedAt
-                })
                 .ToList();
+
+            var realestateIds = reports.Select(r => r.RealestateId).Distinct().ToList();
+            var userIds = reports.Select(r => r.ReportedBy).Distinct().ToList();
+
+            var titlesById = db.Realestates
+                .Where(x => realestateIds.Contains(x.Id))
+                .Select(x => new { x.Id, x.Title })
+                .ToDictionary(x => x.Id, x => x.Title);
+
+            var emailsByUserId = db.Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.Email })
+                .ToDictionary(x => x.Id, x => x.Email);
+
+            return reports.Select(r => new ReportAdminListItemDTO
+            {
+                Id = r.Id,
+                RealestateId = r.RealestateId,
+                RealestateTitle = titlesById.GetValueOrDefault(r.RealestateId),
+                RealestateStillExists = titlesById.ContainsKey(r.RealestateId),
+                ReportedByEmail = emailsByUserId.GetValueOrDefault(r.ReportedBy),
+                Reason = r.Reason,
+                Details = r.Details,
+                Status = r.Status,
+                CreatedAt = r.CreatedAt
+            }).ToList();
         }
     }
 }

@@ -34,5 +34,13 @@ namespace nekretnineapi.Controllers.Admin
             executor.ExecuteCommand(service, new AdminDecideHeroBannerDTO { RequestId = id, Approve = false });
             return NoContent();
         }
+
+        [HttpPost("{id}/revoke")]
+        public IActionResult Revoke(int id, [FromServices] IAdminRevokeHeroBanner service)
+        {
+            EnsureAdmin();
+            executor.ExecuteCommand(service, id);
+            return NoContent();
+        }
     }
 }

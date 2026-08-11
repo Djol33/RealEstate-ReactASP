@@ -82,14 +82,13 @@ export default function Login() {
               className={touchedFields.Password && errors.Password ? 'has-error' : ''}
               {...register("Password", {
                 required: "Password is required.",
-                pattern: Validate.password,
               })}
             />
             {touchedFields.Password && errors.Password && (
               <span className="field-error">{errors.Password.message}</span>
             )}
             <div className="auth-forgot">
-              <Link to="/forgot-password">Forgot password?</Link>
+              <Link to="/auth/forgot-password">Forgot password?</Link>
             </div>
           </div>
 

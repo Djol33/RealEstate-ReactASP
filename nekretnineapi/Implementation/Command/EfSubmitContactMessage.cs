@@ -46,8 +46,17 @@ namespace Implementation.Command
                     ?? throw new KeyNotFoundException("User not found.");
 
                 var basic = db.UserBasics.FirstOrDefault(b => b.FkId == user.Id);
-                firstName = basic?.FirstName ?? "";
-                lastName = basic?.LastName ?? "";
+                if (basic != null)
+                {
+                    firstName = basic.FirstName ?? "";
+                    lastName = basic.LastName ?? "";
+                }
+                else
+                {
+                    var company = db.Companies.FirstOrDefault(c => c.FkId == user.Id);
+                    firstName = company?.Name ?? "";
+                    lastName = "";
+                }
                 email = user.Email;
             }
             else

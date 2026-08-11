@@ -2,6 +2,8 @@
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.Services;
 using nekretnineapi.Validators;
@@ -67,8 +69,16 @@ namespace nekretnineapi.Controllers
 
             if (logo != null)
             {
-                var paths = imageStorage.Save(new List<IFormFile> { logo });
-                data.Logo = paths.FirstOrDefault();
+                try
+                {
+                    var paths = imageStorage.Save(new List<IFormFile> { logo });
+                    data.Logo = paths.FirstOrDefault();
+                }
+                catch (ValidationException ex)
+                {
+                    var errors = ex.Errors.Select(e => new ValidationFailure("logo", e.ErrorMessage)).ToList();
+                    return BadRequest(errors);
+                }
             }
 
             executor.ExecuteCommand(service, data);

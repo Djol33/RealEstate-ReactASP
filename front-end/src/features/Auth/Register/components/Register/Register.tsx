@@ -6,6 +6,7 @@ import { BasicData } from './components/BasicData/BasicData';
 import { PersonalData } from './components/PersonalData/PersonalData';
 import { Location } from '../../../RegisterCompany/components/Location/components/Location/Location';
 import { SEO } from '../../../../../shared/components/SEO/SEO';
+import { API_URL } from '../../../../../config';
 import '../../../auth.scss';
 
 const TOTAL_STEPS = 3;
@@ -37,7 +38,7 @@ export function RegisterUser() {
   const onSubmit = async (data: any) => {
     setServerError('');
     try {
-      await axios.post('https://localhost:7154/api/RegisterUser', data);
+      await axios.post(`${API_URL}/api/RegisterUser`, data);
       navigate('/auth/login');
     } catch (err: any) {
       if (err.response?.status === 400) {

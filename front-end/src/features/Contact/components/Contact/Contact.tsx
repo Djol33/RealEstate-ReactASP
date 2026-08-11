@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../../AuthStore';
 import { SEO } from '../../../../shared/components/SEO/SEO';
 import { Validate } from '../../../../shared/Validation/AuthValidate';
+import { GuestContactFields } from './GuestContactFields';
+import { API_URL } from '../../../../config';
 import './Contact.scss';
 
 interface Reason {
@@ -34,16 +37,17 @@ export function Contact() {
   } = useForm<Inputs>({
     mode: 'onTouched',
     reValidateMode: 'onChange',
+    shouldUnregister: true,
   });
 
   useEffect(() => {
-    axios.get('https://localhost:7154/api/contact/reasons').then((res) => setReasons(res.data));
+    axios.get(`${API_URL}/api/contact/reasons`).then((res) => setReasons(res.data));
   }, []);
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setServerError('');
     try {
-      await axios.post('https://localhost:7154/api/contact', {
+      await axios.post(`${API_URL}/api/contact`, {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -59,17 +63,23 @@ export function Contact() {
 
   if (sent) {
     return (
-      <div className="auth-card contact-card">
-        <SEO title="Contact us" noIndex />
-        <div className="auth-header">
-          <h2>Message sent</h2>
-          <p>Thank you — we'll get back to you as soon as possible.</p>
+      <div className="contact-page-wrap">
+        <div className="auth-card contact-card">
+          <SEO title="Contact us" noIndex />
+          <div className="auth-header">
+            <h2>Message sent</h2>
+            <p>Thank you — we'll get back to you as soon as possible.</p>
+          </div>
+          <div className="contact-back-home">
+            <Link to="/" className="btn-primary">Back to home</Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
+    <div className="contact-page-wrap">
     <div className="auth-card contact-card">
       <SEO title="Contact us" description="Get in touch with the Nekretnine team." />
       <div className="auth-header">
@@ -80,60 +90,7 @@ export function Contact() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="auth-body">
           {!loggedIn && (
-            <>
-              <div className="auth-field">
-                <label htmlFor="firstName">First name</label>
-                <input
-                  id="firstName"
-                  type="text"
-                  placeholder="Your first name"
-                  className={touchedFields.firstName && errors.firstName ? 'has-error' : ''}
-                  {...register('firstName', {
-                    required: 'First name is required.',
-                    pattern: Validate.firstName,
-                    maxLength: { value: 30, message: 'First name cannot exceed 30 characters.' },
-                  })}
-                />
-                {touchedFields.firstName && errors.firstName && (
-                  <span className="field-error">{String(errors.firstName.message)}</span>
-                )}
-              </div>
-
-              <div className="auth-field">
-                <label htmlFor="lastName">Last name</label>
-                <input
-                  id="lastName"
-                  type="text"
-                  placeholder="Your last name"
-                  className={touchedFields.lastName && errors.lastName ? 'has-error' : ''}
-                  {...register('lastName', {
-                    required: 'Last name is required.',
-                    pattern: Validate.lastName,
-                    maxLength: { value: 30, message: 'Last name cannot exceed 30 characters.' },
-                  })}
-                />
-                {touchedFields.lastName && errors.lastName && (
-                  <span className="field-error">{String(errors.lastName.message)}</span>
-                )}
-              </div>
-
-              <div className="auth-field">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  className={touchedFields.email && errors.email ? 'has-error' : ''}
-                  {...register('email', {
-                    required: 'Email is required.',
-                    pattern: Validate.email,
-                  })}
-                />
-                {touchedFields.email && errors.email && (
-                  <span className="field-error">{String(errors.email.message)}</span>
-                )}
-              </div>
-            </>
+            <GuestContactFields register={register} errors={errors} touchedFields={touchedFields} />
           )}
 
           <div className="auth-field">
@@ -182,6 +139,7 @@ export function Contact() {
           </div>
         </div>
       </form>
+    </div>
     </div>
   );
 }

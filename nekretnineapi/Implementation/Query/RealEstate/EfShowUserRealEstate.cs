@@ -37,6 +37,7 @@ namespace Implementation.Query.RealEstate
                     }).ToList(),
                     Price = x.Price,
                     Terrace = x.Terrace,
+                    Registered = x.Registered,
                     Title = x.Title,
                     TypeObject = x.TypeObject,
                     TypeObjectName = db.TipObjekta.Where(t => t.Id == x.TypeObject).Select(t => t.Naziv).FirstOrDefault() ?? string.Empty,

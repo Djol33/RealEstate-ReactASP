@@ -2,6 +2,7 @@ using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using Application.Query;
+using Implementation.Query;
 using Microsoft.AspNetCore.Mvc;
 
 namespace nekretnineapi.Controllers.Admin
@@ -16,7 +17,7 @@ namespace nekretnineapi.Controllers.Admin
         public IActionResult List([FromServices] IListAmenities service)
         {
             EnsureAdmin();
-            return Ok(executor.ExecuteQuery(service, 0));
+            return Ok(executor.ExecuteQuery(service, EfListAmenities.IncludeInactive));
         }
 
         [HttpPost]
@@ -47,6 +48,14 @@ namespace nekretnineapi.Controllers.Admin
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id, [FromServices] IDeleteAmenity service)
+        {
+            EnsureAdmin();
+            executor.ExecuteCommand(service, id);
+            return NoContent();
+        }
+
+        [HttpPost("{id}/restore")]
+        public IActionResult Restore(int id, [FromServices] IRestoreAmenity service)
         {
             EnsureAdmin();
             executor.ExecuteCommand(service, id);

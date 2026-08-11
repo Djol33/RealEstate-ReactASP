@@ -2,10 +2,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding-top: 14px;
     width:65%;
 
+}
+
+.list-real-estate-row.is-empty{
+    justify-content: center;
+    flex: 1;
+}
+
+.no-item-matched{
+    width: 100%;
+    text-align: center;
+    color: #757575;
+    font-size: 1.1rem;
 }
 
 .list-real-estate-row a{

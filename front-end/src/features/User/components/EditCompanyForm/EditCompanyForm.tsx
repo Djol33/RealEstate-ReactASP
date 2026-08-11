@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
+import { API_URL } from '../../../../config';
 import '../EditProfileForm/EditProfileForm.scss';
 import './EditCompanyForm.scss';
 
@@ -23,7 +24,7 @@ export function EditCompanyForm({ initialData, onSaved, onCancel }: EditCompanyF
   const [logo, setLogo] = useState<File | null>(null);
   const [logoError, setLogoError] = useState('');
   const [preview, setPreview] = useState<string | null>(
-    initialData.logo?.startsWith('images/') ? `https://localhost:7154/${initialData.logo}` : null
+    initialData.logo?.startsWith('images/') ? `${API_URL}/${initialData.logo}` : null
   );
 
   const {
@@ -63,7 +64,7 @@ export function EditCompanyForm({ initialData, onSaved, onCancel }: EditCompanyF
       payload.append('bip', data.bip);
       if (logo) payload.append('logo', logo);
 
-      await axios.put('https://localhost:7154/api/Profile/company', payload);
+      await axios.put(`${API_URL}/api/Profile/company`, payload);
       onSaved();
     } catch (err: any) {
       if (err.response?.status === 422) {

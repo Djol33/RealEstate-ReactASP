@@ -17,6 +17,7 @@ namespace Application.DTO
         public string CityName { get; set; }
         public int CityId { get; set; }
         public bool Terrace { get; set; }
+        public bool Registered { get; set; }
         public float Area { get; set; }
         public string Adress { get; set; }
         public List<Images> Images { get; set; }

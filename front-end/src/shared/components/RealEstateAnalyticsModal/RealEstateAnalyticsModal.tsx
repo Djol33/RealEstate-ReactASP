@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './RealEstateAnalyticsModal.scss';
 
 interface DailyViewCount {
@@ -20,7 +21,7 @@ interface RealEstateAnalyticsModalProps {
 }
 
 function formatDuration(seconds: number | null): string {
-  if (seconds == null) return '—';
+  if (seconds == null) return '-';
   if (seconds < 60) return `${Math.round(seconds)}s`;
   const minutes = Math.floor(seconds / 60);
   const rest = Math.round(seconds % 60);
@@ -33,7 +34,7 @@ export function RealEstateAnalyticsModal({ realestateId, onClose }: RealEstateAn
 
   useEffect(() => {
     axios
-      .get(`https://localhost:7154/api/RealEstateMain/${realestateId}/analytics`)
+      .get(`${API_URL}/api/RealEstateMain/${realestateId}/analytics`)
       .then((res) => setData(res.data))
       .catch(() => setError('Could not load analytics.'));
   }, [realestateId]);

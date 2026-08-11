@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { ListRealEstate } from '../../../main/components/ListRealEstate/ListRealEstate';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
+import { API_URL } from '../../../../config';
 import './AdminRealEstates.scss';
 
 export function AdminRealEstates() {
@@ -13,7 +15,7 @@ export function AdminRealEstates() {
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get(`https://localhost:7154/api/admin/realestates?page=${page}`)
+      .get(`${API_URL}/api/admin/realestates?page=${page}`)
       .then((res) => {
         setLoadError(false);
         setItems(res.data.data ?? []);
@@ -41,17 +43,9 @@ export function AdminRealEstates() {
         <ListRealEstate listResult={items} onItemDeleted={load} />
       )}
 
-      {totalPages > 1 && (
-        <div className="admin-pagination">
-          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            Previous
-          </button>
-          <span>{page} / {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-            Next
-          </button>
-        </div>
-      )}
+      <div className="admin-pagination">
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      </div>
     </div>
   );
 }

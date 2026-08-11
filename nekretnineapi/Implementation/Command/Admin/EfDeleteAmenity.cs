@@ -26,7 +26,7 @@ namespace Implementation.Command.Admin
             var amenity = db.Amenities.FirstOrDefault(a => a.Id == request)
                 ?? throw new KeyNotFoundException("Amenity not found.");
 
-            db.Amenities.Remove(amenity);
+            amenity.IsActive = false;
             db.SaveChanges();
         }
     }

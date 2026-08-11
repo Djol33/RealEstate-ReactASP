@@ -77,6 +77,26 @@
       }
     }
 
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+
+      &.active {
+        background: #dcfce7;
+        color: #166534;
+      }
+      &.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+    }
+
+    tr.is-inactive {
+      color: #999;
+    }
+
     .actions {
       display: flex;
       gap: 8px;
@@ -98,6 +118,11 @@
         background: #fee2e2;
         color: #b91c1c;
         &:hover { background: #fecaca; }
+      }
+      .btn-restore {
+        background: #dcfce7;
+        color: #166534;
+        &:hover { background: #bbf7d0; }
       }
     }
   }

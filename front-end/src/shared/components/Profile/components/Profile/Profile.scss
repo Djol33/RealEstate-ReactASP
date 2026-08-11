@@ -14,11 +14,6 @@
   cursor: pointer;
   padding: 6px 8px;
   border-radius: 6px;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.12);
-  }
 
   .profile-name {
     white-space: nowrap;
@@ -86,16 +81,11 @@
     text-decoration: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.12s ease;
 
     i {
       width: 16px;
       color: #002356;
       opacity: 0.8;
-    }
-
-    &:hover {
-      background: #f1f5f9;
     }
   }
 }

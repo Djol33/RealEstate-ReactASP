@@ -29,7 +29,7 @@ namespace Implementation.Command
                 return;
 
             var user = db.Users.FirstOrDefault(u => u.Email == address);
-            if (user == null)
+            if (user == null || user.IsActive != 1)
                 return;
 
             var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
@@ -44,7 +44,7 @@ namespace Implementation.Command
             db.SaveChanges();
 
             var baseUrl = string.IsNullOrWhiteSpace(request.ResetUrlBase)
-                ? "http://localhost:5173/reset-password"
+                ? "http://localhost:5173/auth/reset-password"
                 : request.ResetUrlBase.TrimEnd('/');
             var link = $"{baseUrl}?token={rawToken}";
 

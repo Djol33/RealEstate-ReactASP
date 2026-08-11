@@ -39,6 +39,7 @@ namespace Implementation.Command
             realestate.City = request.CityId;
             realestate.TypeObject = (short)request.TypeObjectId;
             realestate.Terrace = request.Terrace;
+            realestate.Registered = request.Registered;
             realestate.Area = request.Area;
             realestate.Adress = request.Address;
             realestate.NumberOfRooms = request.NumberOfRooms;

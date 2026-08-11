@@ -32,7 +32,7 @@ namespace nekretnineapi.Validators
 
             RuleFor(x => x.BIP)
                 .NotEmpty().WithMessage("BIP number cannot be empty.")
-                .MaximumLength(40).WithMessage("BIP number cannot exceed 40 characters.");
+                .MaximumLength(20).WithMessage("BIP number cannot exceed 20 characters.");
 
             RuleFor(x => x.BIP).MustAsync(async (BIP, cancellation) =>
             {
@@ -41,7 +41,7 @@ namespace nekretnineapi.Validators
             }).WithMessage("PIB is already in use  ");
 
             RuleFor(x => x.Address)
-                .MaximumLength(80).WithMessage("Address cannot exceed 80 characters.");
+                .MaximumLength(40).WithMessage("Address cannot exceed 40 characters.");
         }
     }
     }

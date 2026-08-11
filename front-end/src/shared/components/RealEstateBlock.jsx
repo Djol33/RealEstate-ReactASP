@@ -3,6 +3,7 @@ import './RealEstateBlock.scss';
 import { WishlistButton } from './WishlistButton';
 import { DeleteRealEstateButton } from './DeleteRealEstateButton';
 import { formatPrice } from '../utils/format';
+import { API_URL } from '../../config';
 
 export default function RealEstateBlock({ data, onItemDeleted }) {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
         <div className="col1">
             <img
                 src={data.images?.[0]?.location
-                    ? 'https://localhost:7154/' + data.images[0].location
+                    ? `${API_URL}/` + data.images[0].location
                     : 'https://placehold.co/200x200?text=No+Image'}
                 alt={data.images?.[0]?.alt ?? data.title}
             />
@@ -27,7 +28,8 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
             <div className="title">{data.title}</div>
             <div className="adress">{data.adress}, {data.cityName}</div>
             <div className="general">
-                <span>{data.numberOfRooms} rooms</span> |
+                <span>{data.numberOfRooms} rooms</span>
+                <span className="separator">|</span>
                 <span>{data.area} m²</span>
             </div>
         </div>

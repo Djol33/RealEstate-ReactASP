@@ -1,3 +1,38 @@
+.contact-page-wrap {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+
+  .contact-card {
+    margin: 0;
+  }
+}
+
+.contact-back-home {
+  padding: 0 32px 28px;
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    text-align: center;
+    height: 40px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #002356;
+    color: #fff;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+}
+
 .contact-card {
   width: min(480px, 92%);
 

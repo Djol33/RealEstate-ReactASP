@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_URL } from '../../../config';
 
 import   './ImageCarousel.scss';
 
@@ -21,7 +22,7 @@ export function ImageCarousel({imageArray} ) {
 
     <div className="image-stage">
       {imageArray && imageArray.length > 0 ? (
-        <img src={'https://localhost:7154/'+imageArray[count].location} alt="Real estate" />
+        <img src={`${API_URL}/`+imageArray[count].location} alt="Real estate" />
       ) : (
         <p>Loading image...</p>
       )}

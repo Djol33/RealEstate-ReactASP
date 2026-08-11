@@ -23,6 +23,7 @@ namespace Implementation.Query.Recommendations
                 }).ToList(),
                 Price = x.Price,
                 Terrace = x.Terrace,
+                Registered = x.Registered,
                 Title = x.Title,
                 TypeObject = x.TypeObject,
                 TypeObjectName = db.TipObjekta.Where(t => t.Id == x.TypeObject).Select(t => t.Naziv).FirstOrDefault() ?? string.Empty,

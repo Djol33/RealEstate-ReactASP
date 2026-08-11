@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './WishlistButton.scss';
 
 interface WishlistButtonProps {
@@ -26,7 +27,7 @@ export function WishlistButton({ realestateId, initialSaved = false }: WishlistB
     const next = !saved;
     setSaved(next);
     try {
-      await axios.post(`https://localhost:7154/api/Wishlist/${realestateId}`);
+      await axios.post(`${API_URL}/api/Wishlist/${realestateId}`);
     } catch {
       setSaved(!next);
     } finally {

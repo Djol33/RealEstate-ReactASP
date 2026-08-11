@@ -33,6 +33,9 @@ namespace Implementation.Command
             var user = db.Users.FirstOrDefault(u => u.Id == token.UserId)
                 ?? throw Fail("token", "This reset link is invalid or has expired.");
 
+            if (user.IsActive != 1)
+                throw Fail("token", "This account has been deactivated. Contact support if you believe this is a mistake.");
+
             user.Password = passwordHasher.Hash(request.NewPassword);
             token.UsedAt = DateTime.Now;
             db.SaveChanges();

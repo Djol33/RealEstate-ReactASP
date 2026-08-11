@@ -12,12 +12,12 @@ export function Location() {
         <input
           id="address"
           type="text"
-          maxLength={80}
+          maxLength={40}
           placeholder="e.g. Main Street 12, New York"
           className={touchedFields.address && errors.address ? 'has-error' : ''}
           {...register("address", {
             required: "Address is required.",
-            maxLength: { value: 80, message: "Address cannot exceed 80 characters." },
+            maxLength: { value: 40, message: "Address cannot exceed 40 characters." },
           })}
         />
         {touchedFields.address && errors.address && (

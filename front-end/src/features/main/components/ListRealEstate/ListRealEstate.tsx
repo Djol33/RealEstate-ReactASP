@@ -13,11 +13,8 @@ export interface ListRealEstateProps {
 export function ListRealEstate({prop = 'default value', listResult, onItemDeleted}: ListRealEstateProps) {
 const placeholder = [1,2,3,4,5,6,7,8,9,10];
  
-  useEffect(() => {
-    console.log("zadatak",listResult)
-  }, [listResult]);
 
-  return (<div className="list-real-estate-row">
+  return (<div className={`list-real-estate-row ${!listResult?.length ? 'is-empty' : ''}`}>
    {
            !listResult?.length ? (
             <div className="no-item-matched">No Item Matched</div>

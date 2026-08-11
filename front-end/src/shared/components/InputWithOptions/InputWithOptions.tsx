@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './InputWithOptions.scss';
 
 interface City {
@@ -29,7 +30,7 @@ export default function InputWithOptions({ name, id, setCity, selectedCity }: In
     debounceRef.current = setTimeout(() => {
       const ignore = selectedCity.city.length ? selectedCity.city.map((x) => x.id).join(',') : '';
       axios
-        .get(`https://localhost:7154/api/City?CityName=${encodeURIComponent(inputValue)}&CitiesToIgnore=${ignore}`)
+        .get(`${API_URL}/api/City?CityName=${encodeURIComponent(inputValue)}&CitiesToIgnore=${ignore}`)
         .then((res) => setOptions(res.data))
         .finally(() => setLoading(false));
     }, 250);
@@ -55,7 +56,6 @@ export default function InputWithOptions({ name, id, setCity, selectedCity }: In
       city: [...prev.city, item],
     }));
     setInputValue('');
-    setIsOpen(false);
   }
 
   function removeCity(item: City) {
@@ -88,32 +88,32 @@ export default function InputWithOptions({ name, id, setCity, selectedCity }: In
           onKeyDown={handleKeyDown}
           autoComplete="off"
         />
-      </div>
 
-      {isOpen && (
-        <div className="city-picker-dropdown">
-          {loading ? (
-            <div className="city-picker-status">Searching...</div>
-          ) : options.length === 0 ? (
-            <div className="city-picker-status">No cities found.</div>
-          ) : (
-            options.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                className="city-picker-option"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  selectCity(item);
-                }}
-              >
-                <i className="fa-solid fa-location-dot" />
-                {item.cityName}
-              </button>
-            ))
-          )}
-        </div>
-      )}
+        {isOpen && (
+          <div className="city-picker-dropdown">
+            {loading ? (
+              <div className="city-picker-status">Searching...</div>
+            ) : options.length === 0 ? (
+              <div className="city-picker-status">No cities found.</div>
+            ) : (
+              options.map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  className="city-picker-option"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    selectCity(item);
+                  }}
+                >
+                  <i className="fa-solid fa-location-dot" />
+                  {item.cityName}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
 
       {selectedCity.city.length > 0 && (
         <div className="city-picker-chips">

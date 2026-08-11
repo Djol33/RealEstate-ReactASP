@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Overlay } from '../../../../shared/components/Overlay/Overlay';
-import { ListRealEstate } from '../../../main/components/ListRealEstate/ListRealEstate';
-import { EditProfileForm } from '../EditProfileForm';
-import { EditCompanyForm } from '../EditCompanyForm/EditCompanyForm';
+import { ProfileHero } from './ProfileHero';
+import { ProfileListingsSection } from './ProfileListingsSection';
+import { ProfileEditOverlay } from './ProfileEditOverlay';
 import { MyHeroBannerRequests } from '../MyHeroBannerRequests/MyHeroBannerRequests';
 import { SEO } from '../../../../shared/components/SEO/SEO';
-import './UserProfile.css';
+import { API_URL } from '../../../../config';
+import './UserProfile.scss';
 
 export function UserProfile() {
   const { id } = useParams();
@@ -22,8 +22,8 @@ export function UserProfile() {
   const [wishlistError, setWishlistError] = useState(false);
 
   const profileUrl = isOwnProfile
-    ? 'https://localhost:7154/api/Profile'
-    : `https://localhost:7154/api/Profile/${id}`;
+    ? `${API_URL}/api/Profile`
+    : `${API_URL}/api/Profile/${id}`;
 
   const loadProfile = useCallback(async () => {
     const res = await axios.get(profileUrl);
@@ -36,7 +36,7 @@ export function UserProfile() {
       : id;
     if (!ownerId) return;
     axios
-      .get(`https://localhost:7154/api/Profile/${ownerId}/realestates`)
+      .get(`${API_URL}/api/Profile/${ownerId}/realestates`)
       .then((r) => {
         setListingsError(false);
         setListings(r.data);
@@ -47,7 +47,7 @@ export function UserProfile() {
   const loadWishlist = useCallback(() => {
     if (!isOwnProfile) return;
     axios
-      .get('https://localhost:7154/api/Wishlist')
+      .get(`${API_URL}/api/Wishlist`)
       .then((r) => {
         setWishlistError(false);
         setWishlist(r.data);
@@ -87,7 +87,7 @@ export function UserProfile() {
       : profile.email?.[0]?.toUpperCase() ?? '?';
 
   const logoUrl = company?.logo?.startsWith('images/')
-    ? `https://localhost:7154/${company.logo}`
+    ? `${API_URL}/${company.logo}`
     : null;
 
   return (
@@ -96,81 +96,51 @@ export function UserProfile() {
         title={fullName}
         description={`${listings.length} listing${listings.length === 1 ? '' : 's'} by ${fullName} on Nekretnine.`}
       />
-      <div className="profile-hero">
-        {logoUrl ? (
-          <div className="profile-avatar profile-logo">
-            <img src={logoUrl} alt={fullName} />
-          </div>
-        ) : (
-          <div className="profile-avatar">{initials}</div>
-        )}
 
-        <div className="profile-info">
-          <h1>{fullName}</h1>
-          <p className="profile-email">{profile.email}</p>
-          {company?.bip && <p className="profile-bip">Tax ID: {company.bip}</p>}
-          <span className="profile-count">
-            {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
-          </span>
-        </div>
+      <ProfileHero
+        fullName={fullName}
+        initials={initials}
+        logoUrl={logoUrl}
+        email={profile.email}
+        bip={company?.bip}
+        listingCount={listings.length}
+        isOwnProfile={isOwnProfile}
+        onEdit={() => setShowEdit(true)}
+      />
 
-        {isOwnProfile && (
-          <button className="edit-profile-btn" onClick={() => setShowEdit(true)}>
-            Edit profile
-          </button>
-        )}
-      </div>
-
-      <div className="profile-listings">
-        <h2>Listings</h2>
-        {listingsError ? (
-          <p className="profile-error">
-            Could not load listings. <button type="button" onClick={loadListings}>Try again</button>
-          </p>
-        ) : (
-          <ListRealEstate listResult={listings} onItemDeleted={loadListings} />
-        )}
-      </div>
+      <ProfileListingsSection
+        title="Listings"
+        items={listings}
+        error={listingsError}
+        errorMessage="Could not load listings."
+        onRetry={loadListings}
+        onItemDeleted={loadListings}
+      />
 
       {isOwnProfile && (
-        <div className="profile-listings">
-          <h2>Saved</h2>
-          {wishlistError ? (
-            <p className="profile-error">
-              Could not load saved listings. <button type="button" onClick={loadWishlist}>Try again</button>
-            </p>
-          ) : (
-            <ListRealEstate listResult={wishlist} onItemDeleted={loadWishlist} />
-          )}
-        </div>
+        <ProfileListingsSection
+          title="Saved"
+          items={wishlist}
+          error={wishlistError}
+          errorMessage="Could not load saved listings."
+          onRetry={loadWishlist}
+          onItemDeleted={loadWishlist}
+        />
       )}
 
       {isOwnProfile && company && <MyHeroBannerRequests />}
 
-      {isOwnProfile && basic && (
-        <Overlay isVisible={showEdit} changeVisibility={setShowEdit}>
-          <EditProfileForm
-            initialData={{ firstName: basic.firstName, lastName: basic.lastName }}
-            onSaved={() => {
-              setShowEdit(false);
-              loadProfile();
-            }}
-            onCancel={() => setShowEdit(false)}
-          />
-        </Overlay>
-      )}
-
-      {isOwnProfile && company && (
-        <Overlay isVisible={showEdit} changeVisibility={setShowEdit}>
-          <EditCompanyForm
-            initialData={{ name: company.name, bip: company.bip, logo: company.logo }}
-            onSaved={() => {
-              setShowEdit(false);
-              loadProfile();
-            }}
-            onCancel={() => setShowEdit(false)}
-          />
-        </Overlay>
+      {isOwnProfile && (basic || company) && (
+        <ProfileEditOverlay
+          isVisible={showEdit}
+          onClose={setShowEdit}
+          basic={basic}
+          company={company}
+          onSaved={() => {
+            setShowEdit(false);
+            loadProfile();
+          }}
+        />
       )}
     </div>
   );

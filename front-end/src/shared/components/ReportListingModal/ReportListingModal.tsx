@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../config';
 import './ReportListingModal.scss';
 
 interface ReportListingModalProps {
@@ -26,7 +27,7 @@ export function ReportListingModal({ realestateId, onClose, onSuccess }: ReportL
     setSubmitting(true);
     setError('');
     try {
-      await axios.post('https://localhost:7154/api/reports', {
+      await axios.post(`${API_URL}/api/reports`, {
         realestateId,
         reason,
         details,

@@ -8,11 +8,11 @@ export const Validate = {
         message: "Password must be at least 8 characters long and contain at least one letter and one number"
     },
     firstName: {
-        value: /^[A-Za-z]+$/,
+        value: /^[A-Za-zČčĆćŽžŠšĐđА-Яа-яЁёЂђЈјЉљЊњЋћЏџ]+$/,
         message: "First name must contain only letters"
     },
     lastName: {
-        value: /^[A-Za-z]+$/,
+        value: /^[A-Za-zČčĆćŽžŠšĐđА-Яа-яЁёЂђЈјЉљЊњЋћЏџ]+$/,
         message: "Last name must contain only letters"
     }
 

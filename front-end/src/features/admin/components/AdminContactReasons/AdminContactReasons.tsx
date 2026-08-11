@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../../config';
 import './AdminContactReasons.scss';
 
 interface Reason {
@@ -17,11 +19,12 @@ export function AdminContactReasons() {
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [deleting, setDeleting] = useState<Reason | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/contact-reasons')
+      .get(`${API_URL}/api/admin/contact-reasons`)
       .then((res) => setReasons(res.data))
       .catch(() => setError('Failed to load reasons.'))
       .finally(() => setLoading(false));
@@ -61,9 +64,9 @@ export function AdminContactReasons() {
     setFormError('');
     try {
       if (creating) {
-        await axios.post('https://localhost:7154/api/admin/contact-reasons', { name });
+        await axios.post(`${API_URL}/api/admin/contact-reasons`, { name });
       } else if (editing) {
-        await axios.put(`https://localhost:7154/api/admin/contact-reasons/${editing.id}`, { name });
+        await axios.put(`${API_URL}/api/admin/contact-reasons/${editing.id}`, { name });
       }
       closeModal();
       load();
@@ -80,10 +83,12 @@ export function AdminContactReasons() {
     }
   }
 
-  async function remove(r: Reason) {
-    if (!window.confirm(`Delete reason "${r.name}"?`)) return;
+  async function confirmDelete() {
+    if (!deleting) return;
+    const r = deleting;
+    setDeleting(null);
     try {
-      await axios.delete(`https://localhost:7154/api/admin/contact-reasons/${r.id}`);
+      await axios.delete(`${API_URL}/api/admin/contact-reasons/${r.id}`);
       load();
     } catch (err: any) {
       const msg = err.response?.data?.errors?.[0]?.error ?? 'Failed to delete.';
@@ -120,7 +125,7 @@ export function AdminContactReasons() {
                 <td>{r.name}</td>
                 <td className="actions">
                   <button className="btn-edit" onClick={() => openEdit(r)}>Edit</button>
-                  <button className="btn-del" onClick={() => remove(r)}>Delete</button>
+                  <button className="btn-del" onClick={() => setDeleting(r)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -152,6 +157,17 @@ export function AdminContactReasons() {
             </div>
           </div>
         </div>
+      )}
+
+      {deleting && (
+        <ConfirmDialog
+          title="Delete reason"
+          message={`Delete reason "${deleting.name}"?`}
+          confirmLabel="Delete"
+          danger
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleting(null)}
+        />
       )}
     </div>
   );

@@ -32,6 +32,7 @@ namespace Implementation.Command
                 City = request.CityId,
                 TypeObject = (short)request.TypeObjectId,
                 Terrace = request.Terrace,
+                Registered = request.Registered,
                 Area = request.Area,
                 Adress = request.Address,
                 NumberOfRooms = request.NumberOfRooms,

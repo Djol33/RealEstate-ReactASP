@@ -12,10 +12,11 @@ header {
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 300;
+  z-index: 1010;
 
   h1 {
     margin: 0;
+    line-height: 0;
 
     a {
       color: white;
@@ -23,6 +24,7 @@ header {
       display: inline-flex;
 
       img {
+        display: block;
         height: 40px;
         width: auto;
       }
@@ -82,11 +84,26 @@ header {
           padding: 6px 10px;
           border-radius: 6px;
           display: inline-block;
-          transition: background 0.15s ease;
+        }
 
-          &:hover {
-            background: rgba(255, 255, 255, 0.12);
-          }
+        .nav-messages-link {
+          position: relative;
+        }
+
+        .nav-unread-badge {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          min-width: 16px;
+          height: 16px;
+          padding: 0 4px;
+          border-radius: 999px;
+          background: #e11d48;
+          color: #fff;
+          font-size: 0.65rem;
+          font-weight: 700;
+          line-height: 16px;
+          text-align: center;
         }
       }
     }
@@ -154,10 +171,6 @@ header {
             padding: 14px 16px;
             border-radius: 0;
             color: #002356;
-
-            &:hover {
-              background: rgba(0, 0, 0, 0.05);
-            }
           }
         }
       }

@@ -7,6 +7,7 @@ import { RecommendationShelf } from '../RecommendationShelf/RecommendationShelf'
 import { HeroBanner } from '../HeroBanner/HeroBanner';
 import { SEO } from '../../../../shared/components/SEO/SEO';
 import { useAuth } from '../../../../AuthStore';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
 
 interface PagedResult {
   data: any[];
@@ -49,27 +50,9 @@ export function Main() {
           : <ListRealEstate listResult={listResult} />}
       </div>
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="page-btn"
-            disabled={page <= 1}
-            onClick={() => setPage(p => p - 1)}
-          >
-            <i className="fa-solid fa-chevron-left" />
-          </button>
-
-          <span className="page-info">{page} / {totalPages}</span>
-
-          <button
-            className="page-btn"
-            disabled={page >= totalPages}
-            onClick={() => setPage(p => p + 1)}
-          >
-            <i className="fa-solid fa-chevron-right" />
-          </button>
-        </div>
-      )}
+      <div className="pagination-wrap">
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      </div>
     </>
   );
 }

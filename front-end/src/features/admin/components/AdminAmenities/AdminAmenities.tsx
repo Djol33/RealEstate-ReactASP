@@ -1,11 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { AmenitiesTable } from './AmenitiesTable';
+import { AmenityFormModal } from './AmenityFormModal';
+import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../../config';
 import './AdminAmenities.scss';
 
 interface Amenity {
   id: number;
   name: string;
   isFilterable: boolean;
+  isActive: boolean;
 }
 
 interface FormState {
@@ -25,11 +30,12 @@ export function AdminAmenities() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [deleting, setDeleting] = useState<Amenity | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/amenities')
+      .get(`${API_URL}/api/admin/amenities`)
       .then((res) => setAmenities(res.data))
       .catch(() => setError('Failed to load amenities.'))
       .finally(() => setLoading(false));
@@ -69,9 +75,9 @@ export function AdminAmenities() {
     setFormError('');
     try {
       if (creating) {
-        await axios.post('https://localhost:7154/api/admin/amenities', form);
+        await axios.post(`${API_URL}/api/admin/amenities`, form);
       } else if (editing) {
-        await axios.put(`https://localhost:7154/api/admin/amenities/${editing.id}`, form);
+        await axios.put(`${API_URL}/api/admin/amenities/${editing.id}`, form);
       }
       closeModal();
       load();
@@ -88,13 +94,23 @@ export function AdminAmenities() {
     }
   }
 
-  async function remove(a: Amenity) {
-    if (!window.confirm(`Delete amenity "${a.name}"? This removes it from all listings.`)) return;
+  async function confirmDelete() {
+    if (!deleting) return;
     try {
-      await axios.delete(`https://localhost:7154/api/admin/amenities/${a.id}`);
+      await axios.delete(`${API_URL}/api/admin/amenities/${deleting.id}`);
+      setDeleting(null);
       load();
     } catch {
       alert('Failed to delete.');
+    }
+  }
+
+  async function restore(a: Amenity) {
+    try {
+      await axios.post(`${API_URL}/api/admin/amenities/${a.id}/restore`);
+      load();
+    } catch {
+      alert('Failed to restore.');
     }
   }
 
@@ -110,69 +126,29 @@ export function AdminAmenities() {
         </button>
       </div>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Filterable</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {amenities.length === 0 && (
-              <tr><td colSpan={3} className="empty">No amenities yet.</td></tr>
-            )}
-            {amenities.map((a) => (
-              <tr key={a.id}>
-                <td>{a.name}</td>
-                <td>
-                  <span className={`filter-badge ${a.isFilterable ? 'yes' : 'no'}`}>
-                    {a.isFilterable ? 'Yes' : 'No'}
-                  </span>
-                </td>
-                <td className="actions">
-                  <button className="btn-edit" onClick={() => openEdit(a)}>Edit</button>
-                  <button className="btn-del" onClick={() => remove(a)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <AmenitiesTable amenities={amenities} onEdit={openEdit} onDelete={setDeleting} onRestore={restore} />
 
       {(creating || editing) && (
-        <div className="admin-modal-backdrop" onClick={closeModal}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{creating ? 'Add amenity' : `Edit amenity`}</h2>
+        <AmenityFormModal
+          isCreating={creating}
+          form={form}
+          setForm={setForm}
+          saving={saving}
+          formError={formError}
+          onCancel={closeModal}
+          onSave={save}
+        />
+      )}
 
-            <label>
-              Name
-              <input
-                value={form.name}
-                maxLength={50}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </label>
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.isFilterable}
-                onChange={(e) => setForm({ ...form, isFilterable: e.target.checked })}
-              />
-              Show as a search filter
-            </label>
-
-            {formError && <p className="form-error">{formError}</p>}
-
-            <div className="modal-actions">
-              <button className="btn-cancel" onClick={closeModal} disabled={saving}>Cancel</button>
-              <button className="btn-save" onClick={save} disabled={saving}>
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
+      {deleting && (
+        <ConfirmDialog
+          title="Delete amenity"
+          message={`Delete amenity "${deleting.name}"? It will be hidden from filters and forms, but listings that already have it keep it, and you can restore it later.`}
+          confirmLabel="Delete"
+          danger
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleting(null)}
+        />
       )}
     </div>
   );

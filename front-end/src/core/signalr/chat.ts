@@ -1,4 +1,5 @@
 import * as signalR from '@microsoft/signalr';
+import { API_URL } from '../../config';
 
 let connection: signalR.HubConnection | null = null;
 let startPromise: Promise<signalR.HubConnection> | null = null;
@@ -31,7 +32,7 @@ export function getChatConnection(): signalR.HubConnection {
   if (connection) return connection;
 
   connection = new signalR.HubConnectionBuilder()
-    .withUrl('https://localhost:7154/hubs/chat', {
+    .withUrl(`${API_URL}/hubs/chat`, {
       accessTokenFactory: () => getToken() ?? '',
     })
     .withAutomaticReconnect()

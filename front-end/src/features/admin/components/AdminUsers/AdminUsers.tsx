@@ -1,6 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../AuthStore';
+import { UsersTable } from './UsersTable';
+import { EditUserModal } from './EditUserModal';
+import { UserSearchBar } from './UserSearchBar';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
+import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { API_URL } from '../../../../config';
 import './AdminUsers.scss';
 
 interface AdminUser {
@@ -26,19 +32,39 @@ export function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [form, setForm] = useState<EditState>({ firstName: '', lastName: '', email: '', isActive: true });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get('https://localhost:7154/api/admin/users')
-      .then((res) => setUsers(res.data))
+      .get(`${API_URL}/api/admin/users`, { params: { search: debouncedSearch, page } })
+      .then((res) => {
+        setUsers(res.data.data ?? []);
+        setTotalPages(res.data.totalPages ?? 1);
+        setTotalCount(res.data.totalCount ?? 0);
+      })
       .catch(() => setError('Failed to load users.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [debouncedSearch, page]);
 
   useEffect(() => {
     load();
@@ -79,7 +105,7 @@ export function AdminUsers() {
     setSaving(true);
     setFormError('');
     try {
-      await axios.put(`https://localhost:7154/api/admin/users/${editing.id}`, form);
+      await axios.put(`${API_URL}/api/admin/users/${editing.id}`, form);
       closeEdit();
       load();
     } catch (err: any) {
@@ -99,132 +125,72 @@ export function AdminUsers() {
   async function toggleRole(u: AdminUser) {
     const newRole = u.userRole === 2 ? 0 : 2;
     try {
-      await axios.post(`https://localhost:7154/api/admin/users/${u.id}/role`, { role: newRole });
+      await axios.post(`${API_URL}/api/admin/users/${u.id}/role`, { role: newRole });
       load();
     } catch (err: any) {
       alert(err.response?.status === 403 ? 'You do not have permission.' : 'Failed to change role.');
     }
   }
 
-  async function deleteUser(u: AdminUser) {
-    if (!window.confirm(`Delete user ${u.email}? This also removes all their listings and messages.`)) return;
+  async function confirmDeleteUser() {
+    if (!deletingUser) return;
+    const u = deletingUser;
+    setDeletingUser(null);
     try {
-      await axios.delete(`https://localhost:7154/api/admin/users/${u.id}`);
+      await axios.delete(`${API_URL}/api/admin/users/${u.id}`);
       load();
     } catch (err: any) {
       alert(err.response?.status === 403 ? 'You cannot delete this user.' : 'Failed to delete.');
     }
   }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
     <div className="admin-users">
-      <h1>Users ({users.length})</h1>
+      <h1>Users ({totalCount})</h1>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Listings</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.firstName} {u.lastName}</td>
-                <td>{u.email}</td>
-                <td>
-                  <span className={`role-badge ${u.userRole === 2 ? 'admin' : ''}`}>
-                    {u.userRole === 2 ? 'Admin' : 'User'}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status-badge ${u.isActive ? 'active' : 'inactive'}`}>
-                    {u.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td>{u.realEstateCount}</td>
-                <td className="actions">
-                  <button className="btn-edit" onClick={() => openEdit(u)}>
-                    Edit
-                  </button>
-                  {u.id !== user?.id && (
-                    <>
-                      <button className="btn-role" onClick={() => toggleRole(u)}>
-                        {u.userRole === 2 ? 'Remove admin' : 'Make admin'}
-                      </button>
-                      <button className="btn-del" onClick={() => deleteUser(u)}>
-                        Delete
-                      </button>
-                    </>
-                  )}
-                  {u.id === user?.id && <span className="you">(you)</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <UserSearchBar value={search} onChange={setSearch} />
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <>
+          <UsersTable
+            users={users}
+            currentUserId={user?.id}
+            onEdit={openEdit}
+            onToggleRole={toggleRole}
+            onDelete={setDeletingUser}
+          />
+
+          <div className="admin-users-pagination">
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+        </>
+      )}
 
       {editing && (
-        <div className="admin-modal-backdrop" onClick={closeEdit}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Edit user #{editing.id}</h2>
+        <EditUserModal
+          userId={editing.id}
+          form={form}
+          setForm={setForm}
+          saving={saving}
+          formError={formError}
+          onCancel={closeEdit}
+          onSave={saveEdit}
+        />
+      )}
 
-            <label>
-              First name
-              <input
-                value={form.firstName}
-                maxLength={30}
-                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              />
-            </label>
-            <label>
-              Last name
-              <input
-                value={form.lastName}
-                maxLength={30}
-                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              />
-            </label>
-            <label>
-              Email
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </label>
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-              />
-              Account active
-            </label>
-
-            {formError && <p className="form-error">{formError}</p>}
-
-            <div className="modal-actions">
-              <button className="btn-cancel" onClick={closeEdit} disabled={saving}>
-                Cancel
-              </button>
-              <button className="btn-save" onClick={saveEdit} disabled={saving}>
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
+      {deletingUser && (
+        <ConfirmDialog
+          title="Delete user"
+          message={`Delete user ${deletingUser.email}? This also removes all their listings and messages.`}
+          confirmLabel="Delete"
+          danger
+          onConfirm={confirmDeleteUser}
+          onCancel={() => setDeletingUser(null)}
+        />
       )}
     </div>
   );
