@@ -2,10 +2,6 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../../../config';
 
-/**
- * Tracks a listing view (after a 3s dwell) and reports total time spent
- * on the page, including on tab close via `beforeunload`.
- */
 export function useViewTracking(id: string | undefined) {
   useEffect(() => {
     if (!id) return;

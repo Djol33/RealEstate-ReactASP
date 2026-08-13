@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using Application.Email;
+using Application.Exceptions;
 
 namespace nekretnineapi.Services
 {
@@ -54,7 +55,15 @@ namespace nekretnineapi.Services
                 Credentials = new NetworkCredential(settings.User, settings.Password)
             };
 
-            client.Send(message);
+            try
+            {
+                client.Send(message);
+            }
+            catch (SmtpException ex)
+            {
+                logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, settings.Host, settings.Port);
+                throw new EmailDeliveryException("Failed to send email. Please try again later.", ex);
+            }
         }
     }
 }

@@ -27,10 +27,9 @@ namespace Implementation.Command
                 .FirstOrDefault(r => r.Id == request.Id)
                 ?? throw new KeyNotFoundException("Listing not found.");
 
-           
             bool isOwner = realestate.Owner == actor.Id;
 
-            if (  !isOwner)
+            if (!isOwner)
                 throw new UnauthorizedAccessException("You do not have permission to edit this listing.");
 
             realestate.Title = request.Title;
@@ -44,13 +43,11 @@ namespace Implementation.Command
             realestate.Adress = request.Address;
             realestate.NumberOfRooms = request.NumberOfRooms;
 
-            // brisi slike koje korisnik nije zadrzao
             var toDelete = db.RealestateImages
                 .Where(i => i.IdPost == realestate.Id && !request.ExistingImageIds.Contains(i.Id))
                 .ToList();
             db.RealestateImages.RemoveRange(toDelete);
 
-            // dodaj nove slike
             foreach (var path in request.ImagePaths)
             {
                 realestate.RealestateImages.Add(new RealestateImage

@@ -24,7 +24,7 @@ namespace Implementation.Query
             const int pageSize = 20;
             var page = req.Page < 1 ? 1 : req.Page;
 
-            var query = this.db.Realestates.AsQueryable();
+            var query = this.db.Realestates.Where(x => x.IsActive == 1).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(req.City))
             {

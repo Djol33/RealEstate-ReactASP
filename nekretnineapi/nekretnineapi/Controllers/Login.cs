@@ -9,11 +9,11 @@ namespace nekretnineapi.Controllers
     [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
-    public class LoginTEST : ControllerBase
+    public class Login : ControllerBase
     {
         private readonly UseCaseExecutor executor;
 
-        public LoginTEST(UseCaseExecutor executor)
+        public Login(UseCaseExecutor executor)
         {
             this.executor = executor;
         }

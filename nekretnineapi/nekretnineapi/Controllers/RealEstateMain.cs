@@ -40,12 +40,13 @@ namespace nekretnineapi.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
-        public IActionResult Post(
+        public async Task<IActionResult> Post(
             [FromForm] AddRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
             [FromForm(Name = "amenityIds[]")] List<int> amenityIds,
             [FromServices] IAddRealestate service,
-            [FromServices] AppDbContext db)
+            [FromServices] AppDbContext db,
+            [FromServices] GeocodingService geocoding)
         {
             var dto = new AddRealestateDTO
             {
@@ -66,46 +67,18 @@ namespace nekretnineapi.Controllers
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 
+            var cityName = db.Cities.Where(c => c.Id == dto.CityId).Select(c => c.City1).FirstOrDefault() ?? string.Empty;
+            var coords = await geocoding.GetCoordinates($"{dto.Address}, {cityName}");
+            if (coords.HasValue)
+            {
+                dto.Lat = coords.Value.lat;
+                dto.Lng = coords.Value.lng;
+            }
+
             dto.ImagePaths = imageStorage.Save(images);
 
             executor.ExecuteCommand(service, dto);
             return StatusCode(201);
-        }
-
-        [Authorize]
-        [HttpPut("{id}")]
-        [Consumes("multipart/form-data")]
-        [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
-        public IActionResult Put(
-            long id,
-            [FromForm] EditRealestateRequest request,
-            [FromForm(Name = "images[]")] List<IFormFile> images,
-            [FromServices] IEditRealestate service,
-            [FromServices] AppDbContext db)
-        {
-            var dto = new EditRealestateDTO
-            {
-                Id = id,
-                Title = request.Title,
-                Description = request.Description,
-                Price = request.Price,
-                CityId = request.CityId,
-                TypeObjectId = request.TypeObjectId,
-                Terrace = request.Terrace,
-                Registered = request.Registered,
-                Area = request.Area,
-                Address = request.Address,
-                NumberOfRooms = request.NumberOfRooms,
-            };
-
-            var result = new EditRealestateValidator(db).Validate(dto);
-            if (!result.IsValid)
-                throw new ValidationException(result.Errors);
-
-            dto.ImagePaths = imageStorage.Save(images);
-
-            executor.ExecuteCommand(service, dto);
-            return NoContent();
         }
 
         [Authorize]

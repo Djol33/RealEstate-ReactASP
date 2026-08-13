@@ -41,11 +41,13 @@ namespace Implementation.Command.Admin
             var message = db.Supports.FirstOrDefault(s => s.Id == request.MessageId)
                 ?? throw new KeyNotFoundException("Message not found.");
 
-            if (message.IdUser.HasValue)
+            var receiverExists = message.IdUser.HasValue && db.Users.Any(u => u.Id == message.IdUser.Value);
+
+            if (receiverExists)
             {
                 sendSystemMessage.Execute(new SendSystemMessageDTO
                 {
-                    ReceiverId = message.IdUser.Value,
+                    ReceiverId = message.IdUser!.Value,
                     Content = $"Reply to your contact message: {reply}"
                 });
             }

@@ -21,7 +21,7 @@ namespace Implementation.Query.RealEstate
         public List<RealEstateDTO> Execute(int request)
         {
             return db.Realestates
-                .Where(x => x.Owner == request)
+                .Where(x => x.Owner == request && (x.IsActive == 1 || actor.Id == request || actor.UserRole == UserRoles.Admin))
                 .OrderByDescending(x => x.Id)
                 .Select(x => new RealEstateDTO
                 {

@@ -100,14 +100,12 @@ export function Header() {
             <Link to="/contact" onClick={close}>Contact</Link>
           </li>
 
-          {/* Desktop: profil dropdown */}
           {user && (
             <li className="nav-profile-desktop">
               <Profile />
             </li>
           )}
 
-          {/* Mobile: profil stavke u listi */}
           {user && (
             <li className="nav-profile-mobile">
               <Link to="/user/profile" onClick={close}>Profil</Link>

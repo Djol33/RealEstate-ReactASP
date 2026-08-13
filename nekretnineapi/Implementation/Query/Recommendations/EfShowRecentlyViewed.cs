@@ -43,7 +43,7 @@ namespace Implementation.Query.Recommendations
                 return new List<RealEstateDTO>();
 
             var entities = db.Realestates
-                .Where(r => recentIds.Contains(r.Id))
+                .Where(r => recentIds.Contains(r.Id) && r.IsActive == 1)
                 .Include(r => r.RealestateImages)
                 .Include(r => r.Wishlists)
                 .ToList();

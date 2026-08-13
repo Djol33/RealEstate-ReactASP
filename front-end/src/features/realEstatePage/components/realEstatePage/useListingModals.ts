@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-/** Manages the show/hide state for the three listing-page modals. */
 export function useListingModals() {
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);

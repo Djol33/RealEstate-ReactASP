@@ -30,7 +30,6 @@ namespace Implementation.Command.Admin
                 .FirstOrDefault(u => u.Id == userId)
                 ?? throw new KeyNotFoundException("User not found.");
 
-            // oglasi korisnika + zavisni podaci
             var realestates = db.Realestates.Where(r => r.Owner == userId).Select(r => r.Id).ToList();
             if (realestates.Count > 0)
             {
@@ -43,16 +42,12 @@ namespace Implementation.Command.Admin
                 db.Realestates.RemoveRange(db.Realestates.Where(r => r.Owner == userId));
             }
 
-            // wishlist zapisi korisnika
             db.Wishlists.RemoveRange(db.Wishlists.Where(w => w.UserId == userId));
 
-            // poruke korisnika (u oba smera)
             db.Messages.RemoveRange(db.Messages.Where(m => m.SenderId == userId || m.ReceiverId == userId));
 
-            // view zapisi korisnika
             db.RealestateViews.RemoveRange(db.RealestateViews.Where(v => v.ViewerKey == "u:" + userId));
 
-            // profil (user_basic) + user
             db.UserBasics.RemoveRange(db.UserBasics.Where(b => b.FkId == userId));
             db.Users.Remove(user);
 

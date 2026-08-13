@@ -22,7 +22,7 @@ namespace Implementation.Command
         {
             var key = viewer.ViewerKey;
             if (string.IsNullOrEmpty(key))
-                return; // anonimni se za sada ne beleže
+                return;
 
             var exists = db.Realestates.Any(r => r.Id == realestateId);
             if (!exists)

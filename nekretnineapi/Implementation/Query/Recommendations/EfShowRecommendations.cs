@@ -30,7 +30,6 @@ namespace Implementation.Query.Recommendations
 
             if (count <= 0) count = 8;
 
-            // 1. skupi oglase koje je korisnik video ili sačuvao
             var viewedIds = db.RealestateViews
                 .Where(v => v.ViewerKey == key)
                 .Select(v => v.RealestateId)
@@ -46,7 +45,6 @@ namespace Implementation.Query.Recommendations
             if (interactedIds.Count == 0)
                 return new List<RealEstateDTO>();
 
-            // 2. izvedi "profil ukusa" iz tih oglasa
             var liked = db.Realestates
                 .Where(r => interactedIds.Contains(r.Id))
                 .Select(r => new { r.City, r.TypeObject, r.Price })
@@ -58,9 +56,8 @@ namespace Implementation.Query.Recommendations
             var minPrice = avgPrice * 0.6m;
             var maxPrice = avgPrice * 1.4m;
 
-            // 3. kandidati: nisu već viđeni/sačuvani, i nisu moji — rangirani po sličnosti
             var scoredIds = db.Realestates
-                .Where(r => !interactedIds.Contains(r.Id) && r.Owner != actor.Id)
+                .Where(r => !interactedIds.Contains(r.Id) && r.Owner != actor.Id && r.IsActive == 1)
                 .Select(r => new
                 {
                     r.Id,

@@ -49,7 +49,6 @@ namespace Implementation.Command
             company.Name = name;
             company.Bip = bip;
 
-            // logo se menja samo ako je poslata nova slika
             if (!string.IsNullOrEmpty(request.Logo))
                 company.Logo = request.Logo;
 

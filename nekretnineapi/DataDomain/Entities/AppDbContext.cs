@@ -22,45 +22,23 @@ public partial class AppDbContext : DbContext
       
     }
 
-    public virtual DbSet<Checkbox> Checkboxes { get; set; }
-
     public virtual DbSet<City> Cities { get; set; }
 
     public virtual DbSet<Company> Companies { get; set; }
 
-    public virtual DbSet<FieldsType> FieldsTypes { get; set; }
-
     public virtual DbSet<GeoMesto> GeoMesta { get; set; }
-
-    public virtual DbSet<Header> Headers { get; set; }
-
-    public virtual DbSet<HeatingRealestate> HeatingRealestates { get; set; }
-
-    public virtual DbSet<HeatingType> HeatingTypes { get; set; }
-
-    public virtual DbSet<Radio> Radios { get; set; }
 
     public virtual DbSet<Realestate> Realestates { get; set; }
 
     public virtual DbSet<RealestateImage> RealestateImages { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
-
     public virtual DbSet<Support> Supports { get; set; }
 
     public virtual DbSet<ContactReason> ContactReasons { get; set; }
 
-    public virtual DbSet<Survey> Surveys { get; set; }
-
-    public virtual DbSet<SurveyAnswer> SurveyAnswers { get; set; }
-
-    public virtual DbSet<Text> Texts { get; set; }
-
     public virtual DbSet<TipObjektum> TipObjekta { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    public virtual DbSet<User1> Users1 { get; set; }
 
     public virtual DbSet<UserBasic> UserBasics { get; set; }
 
@@ -194,19 +172,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsRead).HasColumnName("is_read");
         });
 
-        modelBuilder.Entity<Checkbox>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_checkbox_id");
-
-            entity.ToTable("checkbox", "phpapp");
-
-            entity.HasIndex(e => e.Id, "id");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.IdSurvey).HasColumnName("id_survey");
-            entity.Property(e => e.Value).HasColumnName("value");
-        });
-
         modelBuilder.Entity<City>(entity =>
         {
             entity.HasKey(e => new { e.Id, e.Zip }).HasName("PK_city_id");
@@ -241,6 +206,8 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.FkId, "fk_id");
 
+            entity.HasIndex(e => e.Bip, "UX_company_bip").IsUnique();
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Bip)
                 .HasMaxLength(20)
@@ -261,92 +228,11 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_company_user");
         });
 
-        modelBuilder.Entity<FieldsType>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_fields_type_id");
-
-            entity.ToTable("fields_type", "phpapp");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Type)
-                .HasMaxLength(10)
-                .HasColumnName("type");
-        });
-
         modelBuilder.Entity<GeoMesto>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__GeoMesta__3214EC076CF65B83");
 
             entity.Property(e => e.Naziv).HasMaxLength(200);
-        });
-
-        modelBuilder.Entity<Header>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_header_id");
-
-            entity.ToTable("header", "phpapp");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.HrefLink)
-                .HasMaxLength(25)
-                .HasColumnName("href_link");
-            entity.Property(e => e.Logged)
-                .HasDefaultValueSql("(NULL)")
-                .HasColumnName("logged");
-            entity.Property(e => e.ParendId)
-                .HasDefaultValueSql("(NULL)")
-                .HasColumnName("parend_id");
-            entity.Property(e => e.Role)
-                .HasDefaultValueSql("(NULL)")
-                .HasColumnName("role");
-            entity.Property(e => e.Title)
-                .HasMaxLength(75)
-                .HasColumnName("title");
-        });
-
-        modelBuilder.Entity<HeatingRealestate>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("heating_realestate");
-
-            entity.Property(e => e.IdHeating).HasColumnName("id_heating");
-            entity.Property(e => e.IdRealestate).HasColumnName("id_realestate");
-
-            entity.HasOne(d => d.IdHeatingNavigation).WithMany()
-                .HasForeignKey(d => d.IdHeating)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_heating_realestate_heating_type");
-
-            entity.HasOne(d => d.IdRealestateNavigation).WithMany()
-                .HasForeignKey(d => d.IdRealestate)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_heating_realestate_realestate");
-        });
-
-        modelBuilder.Entity<HeatingType>(entity =>
-        {
-            entity.ToTable("heating_type");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
-            entity.Property(e => e.HeatingType1)
-                .HasMaxLength(30)
-                .HasColumnName("heating_type");
-        });
-
-        modelBuilder.Entity<Radio>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_radio_id");
-
-            entity.ToTable("radio", "phpapp");
-
-            entity.HasIndex(e => new { e.Id, e.IdSurvey }, "id");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.IdSurvey).HasColumnName("id_survey");
-            entity.Property(e => e.Value).HasColumnName("value");
         });
 
         modelBuilder.Entity<Realestate>(entity =>
@@ -410,18 +296,6 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("realestate_image$realestate_image_ibfk_1");
         });
 
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_role_id");
-
-            entity.ToTable("role", "phpapp");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(15)
-                .HasColumnName("name");
-        });
-
         modelBuilder.Entity<Support>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_support_id");
@@ -473,54 +347,6 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("created_at");
         });
 
-        modelBuilder.Entity<Survey>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_survey_id");
-
-            entity.ToTable("survey", "phpapp");
-
-            entity.HasIndex(e => e.FieldId, "field_id");
-
-            entity.HasIndex(e => new { e.Id, e.FieldId }, "id");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.FieldId).HasColumnName("field_id");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValue((short)1)
-                .HasColumnName("is_active");
-            entity.Property(e => e.Question).HasColumnName("question");
-            entity.Property(e => e.Title).HasColumnName("title");
-
-            entity.HasOne(d => d.Field).WithMany(p => p.Surveys)
-                .HasForeignKey(d => d.FieldId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("survey$survey_ibfk_1");
-        });
-
-        modelBuilder.Entity<SurveyAnswer>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_survey_answers_id");
-
-            entity.ToTable("survey_answers", "phpapp");
-
-            entity.HasIndex(e => new { e.UserId, e.SurveyId, e.Value }, "survey_answers$user_id").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.SurveyId).HasColumnName("survey_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Value).HasColumnName("value");
-        });
-
-        modelBuilder.Entity<Text>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_text_id");
-
-            entity.ToTable("text", "phpapp");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Value).HasColumnName("value");
-        });
-
         modelBuilder.Entity<TipObjektum>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_tip_objekta_id");
@@ -555,38 +381,6 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("password");
             entity.Property(e => e.UserRole).HasColumnName("user_role");
             entity.Property(e => e.UserType).HasColumnName("user_type");
-        });
-
-        modelBuilder.Entity<User1>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.Role }).HasName("PK_users_user_id");
-
-            entity.ToTable("users", "phpapp");
-
-            entity.HasIndex(e => e.Role, "role");
-
-            entity.HasIndex(e => e.UserId, "user_id");
-
-            entity.Property(e => e.UserId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("user_id");
-            entity.Property(e => e.Role)
-                .HasDefaultValue((short)1)
-                .HasColumnName("role");
-            entity.Property(e => e.Email).HasColumnName("email");
-            entity.Property(e => e.FName)
-                .HasMaxLength(50)
-                .HasColumnName("f_name");
-            entity.Property(e => e.IsActive).HasColumnName("is_active");
-            entity.Property(e => e.LName)
-                .HasMaxLength(50)
-                .HasColumnName("l_name");
-            entity.Property(e => e.Password).HasColumnName("password");
-
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.User1s)
-                .HasForeignKey(d => d.Role)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("users$users_ibfk_1");
         });
 
         modelBuilder.Entity<UserBasic>(entity =>

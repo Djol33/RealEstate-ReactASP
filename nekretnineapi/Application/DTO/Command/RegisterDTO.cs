@@ -10,8 +10,6 @@ namespace Application.DTO.Command
     {
         public string Email { get; set; }
         public string Password { get; set; }
-       // public bool UserType { get; set; } // 1-company, 0-user
-
     }
 
     public class RegisterUserDTO : RegisterDTO

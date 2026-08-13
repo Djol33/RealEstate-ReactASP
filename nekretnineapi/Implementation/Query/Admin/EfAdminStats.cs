@@ -54,7 +54,6 @@ namespace Implementation.Query.Admin
                 .Select(r => RealEstateMapping.Map(db, actor, r))
                 .ToList();
 
-            // prosečna kvadratura i cena oglasa koje korisnici GLEDAJU (preko view zapisa)
             var viewedStats = db.RealestateViews
                 .Join(db.Realestates, v => v.RealestateId, r => r.Id, (v, r) => new { r.Area, r.Price })
                 .ToList();

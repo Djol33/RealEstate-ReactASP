@@ -35,24 +35,21 @@ export function Map( ) {
      
 
     navigator.geolocation.getCurrentPosition(
-      // Uspeh — korisnik dao dozvolu
       (position) => {
         setPozicija({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         })
-         
+
       },
-      // Greška — odbio dozvolu ili timeout
       (err) => {
         console.error(err)
-        
+
       },
-      // Opcije
       {
-        enableHighAccuracy: true, // GPS preciznost
-        timeout: 10000,           // čekaj max 10s
-        maximumAge: 0             // ne koristi keširanu lokaciju
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     )
   }

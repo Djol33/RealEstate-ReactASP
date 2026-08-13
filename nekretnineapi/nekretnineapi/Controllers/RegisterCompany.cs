@@ -7,8 +7,6 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.Services;
 using nekretnineapi.Validators;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace nekretnineapi.Controllers
 {
     [Route("api/[controller]")]
@@ -24,21 +22,18 @@ namespace nekretnineapi.Controllers
             this.AppDbContext= AppDbContext;
             this.imageStorage = imageStorage;
         }
-        // GET: api/<RegisterCompany>
         [HttpGet]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
         }
 
-        // GET api/<RegisterCompany>/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
         }
 
-        // POST api/<RegisterCompany>
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Post(
@@ -86,13 +81,11 @@ namespace nekretnineapi.Controllers
             return Ok();
         }
 
-        // PUT api/<RegisterCompany>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<RegisterCompany>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

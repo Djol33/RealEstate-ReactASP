@@ -25,7 +25,7 @@ namespace Implementation.Query.RealEstate
             var isLoggedIn = actor.Id > 0;
 
             var realestate = this.db.Realestates
-                .Where(a => a.Id == request)
+                .Where(a => a.Id == request && (a.IsActive == 1 || a.Owner == actor.Id || actor.UserRole == UserRoles.Admin))
                 .Select(a => new RealEstateDTO
                 {
                     Id = a.Id,

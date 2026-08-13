@@ -37,10 +37,10 @@ namespace Implementation.Query.Recommendations
 
             List<long> ids = trendingIds;
 
-            // fallback: ako nema view-ova, najnoviji oglasi
             if (ids.Count == 0)
             {
                 ids = db.Realestates
+                    .Where(r => r.IsActive == 1)
                     .OrderByDescending(r => r.Id)
                     .Take(count)
                     .Select(r => r.Id)
@@ -48,14 +48,13 @@ namespace Implementation.Query.Recommendations
             }
 
             var entities = db.Realestates
-                .Where(r => ids.Contains(r.Id))
+                .Where(r => ids.Contains(r.Id) && r.IsActive == 1)
                 .Include(r => r.RealestateImages)
                 .Include(r => r.Wishlists)
                 .ToList();
 
             var items = entities.Select(x => RealEstateMapping.Map(db, actor, x)).ToList();
 
-            // sačuvaj redosled trending-a
             return items.OrderBy(i => ids.IndexOf(i.Id)).ToList();
         }
     }

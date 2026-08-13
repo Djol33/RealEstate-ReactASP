@@ -6,8 +6,6 @@ using DataDomain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nekretnineapi.Validators;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace nekretnineapi.Controllers
 {
     [Route("api/[controller]")]
@@ -22,21 +20,18 @@ namespace nekretnineapi.Controllers
             this.db = db;
             this.executor = executor;
         }
-        // GET: api/<RegisterUser>
         [HttpGet]
         public IActionResult Get()
         {
             return Ok();
         }
 
-        // GET api/<RegisterUser>/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
         }
 
-        // POST api/<RegisterUser>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RegisterUserDTO param, [FromServices] IRegesiter service)
         {
@@ -53,13 +48,11 @@ namespace nekretnineapi.Controllers
             return Ok();
         }
 
-        // PUT api/<RegisterUser>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<RegisterUser>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

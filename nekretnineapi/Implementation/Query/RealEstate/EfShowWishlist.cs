@@ -23,6 +23,7 @@ namespace Implementation.Query.RealEstate
             return db.Wishlists
                 .Where(w => w.UserId == request)
                 .Select(w => w.Realestate)
+                .Where(x => x.IsActive == 1)
                 .OrderByDescending(x => x.Id)
                 .Select(x => new RealEstateDTO
                 {

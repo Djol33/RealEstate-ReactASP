@@ -47,7 +47,6 @@ export function AdminContactMessages() {
         await axios.post(`${API_URL}/api/admin/contact-messages/${m.id}/read`);
         setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, isRead: true } : x)));
       } catch {
-        // ignore
       }
     }
   }

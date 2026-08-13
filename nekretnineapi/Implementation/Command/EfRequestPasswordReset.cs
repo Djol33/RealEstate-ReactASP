@@ -4,6 +4,7 @@ using Application;
 using Application.Command;
 using Application.DTO.Command;
 using Application.Email;
+using Application.Exceptions;
 using DataDomain.Entities;
 
 namespace Implementation.Command
@@ -53,7 +54,13 @@ namespace Implementation.Command
                 $"<p><a href=\"{link}\">Click here to set a new password</a>. This link expires in 1 hour.</p>" +
                 "<p>If you did not request this, you can ignore this email.</p>";
 
-            email.Send(address, "Password reset", body);
+            try
+            {
+                email.Send(address, "Password reset", body);
+            }
+            catch (EmailDeliveryException)
+            {
+            }
         }
 
         public static string Hash(string token)

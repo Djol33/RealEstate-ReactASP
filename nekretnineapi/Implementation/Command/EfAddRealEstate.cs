@@ -2,7 +2,6 @@ using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
-using System.Text.Json;
 
 namespace Implementation.Command
 {
@@ -13,13 +12,11 @@ namespace Implementation.Command
 
         private readonly AppDbContext db;
         private readonly IApplicationActor actor;
-        private readonly IHttpClientFactory httpClientFactory;
 
-        public EfAddRealEstate(AppDbContext db, IApplicationActor actor, IHttpClientFactory httpClientFactory)
+        public EfAddRealEstate(AppDbContext db, IApplicationActor actor)
         {
             this.db = db;
             this.actor = actor;
-            this.httpClientFactory = httpClientFactory;
         }
 
         public void Execute(AddRealestateDTO request)
@@ -37,17 +34,10 @@ namespace Implementation.Command
                 Adress = request.Address,
                 NumberOfRooms = request.NumberOfRooms,
                 IsActive = 1,
-                Owner = actor.Id
+                Owner = actor.Id,
+                Lat = request.Lat,
+                Lng = request.Lng
             };
-
-            var cityName = db.Cities.Where(c => c.Id == request.CityId).Select(c => c.City1).FirstOrDefault() ?? string.Empty;
-            var fullAddress = $"{request.Address}, {cityName}";
-            var coords = GetCoordinates(fullAddress).GetAwaiter().GetResult();
-            if (coords.HasValue)
-            {
-                realestate.Lat = coords.Value.lat;
-                realestate.Lng = coords.Value.lng;
-            }
 
             foreach (var path in request.ImagePaths)
             {
@@ -67,33 +57,6 @@ namespace Implementation.Command
 
             db.Realestates.Add(realestate);
             db.SaveChanges();
-        }
-
-        private async Task<(decimal lat, decimal lng)?> GetCoordinates(string address)
-        {
-            try
-            {
-                var client = httpClientFactory.CreateClient("nominatim");
-                var url = $"/search?q={Uri.EscapeDataString(address)}&format=json&limit=1";
-                var response = await client.GetAsync(url);
-
-                if (!response.IsSuccessStatusCode) return null;
-
-                var json = await response.Content.ReadAsStringAsync();
-                var results = JsonSerializer.Deserialize<JsonElement>(json);
-
-                if (results.GetArrayLength() == 0) return null;
-
-                var first = results[0];
-                var lat = decimal.Parse(first.GetProperty("lat").GetString()!, System.Globalization.CultureInfo.InvariantCulture);
-                var lng = decimal.Parse(first.GetProperty("lon").GetString()!, System.Globalization.CultureInfo.InvariantCulture);
-
-                return (lat, lng);
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

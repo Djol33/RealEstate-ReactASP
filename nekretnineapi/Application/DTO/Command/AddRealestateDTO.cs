@@ -14,5 +14,7 @@ namespace Application.DTO.Command
         public float NumberOfRooms { get; set; }
         public List<string> ImagePaths { get; set; } = new();
         public List<int> AmenityIds { get; set; } = new();
+        public decimal? Lat { get; set; }
+        public decimal? Lng { get; set; }
     }
 }

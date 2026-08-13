@@ -52,6 +52,9 @@ namespace Implementation.Command
                 if (e.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
                     (sqlEx.Number == 2627 || sqlEx.Number == 2601))
                 {
+                    if (sqlEx.Message.Contains("UX_company_bip"))
+                        throw new ApplicationException("A company with this BIP is already registered.");
+
                     throw new ApplicationException("Email already exists.");
                 }
 

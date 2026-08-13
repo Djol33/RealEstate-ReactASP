@@ -18,8 +18,6 @@ using nekretnineapi;
 using nekretnineapi.Auth;
 using nekretnineapi.Validators;
 using Application.Exceptions;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -124,6 +122,7 @@ builder.Services.AddHttpClient("nominatim", client =>
 builder.Services.AddScoped<IAddRealestate, EfAddRealEstate>();
 builder.Services.AddScoped<IEditRealestate, EfEditRealEstate>();
 builder.Services.AddScoped<nekretnineapi.Services.ImageStorageService>();
+builder.Services.AddScoped<nekretnineapi.Services.GeocodingService>();
 builder.Services.AddScoped<IShowUserRealEstate, Implementation.Query.RealEstate.EfShowUserRealEstate>();
 builder.Services.AddScoped<IEditProfile, Implementation.Command.EfEditProfile>();
 builder.Services.AddScoped<IEditCompany, Implementation.Command.EfEditCompany>();
@@ -225,6 +224,14 @@ app.UseExceptionHandler(appError =>
             return;
         }
 
+        if (ex is EmailDeliveryException)
+        {
+            context.Response.StatusCode = 502;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            return;
+        }
+
         if (ex is UnauthorizedAccessException)
         {
             context.Response.StatusCode = 403;
@@ -279,40 +286,32 @@ if (!Directory.Exists(uploadsPath))
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
+
+app.Use(async (context, next) =>
+{
+    if (context.User?.Identity is { IsAuthenticated: true } &&
+        int.TryParse(context.User.FindFirst("Id")?.Value, out var userId))
+    {
+        var db = context.RequestServices.GetRequiredService<AppDbContext>();
+        var isActive = await db.Users
+            .Where(u => u.Id == userId)
+            .Select(u => (short?)u.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (isActive != 1)
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "This account has been deactivated." });
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<nekretnineapi.Hubs.ChatHub>("/hubs/chat");
-app.MapGet("/uvoz", async (AppDbContext db) =>
-{
-    var putanja = @"C:\Users\Nemanja\Desktop\RS.txt";  
-
-    var linije = await File.ReadAllLinesAsync(putanja);
-    var mesta = new List<GeoMesto>();
-
-    foreach (var linija in linije)
-    {
-        var k = linija.Split('\t');
-        if (k.Length < 14) continue;
-        if (k[6] != "P") continue;
-
-        if (!double.TryParse(k[4], NumberStyles.Any, CultureInfo.InvariantCulture, out var lat)) continue;
-        if (!double.TryParse(k[5], NumberStyles.Any, CultureInfo.InvariantCulture, out var lng)) continue;
-
-        int.TryParse(k[13], out var pop);
-
-        mesta.Add(new GeoMesto
-        {
-            Naziv = k[1],
-            Lat = lat,
-            Lng = lng,
-            Populacija = pop
-        });
-    }
-
-    db.GeoMesta.AddRange(mesta);
-    await db.SaveChangesAsync();
-
-    return $"Uvezeno {mesta.Count} mesta";
-});
 app.Run();
