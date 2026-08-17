@@ -8,8 +8,6 @@ export default function Auth({children} ) {
   const { user } = useAuth();
   const navigate = useNavigate();
   useEffect(()=>{
-    console.log("auth", user)
-    
     if(user != null) navigate(-1);
 
 

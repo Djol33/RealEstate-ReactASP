@@ -30,13 +30,13 @@ namespace Implementation.Command
             if (!isOwner && !isAdmin)
                 throw new UnauthorizedAccessException("You do not have permission to delete this listing.");
 
-            var images = db.RealestateImages.Where(i => i.IdPost == realestate.Id).ToList();
-            db.RealestateImages.RemoveRange(images);
+            if (realestate.IsActive != 1)
+                return;
 
             var wishlists = db.Wishlists.Where(w => w.RealestateId == realestate.Id).ToList();
             db.Wishlists.RemoveRange(wishlists);
 
-            db.Realestates.Remove(realestate);
+            realestate.IsActive = 0;
             db.SaveChanges();
         }
     }

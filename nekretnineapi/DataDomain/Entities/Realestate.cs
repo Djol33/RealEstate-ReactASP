@@ -35,6 +35,8 @@ public partial class Realestate
 
     public decimal? Lng { get; set; }
 
+    public int Status { get; set; }
+
     public virtual ICollection<RealestateImage> RealestateImages { get; set; } = new List<RealestateImage>();
 
     public virtual TipObjektum TypeObjectNavigation { get; set; } = null!;

@@ -28,6 +28,8 @@ namespace Application.DTO
         public bool IsWishlisted { get; set; }
         public decimal? Lat { get; set; }
         public decimal? Lng { get; set; }
+        public int Status { get; set; }
+        public string StatusLabel => RealEstateStatus.GetLabel(Status);
         public int Owner { get; set; }
         public string F_name { get; set; }
         public string L_name { get; set; }

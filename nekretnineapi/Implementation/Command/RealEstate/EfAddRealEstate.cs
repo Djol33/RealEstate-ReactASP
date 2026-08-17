@@ -36,7 +36,8 @@ namespace Implementation.Command
                 IsActive = 1,
                 Owner = actor.Id,
                 Lat = request.Lat,
-                Lng = request.Lng
+                Lng = request.Lng,
+                Status = request.Status
             };
 
             foreach (var path in request.ImagePaths)

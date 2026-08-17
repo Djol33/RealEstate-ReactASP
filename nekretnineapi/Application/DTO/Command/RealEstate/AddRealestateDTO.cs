@@ -16,5 +16,6 @@ namespace Application.DTO.Command
         public List<int> AmenityIds { get; set; } = new();
         public decimal? Lat { get; set; }
         public decimal? Lng { get; set; }
+        public int Status { get; set; } = RealEstateStatus.Available;
     }
 }

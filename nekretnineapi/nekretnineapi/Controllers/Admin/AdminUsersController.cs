@@ -16,14 +16,12 @@ namespace nekretnineapi.Controllers.Admin
         [HttpGet]
         public IActionResult List([FromQuery] string search, [FromQuery] int page, [FromServices] IAdminListUsers service)
         {
-            EnsureAdmin();
             return Ok(executor.ExecuteQuery(service, new AdminUserQueryDTO { Search = search, Page = page < 1 ? 1 : page }));
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id, [FromServices] IAdminDeleteUser service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, id);
             return NoContent();
         }
@@ -31,7 +29,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/role")]
         public IActionResult SetRole(int id, [FromBody] SetRoleRequest body, [FromServices] IAdminSetRole service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new SetRoleDTO { UserId = id, Role = body.Role });
             return NoContent();
         }
@@ -39,7 +36,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPut("{id}")]
         public IActionResult Edit(int id, [FromBody] EditUserRequest body, [FromServices] IAdminEditUser service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new AdminEditUserDTO
             {
                 UserId = id,

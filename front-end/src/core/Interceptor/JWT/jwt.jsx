@@ -18,7 +18,9 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const sentWithToken = !!error.config?.headers?.Authorization;
+
+    if (error.response?.status === 401 && sentWithToken) {
       const wasLoggedIn = !!localStorage.getItem('user');
       localStorage.removeItem('user');
 

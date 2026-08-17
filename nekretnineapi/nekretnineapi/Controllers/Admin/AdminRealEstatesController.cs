@@ -12,10 +12,15 @@ namespace nekretnineapi.Controllers.Admin
             : base(executor, actor) { }
 
         [HttpGet]
-        public IActionResult List([FromQuery] int page, [FromServices] IShowRealEstate service)
+        public IActionResult List([FromQuery] int page, [FromQuery] string? search, [FromServices] IShowRealEstate service)
         {
-            EnsureAdmin();
-            var query = new RealEstateQueryDTO { Page = page < 1 ? 1 : page };
+
+            var query = new RealEstateQueryDTO
+            {
+                Page = page < 1 ? 1 : page,
+                Search = search
+            };
+
             return Ok(executor.ExecuteQuery(service, query));
         }
     }

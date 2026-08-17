@@ -16,11 +16,13 @@ namespace Implementation.Command
 
         private readonly AppDbContext db;
         private readonly IEmailSender email;
+        private readonly Application.Security.PasswordResetSettings settings;
 
-        public EfRequestPasswordReset(AppDbContext db, IEmailSender email)
+        public EfRequestPasswordReset(AppDbContext db, IEmailSender email, Application.Security.PasswordResetSettings settings)
         {
             this.db = db;
             this.email = email;
+            this.settings = settings;
         }
 
         public void Execute(RequestPasswordResetDTO request)
@@ -44,9 +46,7 @@ namespace Implementation.Command
             });
             db.SaveChanges();
 
-            var baseUrl = string.IsNullOrWhiteSpace(request.ResetUrlBase)
-                ? "http://localhost:5173/auth/reset-password"
-                : request.ResetUrlBase.TrimEnd('/');
+            var baseUrl = settings.ResetUrlBase.TrimEnd('/');
             var link = $"{baseUrl}?token={rawToken}";
 
             var body =

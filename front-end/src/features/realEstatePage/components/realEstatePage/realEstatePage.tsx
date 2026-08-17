@@ -69,7 +69,11 @@ export function RealEstatePage({params} ) {
 
       <h2 id="adress">Adress: {realEstate.adress}</h2>
 
-      <ImageGallery images={realEstate.images} onImageClick={() => setIsVisible(true)} />
+      <ImageGallery
+        images={realEstate.images}
+        onImageClick={() => setIsVisible(true)}
+        statusLabel={realEstate.statusLabel || 'Available'}
+      />
 
       <h2 id="price">
         <div id="textprice">{formatPrice(realEstate.price)} &euro;</div>

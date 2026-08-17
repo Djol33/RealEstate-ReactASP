@@ -12,5 +12,6 @@ namespace nekretnineapi.DTO
         public float Area { get; set; }
         public string Address { get; set; }
         public float NumberOfRooms { get; set; }
+        public int? Status { get; set; }
     }
 }

@@ -39,6 +39,13 @@ namespace nekretnineapi.Validators
                 .Must(cityId => db.Cities.Any(c => c.Id == cityId))
                 .WithMessage("Selected city does not exist.");
 
+            RuleFor(x => x.Status)
+                .Must(status => status == Application.RealEstateStatus.Available
+                             || status == Application.RealEstateStatus.Reserved
+                             || status == Application.RealEstateStatus.Sold)
+                .When(x => x.Status.HasValue)
+                .WithMessage("Invalid listing status.");
+
             RuleFor(x => x.TypeObjectId)
                 .GreaterThan(0).WithMessage("A property type must be selected.")
                 .Must(typeId => db.TipObjekta.Any(t => t.Id == typeId))

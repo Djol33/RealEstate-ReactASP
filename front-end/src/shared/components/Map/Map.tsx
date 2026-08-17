@@ -22,10 +22,6 @@ export function Map( ) {
     const [centar, setCentar] = useState({ lat: 45.2671, lng: 19.8335 })
   const [radius, setRadius] = useState(2000)  
   const [pozicija, setPozicija] = useState(null)
-  useEffect(()=>{
-    console.log(pozicija)
-
-  }, [pozicija])
   function traziLokaciju() {
     if (!navigator.geolocation) {
      
@@ -42,9 +38,7 @@ export function Map( ) {
         })
 
       },
-      (err) => {
-        console.error(err)
-
+      () => {
       },
       {
         enableHighAccuracy: true,

@@ -177,6 +177,10 @@ border-radius: 25px;
     font-size: 0.85rem;
     color: $darkgray;
 
+    &.standalone {
+      padding: 22px 32px;
+    }
+
     a {
       color: $blue;
       font-weight: 600;

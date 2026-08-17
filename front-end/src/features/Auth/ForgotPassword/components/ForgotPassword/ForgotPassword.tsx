@@ -30,7 +30,6 @@ export default function ForgotPassword() {
     try {
       await axios.post(`${API_URL}/api/password/forgot`, {
         email: data.Email,
-        resetUrlBase: `${window.location.origin}/auth/reset-password`,
       });
       setSent(true);
     } catch {
@@ -47,7 +46,7 @@ export default function ForgotPassword() {
             <h2>Check your email</h2>
             <p>If an account exists for that address, we've sent a reset link.</p>
           </div>
-          <div className="auth-footer">
+          <div className="auth-footer standalone">
             <Link to="/auth/login">Back to login</Link>
           </div>
         </div>

@@ -26,8 +26,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Company> Companies { get; set; }
 
-    public virtual DbSet<GeoMesto> GeoMesta { get; set; }
-
     public virtual DbSet<Realestate> Realestates { get; set; }
 
     public virtual DbSet<RealestateImage> RealestateImages { get; set; }
@@ -226,13 +224,6 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Fk).WithMany(p => p.Companies)
                 .HasForeignKey(d => d.FkId)
                 .HasConstraintName("FK_company_user");
-        });
-
-        modelBuilder.Entity<GeoMesto>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__GeoMesta__3214EC076CF65B83");
-
-            entity.Property(e => e.Naziv).HasMaxLength(200);
         });
 
         modelBuilder.Entity<Realestate>(entity =>

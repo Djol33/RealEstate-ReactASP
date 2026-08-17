@@ -42,6 +42,7 @@ export function EditUserModal({ userId, form, setForm, saving, formError, onCanc
           <input
             type="email"
             value={form.email}
+            maxLength={100}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
         </label>

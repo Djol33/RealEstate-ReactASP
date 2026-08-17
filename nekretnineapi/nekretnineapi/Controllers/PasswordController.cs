@@ -25,8 +25,7 @@ namespace nekretnineapi.Controllers
         {
             var dto = new RequestPasswordResetDTO
             {
-                Email = (body.Email ?? "").Trim(),
-                ResetUrlBase = body.ResetUrlBase
+                Email = (body.Email ?? "").Trim()
             };
 
             var result = new RequestPasswordResetValidator().Validate(dto);
@@ -57,7 +56,6 @@ namespace nekretnineapi.Controllers
         public class ForgotRequest
         {
             public string Email { get; set; }
-            public string ResetUrlBase { get; set; }
         }
 
         public class ResetRequest

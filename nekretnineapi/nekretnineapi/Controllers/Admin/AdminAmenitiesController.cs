@@ -16,14 +16,12 @@ namespace nekretnineapi.Controllers.Admin
         [HttpGet]
         public IActionResult List([FromServices] IListAmenities service)
         {
-            EnsureAdmin();
             return Ok(executor.ExecuteQuery(service, EfListAmenities.IncludeInactive));
         }
 
         [HttpPost]
         public IActionResult Create([FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new SaveAmenityDTO
             {
                 Id = 0,
@@ -36,7 +34,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new SaveAmenityDTO
             {
                 Id = id,
@@ -49,7 +46,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpDelete("{id}")]
         public IActionResult Delete(int id, [FromServices] IDeleteAmenity service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, id);
             return NoContent();
         }
@@ -57,7 +53,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/restore")]
         public IActionResult Restore(int id, [FromServices] IRestoreAmenity service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, id);
             return NoContent();
         }

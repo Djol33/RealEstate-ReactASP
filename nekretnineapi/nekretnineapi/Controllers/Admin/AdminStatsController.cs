@@ -13,7 +13,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpGet]
         public IActionResult Get([FromServices] IAdminStats service)
         {
-            EnsureAdmin();
             return Ok(executor.ExecuteQuery(service, 0));
         }
     }

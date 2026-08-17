@@ -78,7 +78,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim("UserRole", UserRoles.Admin.ToString()));
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -156,6 +160,9 @@ var emailSettings = builder.Configuration.GetSection(nekretnineapi.Services.Emai
     .Get<nekretnineapi.Services.EmailSettings>() ?? new nekretnineapi.Services.EmailSettings();
 builder.Services.AddSingleton(emailSettings);
 builder.Services.AddSingleton<Application.Email.IEmailSender, nekretnineapi.Services.SmtpEmailSender>();
+var passwordResetSettings = builder.Configuration.GetSection(Application.Security.PasswordResetSettings.SectionName)
+    .Get<Application.Security.PasswordResetSettings>() ?? new Application.Security.PasswordResetSettings();
+builder.Services.AddSingleton(passwordResetSettings);
 builder.Services.AddScoped<Application.Command.IRequestPasswordReset, Implementation.Command.EfRequestPasswordReset>();
 builder.Services.AddScoped<Application.Command.IResetPassword, Implementation.Command.EfResetPassword>();
 
@@ -293,16 +300,25 @@ app.Use(async (context, next) =>
         int.TryParse(context.User.FindFirst("Id")?.Value, out var userId))
     {
         var db = context.RequestServices.GetRequiredService<AppDbContext>();
-        var isActive = await db.Users
+        var current = await db.Users
             .Where(u => u.Id == userId)
-            .Select(u => (short?)u.IsActive)
+            .Select(u => new { u.IsActive, u.UserRole })
             .FirstOrDefaultAsync();
 
-        if (isActive != 1)
+        if (current == null || current.IsActive != 1)
         {
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new { error = "This account has been deactivated." });
+            return;
+        }
+
+        var tokenRole = context.User.FindFirst("UserRole")?.Value;
+        if (tokenRole != current.UserRole.ToString())
+        {
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "Your permissions have changed. Please log in again." });
             return;
         }
     }

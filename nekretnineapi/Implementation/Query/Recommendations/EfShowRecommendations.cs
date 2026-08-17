@@ -53,8 +53,8 @@ namespace Implementation.Query.Recommendations
             var topCities = liked.GroupBy(x => x.City).OrderByDescending(g => g.Count()).Select(g => g.Key).Take(3).ToList();
             var topTypes = liked.GroupBy(x => x.TypeObject).OrderByDescending(g => g.Count()).Select(g => g.Key).Take(2).ToList();
             var avgPrice = liked.Average(x => x.Price);
-            var minPrice = avgPrice * 0.6m;
-            var maxPrice = avgPrice * 1.4m;
+            var minPrice = decimal.Round(avgPrice * 0.6m, 0, MidpointRounding.AwayFromZero);
+            var maxPrice = decimal.Round(avgPrice * 1.4m, 0, MidpointRounding.AwayFromZero);
 
             var scoredIds = db.Realestates
                 .Where(r => !interactedIds.Contains(r.Id) && r.Owner != actor.Id && r.IsActive == 1)

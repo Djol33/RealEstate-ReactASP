@@ -36,6 +36,7 @@ namespace Implementation.Query.RealEstate
                     NumberOfRooms = a.NumberOfRooms,
                     Terrace = a.Terrace,
                     Registered = a.Registered,
+                    Status = a.Status,
                     Title = a.Title,
                     CityId = db.Cities.Where(c => c.Id == a.City).Select(c => c.Id).FirstOrDefault(),
                     TypeObject=a.TypeObjectNavigation.Id,
@@ -52,7 +53,7 @@ namespace Implementation.Query.RealEstate
                         Name = am.Name,
                         IsFilterable = am.IsFilterable
                     }).ToList(),
-                    CanEdit = a.Owner == actor.Id ,
+                    CanEdit = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     CanDelete = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     IsWishlisted = a.Wishlists.Any(w => w.UserId == actor.Id),
                     Lng = a.Lng ?? null,

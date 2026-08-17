@@ -28,15 +28,19 @@ namespace nekretnineapi.Controllers
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(ImageStorageService.MaxRequestSizeBytes)]
-        public IActionResult Put(
+        public async Task<IActionResult> Put(
             long id,
             [FromForm] EditRealestateRequest request,
             [FromForm(Name = "images[]")] List<IFormFile> images,
             [FromForm(Name = "existingImageIds[]")] List<long> existingImageIds,
             [FromForm(Name = "amenityIds[]")] List<int> amenityIds,
             [FromServices] IEditRealestate service,
+            [FromServices] GeocodingService geocodingService,
             [FromServices] AppDbContext db)
         {
+            var current = db.Realestates.FirstOrDefault(r => r.Id == id);
+            bool addressChanged = current != null && (current.City != request.CityId || current.Adress != request.Address);
+
             var dto = new EditRealestateDTO
             {
                 Id = id,
@@ -50,9 +54,21 @@ namespace nekretnineapi.Controllers
                 Area = request.Area,
                 Address = request.Address,
                 NumberOfRooms = request.NumberOfRooms,
+                Status = request.Status,
                 ExistingImageIds = existingImageIds ?? new List<long>(),
                 AmenityIds = amenityIds ?? new List<int>()
             };
+
+            if (addressChanged && !string.IsNullOrWhiteSpace(request.Address))
+            {
+                var cityName = db.Cities.Where(c => c.Id == request.CityId).Select(c => c.City1).FirstOrDefault() ?? string.Empty;
+                var coords = await geocodingService.GetCoordinates($"{request.Address}, {cityName}");
+                if (coords.HasValue)
+                {
+                    dto.Lat = coords.Value.lat;
+                    dto.Lng = coords.Value.lng;
+                }
+            }
 
             var result = new EditRealestateValidator(db).Validate(dto);
             if (!result.IsValid)

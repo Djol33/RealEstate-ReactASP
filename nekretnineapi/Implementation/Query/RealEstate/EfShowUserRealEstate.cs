@@ -43,7 +43,7 @@ namespace Implementation.Query.RealEstate
                     TypeObjectName = db.TipObjekta.Where(t => t.Id == x.TypeObject).Select(t => t.Naziv).FirstOrDefault() ?? string.Empty,
                     Adress = x.Adress,
                     NumberOfRooms = x.NumberOfRooms,
-                    CanEdit = x.Owner == actor.Id,
+                    CanEdit = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     CanDelete = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)
                 })

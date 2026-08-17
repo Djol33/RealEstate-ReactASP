@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace nekretnineapi.Controllers.Admin
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AdminOnly")]
     public abstract class AdminControllerBase : ControllerBase
     {
         protected readonly UseCaseExecutor executor;
@@ -15,12 +15,6 @@ namespace nekretnineapi.Controllers.Admin
         {
             this.executor = executor;
             this.actor = actor;
-        }
-
-        protected void EnsureAdmin()
-        {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Access allowed to administrators only.");
         }
     }
 }

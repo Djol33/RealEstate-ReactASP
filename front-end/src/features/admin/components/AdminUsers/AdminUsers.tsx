@@ -83,14 +83,33 @@ export function AdminUsers() {
   }
 
   function validateForm(): string | null {
-    if (!form.firstName.trim() || form.firstName.trim().length < 3) {
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+    const email = form.email.trim();
+
+    if (!firstName || firstName.length < 3) {
       return 'First name must be at least 3 characters.';
     }
-    if (!form.lastName.trim() || form.lastName.trim().length < 3) {
+    if (firstName.length > 30) {
+      return 'First name cannot exceed 30 characters.';
+    }
+    if (!/\p{L}/u.test(firstName)) {
+      return 'First name must contain at least one letter.';
+    }
+    if (!lastName || lastName.length < 3) {
       return 'Last name must be at least 3 characters.';
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    if (lastName.length > 30) {
+      return 'Last name cannot exceed 30 characters.';
+    }
+    if (!/\p{L}/u.test(lastName)) {
+      return 'Last name must contain at least one letter.';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return 'Please enter a valid email address.';
+    }
+    if (email.length > 100) {
+      return 'Email cannot exceed 100 characters.';
     }
     return null;
   }

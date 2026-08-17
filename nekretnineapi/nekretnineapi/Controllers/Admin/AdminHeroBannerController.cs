@@ -15,14 +15,12 @@ namespace nekretnineapi.Controllers.Admin
         [HttpGet]
         public IActionResult List([FromServices] IAdminListHeroBannerRequests service)
         {
-            EnsureAdmin();
             return Ok(executor.ExecuteQuery(service, 0));
         }
 
         [HttpPost("{id}/approve")]
         public IActionResult Approve(int id, [FromServices] IAdminDecideHeroBanner service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new AdminDecideHeroBannerDTO { RequestId = id, Approve = true });
             return NoContent();
         }
@@ -30,7 +28,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/reject")]
         public IActionResult Reject(int id, [FromServices] IAdminDecideHeroBanner service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new AdminDecideHeroBannerDTO { RequestId = id, Approve = false });
             return NoContent();
         }
@@ -38,7 +35,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/revoke")]
         public IActionResult Revoke(int id, [FromServices] IAdminRevokeHeroBanner service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, id);
             return NoContent();
         }

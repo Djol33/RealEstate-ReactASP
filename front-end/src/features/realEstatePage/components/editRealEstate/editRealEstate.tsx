@@ -71,6 +71,7 @@ export function EditRealEstate() {
       payload.append('area', form.formData.area);
       payload.append('price', form.formData.price);
       payload.append('description', form.formData.description);
+      payload.append('status', form.formData.status);
 
       images.images
         .filter(img => !img.isNew && !img.removed && (img as any).serverId !== undefined)

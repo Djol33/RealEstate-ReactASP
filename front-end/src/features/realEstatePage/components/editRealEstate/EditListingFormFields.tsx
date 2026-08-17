@@ -28,7 +28,8 @@ export function EditListingFormFields({
     <>
       <label htmlFor="title1">Title</label>
       <input type="text" id="title1" name="title" placeholder="Title"
-        value={formData.title} onChange={onChange} />
+        value={formData.title} onChange={onChange}
+        className={errors.title ? 'input-error' : ''} />
       {errors.title && <span className="error">{errors.title}</span>}
 
       <label htmlFor="city">Select city</label>
@@ -40,7 +41,8 @@ export function EditListingFormFields({
 
       <label htmlFor="adresa">Address</label>
       <input type="text" id="adresa" name="address" placeholder="e.g. Main Street 12"
-        value={formData.address} onChange={onChange} />
+        value={formData.address} onChange={onChange}
+        className={errors.address ? 'input-error' : ''} />
       {errors.address && <span className="error">{errors.address}</span>}
 
       <label htmlFor="tipObjekta">Type Of Building</label>
@@ -50,9 +52,17 @@ export function EditListingFormFields({
       </select>
       {errors.typeObjectId && <span className="error">{errors.typeObjectId}</span>}
 
+      <label htmlFor="status">Listing status</label>
+      <select name="status" id="status" value={formData.status} onChange={onChange}>
+        <option value="0">Available</option>
+        <option value="1">Reserved</option>
+        <option value="2">Sold</option>
+      </select>
+
       <label htmlFor="numberrooms">Number of rooms</label>
       <input type="number" id="numberrooms" name="numberOfRooms"
-        min="0.5" step="0.5" max="10" value={formData.numberOfRooms} onChange={onChange} />
+        min="0.5" step="0.5" max="10" value={formData.numberOfRooms} onChange={onChange}
+        className={errors.numberOfRooms ? 'input-error' : ''} />
       {errors.numberOfRooms && <span className="error">{errors.numberOfRooms}</span>}
 
       <label htmlFor="prvi">Does it have a terrace/balcony</label>
@@ -92,12 +102,14 @@ export function EditListingFormFields({
 
       <label htmlFor="kvadratura">Area (m²)</label>
       <input type="number" id="kvadratura" name="area" min="1" max="10000"
-        value={formData.area} onChange={onChange} />
+        value={formData.area} onChange={onChange}
+        className={errors.area ? 'input-error' : ''} />
       {errors.area && <span className="error">{errors.area}</span>}
 
       <label htmlFor="cena">Total price (€)</label>
       <input type="number" id="cena" name="price" min="0" max="100000000" step="500"
-        value={formData.price} onChange={onChange} />
+        value={formData.price} onChange={onChange}
+        className={errors.price ? 'input-error' : ''} />
       {errors.price && <span className="error">{errors.price}</span>}
 
       <label htmlFor="dodatniopis">Description</label>

@@ -43,16 +43,26 @@ namespace Implementation.Command.Admin
                 failures.Add(new("email", "Email cannot be empty."));
             else if (!Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
                 failures.Add(new("email", "Please enter a valid email address."));
+            else if (email.Length > 100)
+                failures.Add(new("email", "Email cannot exceed 100 characters."));
 
             if (string.IsNullOrWhiteSpace(firstName))
                 failures.Add(new("firstName", "First name cannot be empty."));
             else if (firstName.Length < 3)
                 failures.Add(new("firstName", "First name must be at least 3 characters."));
+            else if (firstName.Length > 30)
+                failures.Add(new("firstName", "First name cannot exceed 30 characters."));
+            else if (!Regex.IsMatch(firstName, @"\p{L}"))
+                failures.Add(new("firstName", "First name must contain at least one letter."));
 
             if (string.IsNullOrWhiteSpace(lastName))
                 failures.Add(new("lastName", "Last name cannot be empty."));
             else if (lastName.Length < 3)
                 failures.Add(new("lastName", "Last name must be at least 3 characters."));
+            else if (lastName.Length > 30)
+                failures.Add(new("lastName", "Last name cannot exceed 30 characters."));
+            else if (!Regex.IsMatch(lastName, @"\p{L}"))
+                failures.Add(new("lastName", "Last name must contain at least one letter."));
 
             if (failures.Count == 0 && db.Users.Any(u => u.Email == email && u.Id != user.Id))
                 failures.Add(new("email", "Another user already uses this email."));

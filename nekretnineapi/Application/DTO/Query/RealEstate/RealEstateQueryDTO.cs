@@ -12,5 +12,6 @@ namespace Application.DTO.Query
         public int Page { get; set; } = 1;
         public string? SortBy { get; set; }
         public string? AmenityIds { get; set; }
+        public string? Search { get; set; }
     }
 }

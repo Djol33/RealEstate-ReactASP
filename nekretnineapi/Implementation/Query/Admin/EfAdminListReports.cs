@@ -28,7 +28,7 @@ namespace Implementation.Query.Admin
             var userIds = reports.Select(r => r.ReportedBy).Distinct().ToList();
 
             var titlesById = db.Realestates
-                .Where(x => realestateIds.Contains(x.Id))
+                .Where(x => realestateIds.Contains(x.Id) && x.IsActive == 1)
                 .Select(x => new { x.Id, x.Title })
                 .ToDictionary(x => x.Id, x => x.Title);
 

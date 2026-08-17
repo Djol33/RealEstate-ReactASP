@@ -37,6 +37,10 @@ form.estate-form{
             outline: none;
             border-color: $blue;
         }
+
+        &.input-error{
+            border-color: #dc2626;
+        }
     }
     input[type='file']{
 

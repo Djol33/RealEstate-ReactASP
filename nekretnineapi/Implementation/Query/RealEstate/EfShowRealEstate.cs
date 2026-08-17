@@ -39,6 +39,15 @@ namespace Implementation.Query
                     query = query.Where(x => cityIds.Contains(x.City));
             }
 
+            if (!string.IsNullOrWhiteSpace(req.Search))
+            {
+                var term = req.Search.Trim();
+                query = query.Where(x =>
+                    x.Title.Contains(term) ||
+                    x.Adress.Contains(term) ||
+                    x.Id.ToString().Contains(term));
+            }
+
             if (req.MinPrice.HasValue) query = query.Where(x => x.Price >= req.MinPrice.Value);
             if (req.MaxPrice.HasValue) query = query.Where(x => x.Price <= req.MaxPrice.Value);
             if (req.TypeObject.HasValue) query = query.Where(x => x.TypeObject == req.TypeObject.Value);
@@ -99,7 +108,7 @@ namespace Implementation.Query
                     Adress = x.Adress,
                     NumberOfRooms = x.NumberOfRooms,
                     CityId = x.City,
-                    CanEdit = x.Owner == actor.Id,
+                    CanEdit = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     CanDelete = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)
                 })

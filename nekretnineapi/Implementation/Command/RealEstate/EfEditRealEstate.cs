@@ -28,8 +28,9 @@ namespace Implementation.Command
                 ?? throw new KeyNotFoundException("Listing not found.");
 
             bool isOwner = realestate.Owner == actor.Id;
+            bool isAdmin = actor.UserRole == UserRoles.Admin;
 
-            if (!isOwner)
+            if (!isOwner && !isAdmin)
                 throw new UnauthorizedAccessException("You do not have permission to edit this listing.");
 
             realestate.Title = request.Title;
@@ -42,6 +43,9 @@ namespace Implementation.Command
             realestate.Area = request.Area;
             realestate.Adress = request.Address;
             realestate.NumberOfRooms = request.NumberOfRooms;
+            if (request.Lat.HasValue) realestate.Lat = request.Lat.Value;
+            if (request.Lng.HasValue) realestate.Lng = request.Lng.Value;
+            if (request.Status.HasValue) realestate.Status = request.Status.Value;
 
             var toDelete = db.RealestateImages
                 .Where(i => i.IdPost == realestate.Id && !request.ExistingImageIds.Contains(i.Id))

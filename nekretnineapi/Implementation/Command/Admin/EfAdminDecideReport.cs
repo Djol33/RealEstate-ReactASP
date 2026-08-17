@@ -41,25 +41,25 @@ namespace Implementation.Command.Admin
             if (request.DeleteListing)
             {
                 var listing = db.Realestates.FirstOrDefault(r => r.Id == realestateId);
-                if (listing != null)
-                {
-                    var listingTitle = listing.Title;
-                    var ownerId = listing.Owner;
+                if (listing == null)
+                    throw new KeyNotFoundException("This listing has already been removed.");
 
-                    deleteRealestate.Execute(realestateId);
+                var listingTitle = listing.Title;
+                var ownerId = listing.Owner;
 
-                    sendSystemMessage.Execute(new SendSystemMessageDTO
-                    {
-                        ReceiverId = ownerId,
-                        Content = $"Your listing \"{listingTitle}\" has been removed by an administrator following a user report."
-                    });
-                }
+                deleteRealestate.Execute(realestateId);
 
                 var relatedReports = db.RealestateReports
                     .Where(r => r.RealestateId == realestateId && r.Status == Application.ReportStatus.Pending)
                     .ToList();
                 foreach (var related in relatedReports)
                     related.Status = Application.ReportStatus.Actioned;
+
+                sendSystemMessage.Execute(new SendSystemMessageDTO
+                {
+                    ReceiverId = ownerId,
+                    Content = $"Your listing \"{listingTitle}\" has been removed by an administrator following a user report."
+                });
             }
             else
             {

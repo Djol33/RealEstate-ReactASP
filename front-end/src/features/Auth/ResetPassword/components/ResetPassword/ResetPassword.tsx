@@ -54,7 +54,7 @@ export default function ResetPassword() {
           <h2>Invalid link</h2>
           <p>This reset link is missing or malformed.</p>
         </div>
-        <div className="auth-footer">
+        <div className="auth-footer standalone">
           <Link to="/auth/forgot-password">Request a new link</Link>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function ResetPassword() {
           <h2>Password updated</h2>
           <p>You can now log in with your new password. Redirecting...</p>
         </div>
-        <div className="auth-footer">
+        <div className="auth-footer standalone">
           <Link to="/auth/login">Go to login</Link>
         </div>
       </div>

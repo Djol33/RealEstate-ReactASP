@@ -37,14 +37,14 @@ export function OwnerCard({
             ) : (
               <span>{fName} {lName}</span>
             )}
-          </span>
+          </span><span>
           {logged ? (
-            <a className="owner-email" href={`mailto:${email}`}>{email}</a>
+            <a className="owner-email-link" href={`mailto:${email}`}>{email}</a>
           ) : (
-            <span className="owner-email">
-              {email} &middot; <Link to="/auth/login">log in to see full contact info</Link>
+            <span className="owner-email-hidden">
+              {email} &middot; <Link to="/auth/login" className="login-link">log in to see full contact info</Link>
             </span>
-          )}
+          )}</span>
         </div>
 
         {logged && !isOwnListing && (

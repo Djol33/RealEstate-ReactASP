@@ -15,14 +15,12 @@ namespace nekretnineapi.Controllers.Admin
         [HttpGet]
         public IActionResult List([FromServices] IAdminListContactMessages service)
         {
-            EnsureAdmin();
             return Ok(executor.ExecuteQuery(service, 0));
         }
 
         [HttpPost("{id}/read")]
         public IActionResult MarkRead(int id, [FromServices] IMarkContactMessageRead service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, id);
             return NoContent();
         }
@@ -30,7 +28,6 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/reply")]
         public IActionResult Reply(int id, [FromBody] ReplyBody body, [FromServices] IReplyToContactMessage service)
         {
-            EnsureAdmin();
             executor.ExecuteCommand(service, new ReplyToContactMessageDTO { MessageId = id, Reply = body.Reply });
             return NoContent();
         }

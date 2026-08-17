@@ -59,6 +59,22 @@ $lightgray:#f1f1f1;
                 }
             }
         }
+
+        .status-badge-floating {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background-color: $blue;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
         #aditionalDescription{
             max-width:800px;
             h2{
@@ -115,19 +131,29 @@ $lightgray:#f1f1f1;
                 }
             }
 
-            .owner-email{
+            .owner-email-link{
                 font-size: 0.85rem;
-                color: $darkgray;
+                color: $blue;
                 text-decoration: none;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-
-                a{
-                    color: $blue;
-                }
+                display: block;
                 &:hover{
                     text-decoration: underline;
+                }
+            }
+
+            .owner-email-hidden{
+                font-size: 0.85rem;
+                color: $darkgray;
+
+                .login-link{
+                    color: $blue;
+                    text-decoration: none;
+                    &:hover{
+                        text-decoration: underline;
+                    }
                 }
             }
 
@@ -238,11 +264,20 @@ $lightgray:#f1f1f1;
             gap: 10px;
             max-width: 1100px;
 
+            &.single {
+                grid-template-columns: 1fr;
+
+                .main {
+                    grid-column: 1;
+                }
+            }
+
             .main {
                 grid-column: 1 / span 3;
                 grid-row: 1 / span 3;
                 width: 100%;
                 height: 100%;
+                position: relative;
             }
 
             .sidebar1 {
@@ -398,6 +433,15 @@ $lightgray:#f1f1f1;
                 .sidebar1{ grid-column: 1; grid-row: 2; }
                 .sidebar2{ grid-column: 2; grid-row: 2; }
                 .sidebar3{ display: none; }
+
+                &.single .main{ grid-column: 1; }
+
+                .status-badge-floating{
+                    bottom: 10px;
+                    left: 10px;
+                    padding: 6px 12px;
+                    font-size: 0.8rem;
+                }
             }
             #basic_info{
                 flex-wrap: wrap;

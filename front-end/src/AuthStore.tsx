@@ -63,8 +63,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         company: result.company ?? null,
       };
 
-      setUser(loggedUser);
       localStorage.setItem('user', JSON.stringify(loggedUser));
+      setUser(loggedUser);
 
       return { code: 200, message: 'Login Successful' };
     } catch (err: any) {
@@ -74,17 +74,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       if (err.response?.status === 403) {
         return { code: 403, message: err.response?.data?.error ?? 'This account has been deactivated.' };
       }
-      console.error('Login error:', err);
       return { code: 500, message: 'Login failed' };
     }
   };
 
 
   const logout = () => {
-    setUser(null);
     localStorage.removeItem('user');
-
-
+    setUser(null);
   }
 
   return (

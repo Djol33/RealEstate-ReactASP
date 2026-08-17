@@ -12,12 +12,11 @@ export function EditImageGrid({ images, visibleImages, onRemove }: EditImageGrid
   return (
     <div className="edit-image-grid">
       {visibleImages.map((img, i) => (
-        <div key={i} className={`edit-thumb ${img.isNew ? 'is-new' : ''}`}>
+        <div key={i} className="edit-thumb">
           <img src={img.previewUrl} alt="" />
           <button type="button" className="thumb-remove" onClick={() => onRemove(images.indexOf(img))}>
             <i className="fa-solid fa-xmark" />
           </button>
-          {img.isNew && <span className="new-badge">New</span>}
         </div>
       ))}
     </div>

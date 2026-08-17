@@ -27,10 +27,6 @@ $red: #e74c3c;
       display: block;
     }
 
-    &.is-new {
-      border-color: $green;
-    }
-
     .thumb-remove {
       position: absolute;
       top: -8px;
@@ -54,16 +50,5 @@ $red: #e74c3c;
       }
     }
 
-    .new-badge {
-      position: absolute;
-      bottom: 4px;
-      left: 4px;
-      background: $green;
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 1px 5px;
-      border-radius: 4px;
-    }
   }
 }
