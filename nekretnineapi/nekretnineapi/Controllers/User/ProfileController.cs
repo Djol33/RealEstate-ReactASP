@@ -64,7 +64,11 @@ namespace nekretnineapi.Controllers.User
             [FromForm] IFormFile? logo,
             [FromServices] IEditCompany service)
         {
-            var dto = new EditCompanyDTO { Name = name, BIP = bip };
+            var dto = new EditCompanyDTO { Name = (name ?? "").Trim(), BIP = (bip ?? "").Trim() };
+
+            var result = new EditCompanyValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
 
             if (logo != null)
             {

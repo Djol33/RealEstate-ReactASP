@@ -25,6 +25,7 @@ namespace Implementation.Query.Admin
         public AdminStatsDTO Execute(int request)
         {
             var topCities = db.Realestates
+                .Where(r => r.IsActive == 1)
                 .GroupBy(r => r.City)
                 .Select(g => new { CityId = g.Key, Count = g.Count() })
                 .OrderByDescending(x => x.Count)
@@ -38,6 +39,7 @@ namespace Implementation.Query.Admin
                 .ToList();
 
             var mostViewedIds = db.RealestateViews
+                .Where(v => db.Realestates.Any(r => r.Id == v.RealestateId && r.IsActive == 1))
                 .GroupBy(v => v.RealestateId)
                 .Select(g => new { Id = g.Key, Views = g.Count() })
                 .OrderByDescending(x => x.Views)
@@ -46,7 +48,7 @@ namespace Implementation.Query.Admin
                 .ToList();
 
             var mostViewed = db.Realestates
-                .Where(r => mostViewedIds.Contains(r.Id))
+                .Where(r => mostViewedIds.Contains(r.Id) && r.IsActive == 1)
                 .Include(r => r.RealestateImages)
                 .Include(r => r.Wishlists)
                 .ToList()
@@ -55,7 +57,7 @@ namespace Implementation.Query.Admin
                 .ToList();
 
             var viewedStats = db.RealestateViews
-                .Join(db.Realestates, v => v.RealestateId, r => r.Id, (v, r) => new { r.Area, r.Price })
+                .Join(db.Realestates.Where(r => r.IsActive == 1), v => v.RealestateId, r => r.Id, (v, r) => new { r.Area, r.Price })
                 .ToList();
 
             double avgArea = viewedStats.Count > 0 ? viewedStats.Average(x => x.Area) : 0;
@@ -63,11 +65,14 @@ namespace Implementation.Query.Admin
 
             return new AdminStatsDTO
             {
-                TotalUsers = db.Users.Count(),
-                TotalAdmins = db.Users.Count(u => u.UserRole == UserRoles.Admin),
-                TotalRealEstate = db.Realestates.Count(),
-                TotalMessages = db.Messages.Count(),
-                TotalViews = db.RealestateViews.Count(),
+                TotalUsers = db.Users.Count(u => u.IsActive == 1),
+                TotalAdmins = db.Users.Count(u => u.UserRole == UserRoles.Admin && u.IsActive == 1),
+                TotalRealEstate = db.Realestates.Count(r => r.IsActive == 1),
+                TotalMessages = db.Messages.Count(m =>
+                    db.Users.Any(u => u.Id == m.SenderId && u.IsActive == 1) &&
+                    db.Users.Any(u => u.Id == m.ReceiverId && u.IsActive == 1)),
+                TotalViews = db.RealestateViews.Count(v =>
+                    db.Realestates.Any(r => r.Id == v.RealestateId && r.IsActive == 1)),
                 AvgViewedArea = Math.Round(avgArea, 1),
                 AvgViewedPrice = Math.Round(avgPrice),
                 TopCities = topCities,

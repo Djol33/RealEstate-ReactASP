@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Application;
 using Application.Command;
 using Application.Command.Admin;
@@ -38,37 +37,8 @@ namespace Implementation.Command.Admin
             var firstName = (request.FirstName ?? "").Trim();
             var lastName = (request.LastName ?? "").Trim();
 
-            var failures = new List<ValidationFailure>();
-            if (string.IsNullOrWhiteSpace(email))
-                failures.Add(new("email", "Email cannot be empty."));
-            else if (!Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
-                failures.Add(new("email", "Please enter a valid email address."));
-            else if (email.Length > 100)
-                failures.Add(new("email", "Email cannot exceed 100 characters."));
-
-            if (string.IsNullOrWhiteSpace(firstName))
-                failures.Add(new("firstName", "First name cannot be empty."));
-            else if (firstName.Length < 3)
-                failures.Add(new("firstName", "First name must be at least 3 characters."));
-            else if (firstName.Length > 30)
-                failures.Add(new("firstName", "First name cannot exceed 30 characters."));
-            else if (!Regex.IsMatch(firstName, @"\p{L}"))
-                failures.Add(new("firstName", "First name must contain at least one letter."));
-
-            if (string.IsNullOrWhiteSpace(lastName))
-                failures.Add(new("lastName", "Last name cannot be empty."));
-            else if (lastName.Length < 3)
-                failures.Add(new("lastName", "Last name must be at least 3 characters."));
-            else if (lastName.Length > 30)
-                failures.Add(new("lastName", "Last name cannot exceed 30 characters."));
-            else if (!Regex.IsMatch(lastName, @"\p{L}"))
-                failures.Add(new("lastName", "Last name must contain at least one letter."));
-
-            if (failures.Count == 0 && db.Users.Any(u => u.Email == email && u.Id != user.Id))
-                failures.Add(new("email", "Another user already uses this email."));
-
-            if (failures.Count > 0)
-                throw new ValidationException(failures);
+            if (db.Users.Any(u => u.Email == email && u.Id != user.Id))
+                throw new ValidationException(new[] { new ValidationFailure("email", "Another user already uses this email.") });
 
             if (user.Id == actor.Id && !request.IsActive)
                 throw new UnauthorizedAccessException("You cannot deactivate your own account.");

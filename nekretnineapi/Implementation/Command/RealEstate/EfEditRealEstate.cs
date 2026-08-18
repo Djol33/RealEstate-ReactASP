@@ -33,6 +33,9 @@ namespace Implementation.Command
             if (!isOwner && !isAdmin)
                 throw new UnauthorizedAccessException("You do not have permission to edit this listing.");
 
+            if (realestate.IsActive != 1 && !isAdmin)
+                throw new KeyNotFoundException("Listing not found.");
+
             realestate.Title = request.Title;
             realestate.Description = request.Description;
             realestate.Price = request.Price;
@@ -61,7 +64,7 @@ namespace Implementation.Command
                 });
             }
 
-            var selectedAmenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id)).ToList();
+            var selectedAmenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id) && a.IsActive).ToList();
             realestate.Amenities.Clear();
             foreach (var amenity in selectedAmenities)
                 realestate.Amenities.Add(amenity);

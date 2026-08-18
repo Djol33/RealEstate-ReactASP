@@ -33,7 +33,7 @@ namespace Implementation.Command.Admin
             var report = db.RealestateReports.FirstOrDefault(r => r.Id == request.ReportId)
                 ?? throw new KeyNotFoundException("Report not found.");
 
-            if (report.Status != Application.ReportStatus.Pending)
+            if (report.Status != ReportStatus.Pending)
                 throw new ValidationException(new[] { new FluentValidation.Results.ValidationFailure("status", "This report has already been decided.") });
 
             var realestateId = report.RealestateId;
@@ -50,10 +50,10 @@ namespace Implementation.Command.Admin
                 deleteRealestate.Execute(realestateId);
 
                 var relatedReports = db.RealestateReports
-                    .Where(r => r.RealestateId == realestateId && r.Status == Application.ReportStatus.Pending)
+                    .Where(r => r.RealestateId == realestateId && r.Status == ReportStatus.Pending)
                     .ToList();
                 foreach (var related in relatedReports)
-                    related.Status = Application.ReportStatus.Actioned;
+                    related.Status = ReportStatus.Actioned;
 
                 sendSystemMessage.Execute(new SendSystemMessageDTO
                 {
@@ -63,7 +63,7 @@ namespace Implementation.Command.Admin
             }
             else
             {
-                report.Status = Application.ReportStatus.Dismissed;
+                report.Status = ReportStatus.Dismissed;
             }
 
             db.SaveChanges();

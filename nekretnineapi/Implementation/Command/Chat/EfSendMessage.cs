@@ -22,16 +22,10 @@ namespace Implementation.Command
 
         public MessageDTO Execute(SendMessageDTO request)
         {
-            if (string.IsNullOrWhiteSpace(request.Content))
-                throw new FluentValidation.ValidationException("Message cannot be empty.");
-
-            if (request.Content.Length > 2000)
-                throw new FluentValidation.ValidationException("Message is too long (max 2000 characters).");
-
             if (request.ReceiverId == actor.Id)
                 throw new FluentValidation.ValidationException("You cannot send a message to yourself.");
 
-            var exists = db.Users.Any(u => u.Id == request.ReceiverId);
+            var exists = db.Users.Any(u => u.Id == request.ReceiverId && u.IsActive == 1);
             if (!exists)
                 throw new KeyNotFoundException("Recipient does not exist.");
 

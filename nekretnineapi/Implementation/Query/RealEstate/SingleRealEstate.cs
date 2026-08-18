@@ -47,7 +47,7 @@ namespace Implementation.Query.RealEstate
                         Id = x.Id,
                         Location = x.Location
                     }).ToList(),
-                    Amenities = a.Amenities.Select(am => new AmenityDTO
+                    Amenities = a.Amenities.Where(am => am.IsActive).Select(am => new AmenityDTO
                     {
                         Id = am.Id,
                         Name = am.Name,

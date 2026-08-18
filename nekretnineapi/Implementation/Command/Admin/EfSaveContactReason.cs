@@ -27,13 +27,15 @@ namespace Implementation.Command.Admin
                 throw new UnauthorizedAccessException("Only an administrator can manage contact reasons.");
 
             var name = (request.Name ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ValidationException(new[] { new ValidationFailure("name", "Reason name cannot be empty.") });
-            if (name.Length > 80)
-                throw new ValidationException(new[] { new ValidationFailure("name", "Reason name cannot exceed 80 characters.") });
 
-            if (db.ContactReasons.Any(r => r.Name == name && r.Id != request.Id))
-                throw new ValidationException(new[] { new ValidationFailure("name", "A reason with this name already exists.") });
+            var conflicting = db.ContactReasons.FirstOrDefault(r => r.Name == name && r.Id != request.Id);
+            if (conflicting != null)
+            {
+                var message = conflicting.IsActive
+                    ? "A reason with this name already exists."
+                    : "A reason with this name was previously deleted. Restore it instead of creating a new one.";
+                throw new ValidationException(new[] { new ValidationFailure("name", message) });
+            }
 
             if (request.Id > 0)
             {

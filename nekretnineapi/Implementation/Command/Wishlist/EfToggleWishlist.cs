@@ -30,7 +30,7 @@ namespace Implementation.Command
             }
             else
             {
-                var exists = db.Realestates.Any(r => r.Id == request.RealestateId);
+                var exists = db.Realestates.Any(r => r.Id == request.RealestateId && r.IsActive == 1);
                 if (!exists)
                     throw new KeyNotFoundException("Listing not found.");
 

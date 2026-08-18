@@ -24,7 +24,7 @@ namespace Implementation.Command
             if (string.IsNullOrEmpty(key))
                 return;
 
-            var exists = db.Realestates.Any(r => r.Id == realestateId);
+            var exists = db.Realestates.Any(r => r.Id == realestateId && r.IsActive == 1);
             if (!exists)
                 return;
 

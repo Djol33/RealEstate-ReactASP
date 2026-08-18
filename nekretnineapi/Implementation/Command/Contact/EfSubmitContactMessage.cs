@@ -25,18 +25,10 @@ namespace Implementation.Command
         {
             var isLoggedIn = actor.Id > 0;
 
-            var failures = new List<ValidationFailure>();
-
             if (!db.ContactReasons.Any(r => r.Id == request.ReasonId))
-                failures.Add(new("reasonId", "Please select a valid reason."));
+                throw new ValidationException(new[] { new ValidationFailure("reasonId", "Please select a valid reason.") });
 
             var message = (request.Message ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(message))
-                failures.Add(new("message", "Message cannot be empty."));
-            else if (message.Length < 10)
-                failures.Add(new("message", "Message must be at least 10 characters."));
-            else if (message.Length > 2000)
-                failures.Add(new("message", "Message cannot exceed 2000 characters."));
 
             string firstName, lastName, email;
 
@@ -64,17 +56,7 @@ namespace Implementation.Command
                 firstName = (request.FirstName ?? "").Trim();
                 lastName = (request.LastName ?? "").Trim();
                 email = (request.Email ?? "").Trim();
-
-                if (string.IsNullOrWhiteSpace(firstName))
-                    failures.Add(new("firstName", "First name cannot be empty."));
-                if (string.IsNullOrWhiteSpace(lastName))
-                    failures.Add(new("lastName", "Last name cannot be empty."));
-                if (string.IsNullOrWhiteSpace(email) || !System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
-                    failures.Add(new("email", "Please enter a valid email address."));
             }
-
-            if (failures.Count > 0)
-                throw new ValidationException(failures);
 
             db.Supports.Add(new Support
             {

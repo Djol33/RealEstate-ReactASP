@@ -18,7 +18,8 @@ namespace nekretnineapi.Controllers.Admin
             var query = new RealEstateQueryDTO
             {
                 Page = page < 1 ? 1 : page,
-                Search = search
+                Search = search,
+                IncludeInactive = true
             };
 
             return Ok(executor.ExecuteQuery(service, query));

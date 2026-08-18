@@ -52,7 +52,7 @@ namespace Implementation.Query.Admin
 
             var userIds = pageUsers.Select(u => u.Id).ToList();
             var listingCountsByOwner = db.Realestates
-                .Where(r => userIds.Contains(r.Owner))
+                .Where(r => userIds.Contains(r.Owner) && r.IsActive == 1)
                 .GroupBy(r => r.Owner)
                 .Select(g => new { OwnerId = g.Key, Count = g.Count() })
                 .ToDictionary(x => x.OwnerId, x => x.Count);

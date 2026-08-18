@@ -29,7 +29,7 @@ namespace Implementation.Command
             if (request.ReceiverId == SystemUser.Id)
                 return;
 
-            var exists = db.Users.Any(u => u.Id == request.ReceiverId);
+            var exists = db.Users.Any(u => u.Id == request.ReceiverId && u.IsActive == 1);
             if (!exists)
                 return;
 

@@ -2,8 +2,10 @@ using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using Application.Query;
+using FluentValidation;
 using Implementation.Query;
 using Microsoft.AspNetCore.Mvc;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers.Admin
 {
@@ -22,24 +24,36 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost]
         public IActionResult Create([FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
         {
-            executor.ExecuteCommand(service, new SaveAmenityDTO
+            var dto = new SaveAmenityDTO
             {
                 Id = 0,
                 Name = body.Name,
                 IsFilterable = body.IsFilterable
-            });
+            };
+
+            var result = new SaveAmenityValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return StatusCode(201);
         }
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
         {
-            executor.ExecuteCommand(service, new SaveAmenityDTO
+            var dto = new SaveAmenityDTO
             {
                 Id = id,
                 Name = body.Name,
                 IsFilterable = body.IsFilterable
-            });
+            };
+
+            var result = new SaveAmenityValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return NoContent();
         }
 

@@ -24,9 +24,6 @@ namespace Implementation.Command.Admin
             if (actor.UserRole != UserRoles.Admin)
                 throw new UnauthorizedAccessException("Only an administrator can change roles.");
 
-            if (request.Role != UserRoles.User && request.Role != UserRoles.Admin)
-                throw new FluentValidation.ValidationException("Invalid role.");
-
             if (request.UserId == actor.Id && request.Role != UserRoles.Admin)
                 throw new UnauthorizedAccessException("You cannot remove your own admin role.");
 

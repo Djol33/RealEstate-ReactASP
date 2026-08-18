@@ -23,6 +23,7 @@ namespace Application.DTO
         public List<Images> Images { get; set; }
         public float NumberOfRooms { get; set; }
         public int? TypeObject { get; set; }
+        public bool IsActive { get; set; }
         public bool CanEdit { get; set; }
         public bool CanDelete { get; set; }
         public bool IsWishlisted { get; set; }

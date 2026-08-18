@@ -24,7 +24,10 @@ namespace Implementation.Query
             const int pageSize = 20;
             var page = req.Page < 1 ? 1 : req.Page;
 
-            var query = this.db.Realestates.Where(x => x.IsActive == 1).AsQueryable();
+            var query = this.db.Realestates.AsQueryable();
+
+            if (!(req.IncludeInactive && actor.UserRole == UserRoles.Admin))
+                query = query.Where(x => x.IsActive == 1);
 
             if (!string.IsNullOrWhiteSpace(req.City))
             {
@@ -93,7 +96,7 @@ namespace Implementation.Query
                         Id = o.Id,
                         Location = o.Location
                     }).ToList(),
-                    Amenities = x.Amenities.Select(am => new AmenityDTO
+                    Amenities = x.Amenities.Where(am => am.IsActive).Select(am => new AmenityDTO
                     {
                         Id = am.Id,
                         Name = am.Name,
@@ -108,6 +111,7 @@ namespace Implementation.Query
                     Adress = x.Adress,
                     NumberOfRooms = x.NumberOfRooms,
                     CityId = x.City,
+                    IsActive = x.IsActive == 1,
                     CanEdit = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     CanDelete = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
                     IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)

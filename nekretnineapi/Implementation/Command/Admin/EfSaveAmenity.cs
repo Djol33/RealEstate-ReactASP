@@ -27,10 +27,6 @@ namespace Implementation.Command.Admin
                 throw new UnauthorizedAccessException("Only an administrator can manage amenities.");
 
             var name = (request.Name ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ValidationException(new[] { new ValidationFailure("name", "Amenity name cannot be empty.") });
-            if (name.Length > 50)
-                throw new ValidationException(new[] { new ValidationFailure("name", "Amenity name cannot exceed 50 characters.") });
 
             var conflicting = db.Amenities.FirstOrDefault(a => a.Name == name && a.Id != request.Id);
             if (conflicting != null)

@@ -2,7 +2,9 @@ using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers.Admin
 {
@@ -28,7 +30,13 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/reply")]
         public IActionResult Reply(int id, [FromBody] ReplyBody body, [FromServices] IReplyToContactMessage service)
         {
-            executor.ExecuteCommand(service, new ReplyToContactMessageDTO { MessageId = id, Reply = body.Reply });
+            var dto = new ReplyToContactMessageDTO { MessageId = id, Reply = (body.Reply ?? "").Trim() };
+
+            var result = new ReplyToContactMessageValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return NoContent();
         }
 

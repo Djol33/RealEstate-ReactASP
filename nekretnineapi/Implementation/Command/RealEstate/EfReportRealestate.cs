@@ -12,11 +12,6 @@ namespace Implementation.Command
         public int Id => 38;
         public string Name => "Report Realestate";
 
-        private static readonly HashSet<string> AllowedReasons = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "spam", "fraud", "inappropriate", "wrong_info", "other"
-        };
-
         private readonly AppDbContext db;
         private readonly IApplicationActor actor;
 
@@ -31,10 +26,7 @@ namespace Implementation.Command
             if (actor.Id == 0)
                 throw new UnauthorizedAccessException("You must be logged in to report a listing.");
 
-            if (string.IsNullOrWhiteSpace(request.Reason) || !AllowedReasons.Contains(request.Reason))
-                throw Fail("reason", "Please select a valid reason.");
-
-            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request.RealestateId)
+            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request.RealestateId && r.IsActive == 1)
                 ?? throw new KeyNotFoundException("Listing not found.");
 
             if (realestate.Owner == actor.Id)
@@ -48,8 +40,6 @@ namespace Implementation.Command
                 throw Fail("realestateId", "You have already reported this listing. It is pending review.");
 
             var details = request.Details?.Trim();
-            if (details != null && details.Length > 1000)
-                details = details.Substring(0, 1000);
 
             db.RealestateReports.Add(new RealestateReport
             {

@@ -33,10 +33,6 @@ namespace Implementation.Command.Admin
                 throw new UnauthorizedAccessException("Only an administrator can reply to contact messages.");
 
             var reply = (request.Reply ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(reply))
-                throw new ValidationException(new[] { new ValidationFailure("reply", "Reply cannot be empty.") });
-            if (reply.Length > 2000)
-                throw new ValidationException(new[] { new ValidationFailure("reply", "Reply cannot exceed 2000 characters.") });
 
             var message = db.Supports.FirstOrDefault(s => s.Id == request.MessageId)
                 ?? throw new KeyNotFoundException("Message not found.");

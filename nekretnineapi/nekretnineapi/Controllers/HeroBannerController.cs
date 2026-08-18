@@ -2,8 +2,10 @@ using Application;
 using Application.Command;
 using Application.DTO.HeroBanner;
 using Application.Query;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers
 {
@@ -32,6 +34,10 @@ namespace nekretnineapi.Controllers
         [HttpPost("request")]
         public IActionResult RequestBanner([FromBody] HeroBannerRequestDTO body, [FromServices] IRequestHeroBanner service)
         {
+            var result = new HeroBannerRequestValidator().Validate(body);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
             executor.ExecuteCommand(service, body);
             return NoContent();
         }

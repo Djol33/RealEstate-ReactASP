@@ -11,5 +11,7 @@ public partial class ContactReason
 
     public DateTime CreatedAt { get; set; }
 
+    public bool IsActive { get; set; } = true;
+
     public virtual ICollection<Support> Supports { get; set; } = new List<Support>();
 }

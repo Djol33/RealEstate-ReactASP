@@ -5,6 +5,7 @@ using Application.Command;
 using Application.DTO.Command;
 using Application.Email;
 using Application.Exceptions;
+using Application.Security;
 using DataDomain.Entities;
 
 namespace Implementation.Command
@@ -16,9 +17,9 @@ namespace Implementation.Command
 
         private readonly AppDbContext db;
         private readonly IEmailSender email;
-        private readonly Application.Security.PasswordResetSettings settings;
+        private readonly PasswordResetSettings settings;
 
-        public EfRequestPasswordReset(AppDbContext db, IEmailSender email, Application.Security.PasswordResetSettings settings)
+        public EfRequestPasswordReset(AppDbContext db, IEmailSender email, PasswordResetSettings settings)
         {
             this.db = db;
             this.email = email;

@@ -1,20 +1,18 @@
 using Application;
 using Application.Command.Admin;
 using DataDomain.Entities;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace Implementation.Command.Admin
 {
-    public class EfDeleteContactReason : IDeleteContactReason
+    public class EfRestoreContactReason : IRestoreContactReason
     {
-        public int Id => 48;
-        public string Name => "Delete Contact Reason";
+        public int Id => 55;
+        public string Name => "Restore Contact Reason";
 
         private readonly AppDbContext db;
         private readonly IApplicationActor actor;
 
-        public EfDeleteContactReason(AppDbContext db, IApplicationActor actor)
+        public EfRestoreContactReason(AppDbContext db, IApplicationActor actor)
         {
             this.db = db;
             this.actor = actor;
@@ -28,10 +26,7 @@ namespace Implementation.Command.Admin
             var reason = db.ContactReasons.FirstOrDefault(r => r.Id == request)
                 ?? throw new KeyNotFoundException("Reason not found.");
 
-            if (!reason.IsActive)
-                return;
-
-            reason.IsActive = false;
+            reason.IsActive = true;
             db.SaveChanges();
         }
     }

@@ -23,7 +23,7 @@ namespace Implementation.Query
 
         public RealestateAnalyticsDTO Execute(long request)
         {
-            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request)
+            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request && r.IsActive == 1)
                 ?? throw new KeyNotFoundException("Listing not found.");
 
             if (realestate.Owner != actor.Id)

@@ -3,7 +3,9 @@ using Application.Command.Admin;
 using Application.DTO.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using nekretnineapi.Validators;
 
 namespace nekretnineapi.Controllers.Admin
 {
@@ -29,21 +31,33 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/role")]
         public IActionResult SetRole(int id, [FromBody] SetRoleRequest body, [FromServices] IAdminSetRole service)
         {
-            executor.ExecuteCommand(service, new SetRoleDTO { UserId = id, Role = body.Role });
+            var dto = new SetRoleDTO { UserId = id, Role = body.Role };
+
+            var result = new SetRoleValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return NoContent();
         }
 
         [HttpPut("{id}")]
         public IActionResult Edit(int id, [FromBody] EditUserRequest body, [FromServices] IAdminEditUser service)
         {
-            executor.ExecuteCommand(service, new AdminEditUserDTO
+            var dto = new AdminEditUserDTO
             {
                 UserId = id,
-                FirstName = body.FirstName,
-                LastName = body.LastName,
-                Email = body.Email,
+                FirstName = (body.FirstName ?? "").Trim(),
+                LastName = (body.LastName ?? "").Trim(),
+                Email = (body.Email ?? "").Trim(),
                 IsActive = body.IsActive
-            });
+            };
+
+            var result = new AdminEditUserValidator().Validate(dto);
+            if (!result.IsValid)
+                throw new ValidationException(result.Errors);
+
+            executor.ExecuteCommand(service, dto);
             return NoContent();
         }
 

@@ -51,7 +51,7 @@ namespace Implementation.Command
 
             if (request.AmenityIds.Count > 0)
             {
-                var amenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id)).ToList();
+                var amenities = db.Amenities.Where(a => request.AmenityIds.Contains(a.Id) && a.IsActive).ToList();
                 foreach (var amenity in amenities)
                     realestate.Amenities.Add(amenity);
             }

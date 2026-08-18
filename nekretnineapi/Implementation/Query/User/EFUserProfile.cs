@@ -19,7 +19,7 @@ namespace Implementation.Query.User
         public UserProfileDTO Execute(int request)
         {
             var profile = db.Users
-    .Where(u => u.Id == request)
+    .Where(u => u.Id == request && u.IsActive == 1)
     .Select(x => new UserProfileDTO
     {
         Email = x.Email,

@@ -30,26 +30,20 @@ namespace Implementation.Command.Admin
                 .FirstOrDefault(u => u.Id == userId)
                 ?? throw new KeyNotFoundException("User not found.");
 
-            var realestates = db.Realestates.Where(r => r.Owner == userId).Select(r => r.Id).ToList();
-            if (realestates.Count > 0)
-            {
-                var images = db.RealestateImages.Where(i => realestates.Contains(i.IdPost));
-                db.RealestateImages.RemoveRange(images);
+            if (user.IsActive != 1)
+                return;
 
-                var wishOnMine = db.Wishlists.Where(w => realestates.Contains(w.RealestateId));
-                db.Wishlists.RemoveRange(wishOnMine);
+            var listings = db.Realestates.Where(r => r.Owner == userId && r.IsActive == 1).ToList();
+            foreach (var listing in listings)
+                listing.IsActive = 0;
 
-                db.Realestates.RemoveRange(db.Realestates.Where(r => r.Owner == userId));
-            }
+            var listingIds = listings.Select(r => r.Id).ToList();
+            if (listingIds.Count > 0)
+                db.Wishlists.RemoveRange(db.Wishlists.Where(w => listingIds.Contains(w.RealestateId)));
 
             db.Wishlists.RemoveRange(db.Wishlists.Where(w => w.UserId == userId));
 
-            db.Messages.RemoveRange(db.Messages.Where(m => m.SenderId == userId || m.ReceiverId == userId));
-
-            db.RealestateViews.RemoveRange(db.RealestateViews.Where(v => v.ViewerKey == "u:" + userId));
-
-            db.UserBasics.RemoveRange(db.UserBasics.Where(b => b.FkId == userId));
-            db.Users.Remove(user);
+            user.IsActive = 0;
 
             db.SaveChanges();
         }

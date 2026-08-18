@@ -28,10 +28,7 @@ namespace Implementation.Command
             if (actor.Id == 0)
                 throw new UnauthorizedAccessException("You must be logged in.");
 
-            if (request.Days < 1 || request.Days > 90)
-                throw Fail("days", "Days must be between 1 and 90.");
-
-            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request.RealestateId)
+            var realestate = db.Realestates.FirstOrDefault(r => r.Id == request.RealestateId && r.IsActive == 1)
                 ?? throw new KeyNotFoundException("Listing not found.");
 
             if (realestate.Owner != actor.Id)

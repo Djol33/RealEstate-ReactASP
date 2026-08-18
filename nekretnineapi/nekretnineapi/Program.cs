@@ -1,23 +1,39 @@
 ﻿using Application;
+using Application.Chat;
 using Application.Command;
+using Application.Command.Admin;
+using Application.Email;
+using Application.Exceptions;
+using Application.HeroBanner;
 using Application.Query;
+using Application.Query.Admin;
+using Application.Security;
 using DataDomain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Implementation.Command;
+using Implementation.Command.Admin;
 using Implementation.Query;
+using Implementation.Query.Admin;
+using Implementation.Query.Chat;
 using Implementation.Query.City;
 using Implementation.Query.RealEstate;
+using Implementation.Query.Recommendations;
 using Implementation.Query.TypeOfRealestate;
 using Implementation.Query.User;
+using Implementation.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using nekretnineapi;
 using nekretnineapi.Auth;
+using nekretnineapi.Hubs;
+using nekretnineapi.Recommendations;
+using nekretnineapi.Services;
 using nekretnineapi.Validators;
-using Application.Exceptions;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -89,12 +105,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<AppDbContext>();
 builder.Services.AddTransient<UseCaseExecutor>(x => new UseCaseExecutor(x));
 
-builder.Services.AddSingleton<Application.Security.ITokenFactory, nekretnineapi.Auth.JwtTokenFactory>();
-builder.Services.AddSingleton<Application.Security.IPasswordHasher, Implementation.Security.Pbkdf2PasswordHasher>();
-builder.Services.AddTransient<Application.Command.ILogin, Implementation.Command.EfLogin>();
+builder.Services.AddSingleton<ITokenFactory, JwtTokenFactory>();
+builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+builder.Services.AddTransient<ILogin, EfLogin>();
 builder.Services.AddTransient<IShowRealEstate, EfShowRealEstate>();
 builder.Services.AddTransient<ICitySearch, EfCity>();
-builder.Services.AddTransient<IRegesiter, EfRegisterUser > ();
+builder.Services.AddTransient<IRegesiter, EfRegisterUser>();
 builder.Services.AddTransient<IRegisterCompany, EfRegisterCompany>();
 builder.Services.AddDbContext<AppDbContext>(ServiceLifetime.Scoped);
 builder.Services.AddTransient<IUserProfile, EFUserProfile>();
@@ -125,74 +141,75 @@ builder.Services.AddHttpClient("nominatim", client =>
 });
 builder.Services.AddScoped<IAddRealestate, EfAddRealEstate>();
 builder.Services.AddScoped<IEditRealestate, EfEditRealEstate>();
-builder.Services.AddScoped<nekretnineapi.Services.ImageStorageService>();
-builder.Services.AddScoped<nekretnineapi.Services.GeocodingService>();
-builder.Services.AddScoped<IShowUserRealEstate, Implementation.Query.RealEstate.EfShowUserRealEstate>();
-builder.Services.AddScoped<IEditProfile, Implementation.Command.EfEditProfile>();
-builder.Services.AddScoped<IEditCompany, Implementation.Command.EfEditCompany>();
-builder.Services.AddScoped<IToggleWishlist, Implementation.Command.EfToggleWishlist>();
-builder.Services.AddScoped<IShowWishlist, Implementation.Query.RealEstate.EfShowWishlist>();
-builder.Services.AddScoped<IDeleteRealestate, Implementation.Command.EfDeleteRealEstate>();
-builder.Services.AddScoped<ISendMessage, Implementation.Command.EfSendMessage>();
-builder.Services.AddScoped<IGetConversation, Implementation.Query.Chat.EfGetConversation>();
-builder.Services.AddScoped<IGetConversations, Implementation.Query.Chat.EfGetConversations>();
-builder.Services.AddScoped<IMarkRead, Implementation.Command.EfMarkRead>();
+builder.Services.AddScoped<ImageStorageService>();
+builder.Services.AddScoped<GeocodingService>();
+builder.Services.AddScoped<IShowUserRealEstate, EfShowUserRealEstate>();
+builder.Services.AddScoped<IEditProfile, EfEditProfile>();
+builder.Services.AddScoped<IEditCompany, EfEditCompany>();
+builder.Services.AddScoped<IToggleWishlist, EfToggleWishlist>();
+builder.Services.AddScoped<IShowWishlist, EfShowWishlist>();
+builder.Services.AddScoped<IDeleteRealestate, EfDeleteRealEstate>();
+builder.Services.AddScoped<ISendMessage, EfSendMessage>();
+builder.Services.AddScoped<IGetConversation, EfGetConversation>();
+builder.Services.AddScoped<IGetConversations, EfGetConversations>();
+builder.Services.AddScoped<IMarkRead, EfMarkRead>();
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, nekretnineapi.Auth.ClaimUserIdProvider>();
-builder.Services.AddScoped<Application.Chat.IChatNotifier, nekretnineapi.Hubs.SignalRChatNotifier>();
-builder.Services.AddScoped<Application.Command.ISendSystemMessage, Implementation.Command.EfSendSystemMessage>();
+builder.Services.AddSingleton<IUserIdProvider, ClaimUserIdProvider>();
+builder.Services.AddScoped<IChatNotifier, SignalRChatNotifier>();
+builder.Services.AddScoped<ISendSystemMessage, EfSendSystemMessage>();
 
-builder.Services.AddScoped<Application.IViewerContext, nekretnineapi.Recommendations.ViewerContext>();
-builder.Services.AddScoped<ITrackView, Implementation.Command.EfTrackView>();
-builder.Services.AddScoped<Application.Command.ITrackViewDuration, Implementation.Command.EfTrackViewDuration>();
-builder.Services.AddScoped<Application.Query.IGetRealestateAnalytics, Implementation.Query.EfGetRealestateAnalytics>();
-builder.Services.AddScoped<IShowTrending, Implementation.Query.Recommendations.EfShowTrending>();
-builder.Services.AddScoped<IShowRecentlyViewed, Implementation.Query.Recommendations.EfShowRecentlyViewed>();
-builder.Services.AddScoped<IShowRecommendations, Implementation.Query.Recommendations.EfShowRecommendations>();
-builder.Services.AddScoped<Application.Query.Admin.IAdminListUsers, Implementation.Query.Admin.EfAdminListUsers>();
-builder.Services.AddScoped<Application.Query.Admin.IAdminStats, Implementation.Query.Admin.EfAdminStats>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminDeleteUser, Implementation.Command.Admin.EfAdminDeleteUser>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminSetRole, Implementation.Command.Admin.EfAdminSetRole>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminEditUser, Implementation.Command.Admin.EfAdminEditUser>();
+builder.Services.AddScoped<IViewerContext, ViewerContext>();
+builder.Services.AddScoped<ITrackView, EfTrackView>();
+builder.Services.AddScoped<ITrackViewDuration, EfTrackViewDuration>();
+builder.Services.AddScoped<IGetRealestateAnalytics, EfGetRealestateAnalytics>();
+builder.Services.AddScoped<IShowTrending, EfShowTrending>();
+builder.Services.AddScoped<IShowRecentlyViewed, EfShowRecentlyViewed>();
+builder.Services.AddScoped<IShowRecommendations, EfShowRecommendations>();
+builder.Services.AddScoped<IAdminListUsers, EfAdminListUsers>();
+builder.Services.AddScoped<IAdminStats, EfAdminStats>();
+builder.Services.AddScoped<IAdminDeleteUser, EfAdminDeleteUser>();
+builder.Services.AddScoped<IAdminSetRole, EfAdminSetRole>();
+builder.Services.AddScoped<IAdminEditUser, EfAdminEditUser>();
 
-var emailSettings = builder.Configuration.GetSection(nekretnineapi.Services.EmailSettings.SectionName)
-    .Get<nekretnineapi.Services.EmailSettings>() ?? new nekretnineapi.Services.EmailSettings();
+var emailSettings = builder.Configuration.GetSection(EmailSettings.SectionName)
+    .Get<EmailSettings>() ?? new EmailSettings();
 builder.Services.AddSingleton(emailSettings);
-builder.Services.AddSingleton<Application.Email.IEmailSender, nekretnineapi.Services.SmtpEmailSender>();
-var passwordResetSettings = builder.Configuration.GetSection(Application.Security.PasswordResetSettings.SectionName)
-    .Get<Application.Security.PasswordResetSettings>() ?? new Application.Security.PasswordResetSettings();
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+var passwordResetSettings = builder.Configuration.GetSection(PasswordResetSettings.SectionName)
+    .Get<PasswordResetSettings>() ?? new PasswordResetSettings();
 builder.Services.AddSingleton(passwordResetSettings);
-builder.Services.AddScoped<Application.Command.IRequestPasswordReset, Implementation.Command.EfRequestPasswordReset>();
-builder.Services.AddScoped<Application.Command.IResetPassword, Implementation.Command.EfResetPassword>();
+builder.Services.AddScoped<IRequestPasswordReset, EfRequestPasswordReset>();
+builder.Services.AddScoped<IResetPassword, EfResetPassword>();
 
-var heroBannerSettings = builder.Configuration.GetSection(nekretnineapi.Services.HeroBannerSettings.SectionName)
-    .Get<nekretnineapi.Services.HeroBannerSettings>() ?? new nekretnineapi.Services.HeroBannerSettings();
+var heroBannerSettings = builder.Configuration.GetSection(HeroBannerSettings.SectionName)
+    .Get<HeroBannerSettings>() ?? new HeroBannerSettings();
 builder.Services.AddSingleton(heroBannerSettings);
-builder.Services.AddSingleton<Application.HeroBanner.IHeroBannerPricing>(heroBannerSettings);
-builder.Services.AddScoped<Application.Query.IGetHeroBannerQuote, Implementation.Query.EfGetHeroBannerQuote>();
-builder.Services.AddScoped<Application.Query.IGetActiveHeroBanners, Implementation.Query.EfGetActiveHeroBanners>();
-builder.Services.AddScoped<Application.Query.IGetMyHeroBannerRequests, Implementation.Query.EfGetMyHeroBannerRequests>();
-builder.Services.AddScoped<Application.Command.IRequestHeroBanner, Implementation.Command.EfRequestHeroBanner>();
-builder.Services.AddScoped<Application.Query.Admin.IAdminListHeroBannerRequests, Implementation.Query.Admin.EfAdminListHeroBannerRequests>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminDecideHeroBanner, Implementation.Command.Admin.EfAdminDecideHeroBanner>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminRevokeHeroBanner, Implementation.Command.Admin.EfAdminRevokeHeroBanner>();
-builder.Services.AddScoped<Application.Command.IReportRealestate, Implementation.Command.EfReportRealestate>();
-builder.Services.AddScoped<Application.Query.Admin.IAdminListReports, Implementation.Query.Admin.EfAdminListReports>();
-builder.Services.AddScoped<Application.Command.Admin.IAdminDecideReport, Implementation.Command.Admin.EfAdminDecideReport>();
+builder.Services.AddSingleton<IHeroBannerPricing>(heroBannerSettings);
+builder.Services.AddScoped<IGetHeroBannerQuote, EfGetHeroBannerQuote>();
+builder.Services.AddScoped<IGetActiveHeroBanners, EfGetActiveHeroBanners>();
+builder.Services.AddScoped<IGetMyHeroBannerRequests, EfGetMyHeroBannerRequests>();
+builder.Services.AddScoped<IRequestHeroBanner, EfRequestHeroBanner>();
+builder.Services.AddScoped<IAdminListHeroBannerRequests, EfAdminListHeroBannerRequests>();
+builder.Services.AddScoped<IAdminDecideHeroBanner, EfAdminDecideHeroBanner>();
+builder.Services.AddScoped<IAdminRevokeHeroBanner, EfAdminRevokeHeroBanner>();
+builder.Services.AddScoped<IReportRealestate, EfReportRealestate>();
+builder.Services.AddScoped<IAdminListReports, EfAdminListReports>();
+builder.Services.AddScoped<IAdminDecideReport, EfAdminDecideReport>();
 
-builder.Services.AddScoped<Application.Query.IListAmenities, Implementation.Query.EfListAmenities>();
-builder.Services.AddScoped<Application.Command.Admin.ISaveAmenity, Implementation.Command.Admin.EfSaveAmenity>();
-builder.Services.AddScoped<Application.Command.Admin.IDeleteAmenity, Implementation.Command.Admin.EfDeleteAmenity>();
-builder.Services.AddScoped<Application.Command.Admin.IRestoreAmenity, Implementation.Command.Admin.EfRestoreAmenity>();
+builder.Services.AddScoped<IListAmenities, EfListAmenities>();
+builder.Services.AddScoped<ISaveAmenity, EfSaveAmenity>();
+builder.Services.AddScoped<IDeleteAmenity, EfDeleteAmenity>();
+builder.Services.AddScoped<IRestoreAmenity, EfRestoreAmenity>();
 
-builder.Services.AddScoped<Application.Query.IListContactReasons, Implementation.Query.EfListContactReasons>();
-builder.Services.AddScoped<Application.Command.Admin.ISaveContactReason, Implementation.Command.Admin.EfSaveContactReason>();
-builder.Services.AddScoped<Application.Command.Admin.IDeleteContactReason, Implementation.Command.Admin.EfDeleteContactReason>();
-builder.Services.AddScoped<Application.Command.ISubmitContactMessage, Implementation.Command.EfSubmitContactMessage>();
-builder.Services.AddScoped<Application.Query.Admin.IAdminListContactMessages, Implementation.Query.Admin.EfAdminListContactMessages>();
-builder.Services.AddScoped<Application.Command.Admin.IMarkContactMessageRead, Implementation.Command.Admin.EfMarkContactMessageRead>();
-builder.Services.AddScoped<Application.Command.Admin.IReplyToContactMessage, Implementation.Command.Admin.EfReplyToContactMessage>();
+builder.Services.AddScoped<IListContactReasons, EfListContactReasons>();
+builder.Services.AddScoped<ISaveContactReason, EfSaveContactReason>();
+builder.Services.AddScoped<IDeleteContactReason, EfDeleteContactReason>();
+builder.Services.AddScoped<IRestoreContactReason, EfRestoreContactReason>();
+builder.Services.AddScoped<ISubmitContactMessage, EfSubmitContactMessage>();
+builder.Services.AddScoped<IAdminListContactMessages, EfAdminListContactMessages>();
+builder.Services.AddScoped<IMarkContactMessageRead, EfMarkContactMessageRead>();
+builder.Services.AddScoped<IReplyToContactMessage, EfReplyToContactMessage>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 
@@ -202,7 +219,7 @@ app.UseExceptionHandler(appError =>
 {
     appError.Run(async context =>
     {
-        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
         var ex = feature?.Error;
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
@@ -329,5 +346,5 @@ app.Use(async (context, next) =>
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<nekretnineapi.Hubs.ChatHub>("/hubs/chat");
+app.MapHub<ChatHub>("/hubs/chat");
 app.Run();

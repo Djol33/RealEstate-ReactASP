@@ -1,3 +1,4 @@
+using Application;
 using Application.DTO.Command;
 using DataDomain.Entities;
 using FluentValidation;
@@ -40,9 +41,9 @@ namespace nekretnineapi.Validators
                 .WithMessage("Selected city does not exist.");
 
             RuleFor(x => x.Status)
-                .Must(status => status == Application.RealEstateStatus.Available
-                             || status == Application.RealEstateStatus.Reserved
-                             || status == Application.RealEstateStatus.Sold)
+                .Must(status => status == RealEstateStatus.Available
+                             || status == RealEstateStatus.Reserved
+                             || status == RealEstateStatus.Sold)
                 .When(x => x.Status.HasValue)
                 .WithMessage("Invalid listing status.");
 
