@@ -1,4 +1,4 @@
-using Application.DTO.Command;
+﻿using Application.DTO.Command;
 using DataDomain.Entities;
 using FluentValidation;
 
@@ -14,6 +14,7 @@ namespace nekretnineapi.Validators
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Title cannot be empty.")
+                .MinimumLength(3).WithMessage("Title must be at least 3 characters.")
                 .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
 
             RuleFor(x => x.Description)
@@ -21,8 +22,9 @@ namespace nekretnineapi.Validators
                 .MinimumLength(20).WithMessage("Description must be at least 20 characters.");
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than 0.")
-                .LessThanOrEqualTo(100_000_000).WithMessage("Price cannot exceed 100,000,000.");
+                .GreaterThanOrEqualTo(1_000).WithMessage("Price must be at least 1,000.")
+                .LessThanOrEqualTo(100_000_000).WithMessage("Price cannot exceed 100,000,000.")
+                .Must(p => p % 100 == 0).WithMessage("Price must be rounded to the nearest 100.");
 
             RuleFor(x => x.Area)
                 .GreaterThan(0).WithMessage("Area must be greater than 0.")

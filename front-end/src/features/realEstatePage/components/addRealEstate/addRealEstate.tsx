@@ -65,6 +65,7 @@ export function AddRealEstate() {
       payload.append('numberOfRooms', form.formData.numberOfRooms);
       payload.append('terrace', String(form.formData.terrace));
       payload.append('registered', String(form.formData.registered));
+      payload.append('showMap', String(form.formData.showMap));
       payload.append('area', form.formData.area);
       payload.append('price', form.formData.price);
       payload.append('description', form.formData.description);
@@ -112,11 +113,13 @@ export function AddRealEstate() {
           <ListingDetailsStep
             formData={form.formData}
             errors={form.errors}
+            onBlur={form.handleBlur}
             city={city}
             typeObject={typeObject}
             onChange={form.handleChange}
             onTerraceChange={form.setTerrace}
             onRegisteredChange={form.setRegistered}
+            onShowMapChange={form.setShowMap}
             onNext={handleNext}
           />
         )}

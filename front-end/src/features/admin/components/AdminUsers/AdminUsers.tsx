@@ -8,12 +8,15 @@ import { Pagination } from '../../../../shared/components/Pagination/Pagination'
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../../config';
 import './AdminUsers.scss';
+import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
 interface AdminUser {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
+  companyName: string | null;
+  isCompany: boolean;
   userRole: number;
   isActive: boolean;
   realEstateCount: number;
@@ -22,11 +25,14 @@ interface AdminUser {
 interface EditState {
   firstName: string;
   lastName: string;
+  companyName: string;
+  isCompany: boolean;
   email: string;
   isActive: boolean;
 }
 
 export function AdminUsers() {
+  const toast = useToast();
   const { user } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +45,7 @@ export function AdminUsers() {
   const [totalCount, setTotalCount] = useState(0);
 
   const [editing, setEditing] = useState<AdminUser | null>(null);
-  const [form, setForm] = useState<EditState>({ firstName: '', lastName: '', email: '', isActive: true });
+  const [form, setForm] = useState<EditState>({ firstName: '', lastName: '', companyName: '', isCompany: false, email: '', isActive: true });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
   const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
@@ -72,7 +78,14 @@ export function AdminUsers() {
 
   function openEdit(u: AdminUser) {
     setEditing(u);
-    setForm({ firstName: u.firstName ?? '', lastName: u.lastName ?? '', email: u.email, isActive: u.isActive });
+    setForm({
+      firstName: u.firstName ?? '',
+      lastName: u.lastName ?? '',
+      companyName: u.companyName ?? '',
+      isCompany: u.isCompany,
+      email: u.email,
+      isActive: u.isActive,
+    });
     setFormError('');
   }
 
@@ -83,28 +96,40 @@ export function AdminUsers() {
   }
 
   function validateForm(): string | null {
-    const firstName = form.firstName.trim();
-    const lastName = form.lastName.trim();
     const email = form.email.trim();
 
-    if (!firstName || firstName.length < 3) {
-      return 'First name must be at least 3 characters.';
+    if (form.isCompany) {
+      const companyName = form.companyName.trim();
+      if (!companyName) {
+        return 'Company name cannot be empty.';
+      }
+      if (companyName.length > 50) {
+        return 'Company name cannot exceed 50 characters.';
+      }
+    } else {
+      const firstName = form.firstName.trim();
+      const lastName = form.lastName.trim();
+
+      if (!firstName || firstName.length < 3) {
+        return 'First name must be at least 3 characters.';
+      }
+      if (firstName.length > 30) {
+        return 'First name cannot exceed 30 characters.';
+      }
+      if (!/\p{L}/u.test(firstName)) {
+        return 'First name must contain at least one letter.';
+      }
+      if (!lastName || lastName.length < 3) {
+        return 'Last name must be at least 3 characters.';
+      }
+      if (lastName.length > 30) {
+        return 'Last name cannot exceed 30 characters.';
+      }
+      if (!/\p{L}/u.test(lastName)) {
+        return 'Last name must contain at least one letter.';
+      }
     }
-    if (firstName.length > 30) {
-      return 'First name cannot exceed 30 characters.';
-    }
-    if (!/\p{L}/u.test(firstName)) {
-      return 'First name must contain at least one letter.';
-    }
-    if (!lastName || lastName.length < 3) {
-      return 'Last name must be at least 3 characters.';
-    }
-    if (lastName.length > 30) {
-      return 'Last name cannot exceed 30 characters.';
-    }
-    if (!/\p{L}/u.test(lastName)) {
-      return 'Last name must contain at least one letter.';
-    }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return 'Please enter a valid email address.';
     }
@@ -147,7 +172,7 @@ export function AdminUsers() {
       await axios.post(`${API_URL}/api/admin/users/${u.id}/role`, { role: newRole });
       load();
     } catch (err: any) {
-      alert(err.response?.status === 403 ? 'You do not have permission.' : 'Failed to change role.');
+      toast.error(err.response?.status === 403 ? 'You do not have permission.' : 'Failed to change role.');
     }
   }
 
@@ -159,7 +184,7 @@ export function AdminUsers() {
       await axios.delete(`${API_URL}/api/admin/users/${u.id}`);
       load();
     } catch (err: any) {
-      alert(err.response?.status === 403 ? 'You cannot delete this user.' : 'Failed to delete.');
+      toast.error(err.response?.status === 403 ? 'You cannot delete this user.' : 'Failed to delete.');
     }
   }
 

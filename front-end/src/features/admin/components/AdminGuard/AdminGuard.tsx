@@ -5,14 +5,15 @@ import { useAuth } from '../../../../AuthStore';
 export function AdminGuard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = user?.userRole === 2;
 
   useEffect(() => {
-    if (!user || user.userRole !== 2) {
-      navigate('/');
+    if (!isAdmin) {
+      navigate(user ? '/' : '/auth/login', { replace: true });
     }
-  }, [user]);
+  }, [isAdmin, user, navigate]);
 
-  if (!user || user.userRole !== 2) return null;
+  if (!isAdmin) return null;
 
   return <Outlet />;
 }

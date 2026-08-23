@@ -1,4 +1,4 @@
-namespace nekretnineapi.DTO
+﻿namespace nekretnineapi.DTO
 {
     public class EditRealestateRequest
     {
@@ -13,5 +13,6 @@ namespace nekretnineapi.DTO
         public string Address { get; set; }
         public float NumberOfRooms { get; set; }
         public int? Status { get; set; }
+        public bool ShowMap { get; set; } = true;
     }
 }

@@ -1,4 +1,4 @@
-namespace Application.DTO.Command
+﻿namespace Application.DTO.Command
 {
     public class EditRealestateDTO
     {
@@ -16,6 +16,7 @@ namespace Application.DTO.Command
         public decimal? Lat { get; set; }
         public decimal? Lng { get; set; }
         public int? Status { get; set; }
+        public bool ShowMap { get; set; } = true;
         public List<string> ImagePaths { get; set; } = new();
         public List<long> ExistingImageIds { get; set; } = new();
         public List<int> AmenityIds { get; set; } = new();

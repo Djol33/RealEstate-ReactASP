@@ -37,6 +37,9 @@ namespace Implementation.Command.Admin
             var message = db.Supports.FirstOrDefault(s => s.Id == request.MessageId)
                 ?? throw new KeyNotFoundException("Message not found.");
 
+            if (message.RepliedAt != null || message.ClosedAt != null)
+                throw new ValidationException(new[] { new ValidationFailure("reply", "This message has already been handled.") });
+
             var receiverExists = message.IdUser.HasValue && db.Users.Any(u => u.Id == message.IdUser.Value);
 
             if (receiverExists)
@@ -62,6 +65,9 @@ namespace Implementation.Command.Admin
             }
 
             message.IsRead = 1;
+            message.ReplyText = reply;
+            message.RepliedAt = DateTime.Now;
+            message.RepliedBy = actor.Id;
             db.SaveChanges();
         }
     }

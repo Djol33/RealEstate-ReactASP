@@ -1,6 +1,8 @@
-using Application;
+﻿using Application;
+using DataDomain.Entities;
 using Application.Command;
 using Application.DTO.Command;
+using Application.DTO.Query;
 using Application.Query;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -38,8 +40,8 @@ namespace nekretnineapi.Controllers.User
 
         [AllowAnonymous]
         [HttpGet("{id}/realestates")]
-        public IActionResult GetRealEstates(int id, [FromServices] IShowUserRealEstate query)
-            => Ok(exec.ExecuteQuery(query, id));
+        public IActionResult GetRealEstates(int id, [FromQuery] int page, [FromServices] IShowUserRealEstate query)
+            => Ok(exec.ExecuteQuery(query, new UserListingsQueryDTO { UserId = id, Page = page }));
 
         [Authorize]
         [HttpPut]
@@ -62,8 +64,13 @@ namespace nekretnineapi.Controllers.User
             [FromForm] string name,
             [FromForm] string bip,
             [FromForm] IFormFile? logo,
-            [FromServices] IEditCompany service)
+            [FromServices] IEditCompany service,
+            [FromServices] AppDbContext db,
+            [FromServices] IApplicationActor actor)
         {
+            if (!db.Companies.Any(c => c.FkId == actor.Id))
+                throw new KeyNotFoundException("Company details not found.");
+
             var dto = new EditCompanyDTO { Name = (name ?? "").Trim(), BIP = (bip ?? "").Trim() };
 
             var result = new EditCompanyValidator().Validate(dto);

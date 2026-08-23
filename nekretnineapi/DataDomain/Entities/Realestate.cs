@@ -37,6 +37,12 @@ public partial class Realestate
 
     public int Status { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? SoldAt { get; set; }
+
+    public bool ShowMap { get; set; } = true;
+
     public virtual ICollection<RealestateImage> RealestateImages { get; set; } = new List<RealestateImage>();
 
     public virtual TipObjektum TypeObjectNavigation { get; set; } = null!;

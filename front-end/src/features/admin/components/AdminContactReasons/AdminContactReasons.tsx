@@ -3,13 +3,16 @@ import axios from 'axios';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../../config';
 import './AdminContactReasons.scss';
+import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
 interface Reason {
   id: number;
   name: string;
+  isActive: boolean;
 }
 
 export function AdminContactReasons() {
+  const toast = useToast();
   const [reasons, setReasons] = useState<Reason[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -92,7 +95,17 @@ export function AdminContactReasons() {
       load();
     } catch (err: any) {
       const msg = err.response?.data?.errors?.[0]?.error ?? 'Failed to delete.';
-      alert(msg);
+      toast.error(msg);
+    }
+  }
+
+  async function restore(r: Reason) {
+    try {
+      await axios.post(`${API_URL}/api/admin/contact-reasons/${r.id}/restore`);
+      load();
+    } catch (err: any) {
+      const msg = err.response?.data?.errors?.[0]?.error ?? 'Failed to restore.';
+      toast.error(msg);
     }
   }
 
@@ -102,7 +115,7 @@ export function AdminContactReasons() {
   return (
     <div className="admin-contact-reasons">
       <div className="admin-contact-reasons-header">
-        <h1>Contact reasons ({reasons.length})</h1>
+        <h1>Contact reasons ({reasons.filter((r) => r.isActive).length})</h1>
         <button className="btn-add" onClick={openCreate}>
           <i className="fa-solid fa-plus" /> Add reason
         </button>
@@ -113,19 +126,31 @@ export function AdminContactReasons() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {reasons.length === 0 && (
-              <tr><td colSpan={2} className="empty">No reasons yet.</td></tr>
+              <tr><td colSpan={3} className="empty">No reasons yet.</td></tr>
             )}
             {reasons.map((r) => (
-              <tr key={r.id}>
+              <tr key={r.id} className={!r.isActive ? 'is-inactive' : ''}>
                 <td>{r.name}</td>
+                <td>
+                  <span className={`status-badge ${r.isActive ? 'active' : 'inactive'}`}>
+                    {r.isActive ? 'Active' : 'Deleted'}
+                  </span>
+                </td>
                 <td className="actions">
-                  <button className="btn-edit" onClick={() => openEdit(r)}>Edit</button>
-                  <button className="btn-del" onClick={() => setDeleting(r)}>Delete</button>
+                  {r.isActive ? (
+                    <>
+                      <button className="btn-edit" onClick={() => openEdit(r)}>Edit</button>
+                      <button className="btn-del" onClick={() => setDeleting(r)}>Delete</button>
+                    </>
+                  ) : (
+                    <button className="btn-restore" onClick={() => restore(r)}>Restore</button>
+                  )}
                 </td>
               </tr>
             ))}

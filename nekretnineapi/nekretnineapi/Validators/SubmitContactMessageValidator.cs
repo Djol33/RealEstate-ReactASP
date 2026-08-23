@@ -1,4 +1,4 @@
-using Application.DTO.Command;
+﻿using Application.DTO.Command;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -21,14 +21,17 @@ namespace nekretnineapi.Validators
             When(IsGuest, () =>
             {
                 RuleFor(x => x.FirstName)
-                    .NotEmpty().WithMessage("First name cannot be empty.");
+                    .NotEmpty().WithMessage("First name cannot be empty.")
+                    .MaximumLength(30).WithMessage("First name cannot exceed 30 characters.");
 
                 RuleFor(x => x.LastName)
-                    .NotEmpty().WithMessage("Last name cannot be empty.");
+                    .NotEmpty().WithMessage("Last name cannot be empty.")
+                    .MaximumLength(30).WithMessage("Last name cannot exceed 30 characters.");
 
                 RuleFor(x => x.Email)
                     .NotEmpty().WithMessage("Please enter a valid email address.")
-                    .Matches(@"^[^\s@]+@[^\s@]+\.[^\s@]+$").WithMessage("Please enter a valid email address.");
+                    .Matches(@"^[^\s@]+@[^\s@]+\.[^\s@]+$").WithMessage("Please enter a valid email address.")
+                    .MaximumLength(100).WithMessage("Email cannot exceed 100 characters.");
             });
         }
 

@@ -23,6 +23,18 @@ export function FilterFormFields({
   return (
     <>
       <div className="row">
+        <label htmlFor="search">Search</label>
+        <input
+          type="search"
+          name="search"
+          id="search"
+          placeholder="Title, address, city, owner..."
+          value={formav.search ?? ''}
+          onChange={onChange}
+        />
+      </div>
+
+      <div className="row">
         <label>City</label>
         <InputWithOptions name="city" id="city" setCity={setForma} selectedCity={formav} />
       </div>
@@ -47,6 +59,16 @@ export function FilterFormFields({
         <div className=" range">
           <input type="number" onBlur={onClamp} name="minPrice" id="minPrice" value={formav.minPrice} onChange={onChange} />
           <input type="number" onBlur={onClamp} name="maxPrice" id="maxPrice" value={formav.maxPrice} onChange={onChange} />
+        </div>
+      </div>
+
+      <div className="row">
+        <label htmlFor="">Area (m&sup2;)</label>
+        <div className=" range">
+          <input type="number" onBlur={onClamp} name="minArea" id="minArea" min="0"
+            placeholder="Min" value={formav.minArea || ''} onChange={onChange} />
+          <input type="number" onBlur={onClamp} name="maxArea" id="maxArea" min="0"
+            placeholder="Max" value={formav.maxArea || ''} onChange={onChange} />
         </div>
       </div>
 

@@ -46,7 +46,8 @@ namespace Implementation.Query.Admin
                     u.UserRole,
                     u.IsActive,
                     FirstName = u.UserBasics.Select(b => b.FirstName).FirstOrDefault(),
-                    LastName = u.UserBasics.Select(b => b.LastName).FirstOrDefault()
+                    LastName = u.UserBasics.Select(b => b.LastName).FirstOrDefault(),
+                    CompanyName = u.Companies.Select(c => c.Name).FirstOrDefault()
                 })
                 .ToList();
 
@@ -65,6 +66,8 @@ namespace Implementation.Query.Admin
                 IsActive = u.IsActive == 1,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                CompanyName = u.CompanyName,
+                IsCompany = u.CompanyName != null,
                 RealEstateCount = listingCountsByOwner.GetValueOrDefault(u.Id)
             }).ToList();
 

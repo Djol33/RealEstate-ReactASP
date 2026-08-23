@@ -7,6 +7,7 @@ namespace Application.DTO.HeroBanner
         public int Id { get; set; }
         public long RealestateId { get; set; }
         public string RealestateTitle { get; set; }
+        public bool RealestateStillExists { get; set; }
         public int Days { get; set; }
         public decimal TotalPrice { get; set; }
         public int Status { get; set; }

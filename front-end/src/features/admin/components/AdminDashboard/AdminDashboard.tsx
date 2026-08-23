@@ -13,6 +13,10 @@ interface Stats {
   totalViews: number;
   avgViewedArea: number;
   avgViewedPrice: number;
+  soldLast24h: number;
+  soldLast7Days: number;
+  soldLast30Days: number;
+  soldTotal: number;
   topCities: { cityName: string; count: number }[];
   mostViewed: any[];
 }
@@ -42,6 +46,13 @@ export function AdminDashboard() {
     { label: 'Avg. viewed price', value: `€ ${formatPrice(stats.avgViewedPrice)}` },
   ];
 
+  const salesCards = [
+    { label: 'Sold today', value: stats.soldLast24h },
+    { label: 'Sold last 7 days', value: stats.soldLast7Days },
+    { label: 'Sold last 30 days', value: stats.soldLast30Days },
+    { label: 'Sold total', value: stats.soldTotal },
+  ];
+
   return (
     <div className="admin-dashboard">
       <h1>Overview</h1>
@@ -49,6 +60,16 @@ export function AdminDashboard() {
       <div className="stat-cards">
         {cards.map((c) => (
           <div key={c.label} className="stat-card">
+            <div className="stat-value">{c.value}</div>
+            <div className="stat-label">{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="dashboard-section-title">Sales</h2>
+      <div className="stat-cards">
+        {salesCards.map((c) => (
+          <div key={c.label} className="stat-card sales">
             <div className="stat-value">{c.value}</div>
             <div className="stat-label">{c.label}</div>
           </div>

@@ -37,6 +37,10 @@ namespace Implementation.Command.Admin
 
             if (request.Approve)
             {
+                var listingActive = db.Realestates.Any(r => r.Id == heroRequest.RealestateId && r.IsActive == 1);
+                if (!listingActive)
+                    throw new ValidationException(new[] { new ValidationFailure("realestateId", "This listing has been removed and cannot be featured.") });
+
                 heroRequest.Status = HeroBannerStatus.Approved;
                 heroRequest.StartsAt = DateTime.Now;
                 heroRequest.EndsAt = DateTime.Now.AddDays(heroRequest.Days);

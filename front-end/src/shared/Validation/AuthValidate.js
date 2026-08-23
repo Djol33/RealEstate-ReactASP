@@ -1,18 +1,20 @@
+import { NAME_PATTERN } from './personName';
+
 export const Validate = {
     email: {
         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         message: "Invalid email address"
     },
     password: {
-        value: /^(?=.*[A-Za-z])(?=.*\d)\S{8,}$/,
-        message: "Password must be at least 8 characters long and contain at least one letter and one number"
+        value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/,
+        message: "Password must be at least 8 characters and contain a letter, a number and a special character"
     },
     firstName: {
-        value: /^[A-Za-zČčĆćŽžŠšĐđА-Яа-яЁёЂђЈјЉљЊњЋћЏџ]+$/,
+        value: NAME_PATTERN,
         message: "First name must contain only letters"
     },
     lastName: {
-        value: /^[A-Za-zČčĆćŽžŠšĐđА-Яа-яЁёЂђЈјЉљЊњЋћЏџ]+$/,
+        value: NAME_PATTERN,
         message: "Last name must contain only letters"
     }
 

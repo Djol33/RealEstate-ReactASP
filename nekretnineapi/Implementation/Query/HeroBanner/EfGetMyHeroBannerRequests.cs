@@ -29,6 +29,7 @@ namespace Implementation.Query
                     Id = h.Id,
                     RealestateId = h.RealestateId,
                     RealestateTitle = db.Realestates.Where(r => r.Id == h.RealestateId).Select(r => r.Title).FirstOrDefault(),
+                    RealestateStillExists = db.Realestates.Any(r => r.Id == h.RealestateId && r.IsActive == 1),
                     Days = h.Days,
                     TotalPrice = h.TotalPrice,
                     Status = h.Status,

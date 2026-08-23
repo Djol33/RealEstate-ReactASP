@@ -1,15 +1,15 @@
 import "./App.scss";
 import { Main } from "./features/main/components/Main/Main";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import Login from "./features/Auth/Login/components/Login/Login";
-import ForgotPassword from "./features/Auth/ForgotPassword/components/ForgotPassword/ForgotPassword";
-import ResetPassword from "./features/Auth/ResetPassword/components/ResetPassword/ResetPassword";
+import Login from "./features/Auth/Login/Login";
+import ForgotPassword from "./features/Auth/ForgotPassword/ForgotPassword";
+import ResetPassword from "./features/Auth/ResetPassword/ResetPassword";
 import { RealEstatePage } from "./features/realEstatePage/components/realEstatePage/realEstatePage";
-import { RegisterUser } from "./features/Auth/Register/components/Register/Register";
+import { RegisterUser } from "./features/Auth/Register/Register";
 import { Header } from "./shared/components/Header/Header";
-import Auth from "./features/Auth/components/Auth/Auth";
-import { RegisterCompany } from "./features/Auth/RegisterCompany/components/RegisterCompany/RegisterCompany";
-import { Layout } from "./features/Layout/components/Layout/Layout";
+import Auth from "./features/Auth/AuthLayout/Auth";
+import { RegisterCompany } from "./features/Auth/RegisterCompany/RegisterCompany";
+import { Layout } from "./features/Layout/Layout";
 import { User } from "./features/User/components/User/User";
 import { useAuth } from "./AuthStore";
 import { UserProfile } from "./features/User/components/UserProfile/UserProfile";
@@ -19,6 +19,7 @@ import {AddRealEstate} from './features/realEstatePage/components/addRealEstate/
 import {EditRealEstate} from './features/realEstatePage/components/editRealEstate/editRealEstate'
 import { Messages } from './features/chat/components/Messages/Messages'
 import { AdminGuard } from './features/admin/components/AdminGuard/AdminGuard'
+import { RequireAuth } from './shared/components/RequireAuth'
 import { AdminLayout } from './features/admin/components/AdminLayout/AdminLayout'
 import { AdminDashboard } from './features/admin/components/AdminDashboard/AdminDashboard'
 import { AdminUsers } from './features/admin/components/AdminUsers/AdminUsers'
@@ -28,8 +29,8 @@ import { AdminReports } from './features/admin/components/AdminReports/AdminRepo
 import { AdminAmenities } from './features/admin/components/AdminAmenities/AdminAmenities'
 import { AdminContactMessages } from './features/admin/components/AdminContactMessages/AdminContactMessages'
 import { AdminContactReasons } from './features/admin/components/AdminContactReasons/AdminContactReasons'
-import { NotFound } from './features/NotFound/components/NotFound/NotFound'
-import { Contact } from './features/Contact/components/Contact/Contact'
+import { NotFound } from './features/NotFound/NotFound'
+import { Contact } from './features/Contact/Contact'
 
 const router = createBrowserRouter([
     {
@@ -41,8 +42,13 @@ const router = createBrowserRouter([
         element: <Main />,
       },
       { path: "/realestate/:id", element: <RealEstatePage /> },
-      { path: "/messages", element: <Messages /> },
-      { path: "/messages/:userId", element: <Messages /> },
+      {
+        element: <RequireAuth />,
+        children: [
+          { path: "/messages", element: <Messages /> },
+          { path: "/messages/:userId", element: <Messages /> },
+        ],
+      },
       { path: "/contact", element: <Contact /> },
       {
         path: "admin",
@@ -96,8 +102,13 @@ const router = createBrowserRouter([
         element: <User />,
         children: [
           {
-            path: "profile",
-            element: <UserProfile />,
+            element: <RequireAuth />,
+            children: [
+              {
+                path: "profile",
+                element: <UserProfile />,
+              },
+            ],
           },
           {
             path: ":id",
@@ -105,18 +116,25 @@ const router = createBrowserRouter([
           },
         ],
       },
-      {       path: "apartment",
+      {
+        path: "realestate",
         element: <RealEstateWrapper />,
-      children:[
-        {
-          path: "add",
-          element: <AddRealEstate />,
-        },
-        {
-          path: "edit/:id",
-          element: <EditRealEstate />,
-        }
-      ]},
+        children: [
+          {
+            element: <RequireAuth />,
+            children: [
+              {
+                path: "new",
+                element: <AddRealEstate />,
+              },
+              {
+                path: ":id/edit",
+                element: <EditRealEstate />,
+              },
+            ],
+          },
+        ],
+      },
       { path: "*", element: <NotFound /> },
     ],
   },

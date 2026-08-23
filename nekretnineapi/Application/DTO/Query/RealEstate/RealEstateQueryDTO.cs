@@ -1,4 +1,4 @@
-namespace Application.DTO.Query
+﻿namespace Application.DTO.Query
 {
     public class RealEstateQueryDTO
     {
@@ -8,6 +8,8 @@ namespace Application.DTO.Query
         public int? TypeObject { get; set; }
         public string? Title { get; set; }
         public float? MinRooms { get; set; }
+        public float? MinArea { get; set; }
+        public float? MaxArea { get; set; }
         public bool? Registered { get; set; }
         public int Page { get; set; } = 1;
         public string? SortBy { get; set; }

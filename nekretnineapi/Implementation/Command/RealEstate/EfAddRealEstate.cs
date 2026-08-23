@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -23,6 +23,7 @@ namespace Implementation.Command
         {
             var realestate = new Realestate
             {
+                ShowMap = request.ShowMap,
                 Title = request.Title,
                 Description = request.Description,
                 Price = request.Price,

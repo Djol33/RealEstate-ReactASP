@@ -25,7 +25,7 @@ namespace Implementation.Query
                 .Where(h => h.Status == HeroBannerStatus.Approved && h.StartsAt <= now && h.EndsAt > now)
                 .OrderByDescending(h => h.StartsAt)
                 .Join(db.Realestates, h => h.RealestateId, r => r.Id, (h, r) => new { h, r })
-                .Where(x => x.r.IsActive == 1)
+                .Where(x => x.r.IsActive == 1 && x.r.Status != RealEstateStatus.Sold)
                 .Select(x => new HeroBannerActiveItemDTO
                 {
                     RealestateId = x.r.Id,

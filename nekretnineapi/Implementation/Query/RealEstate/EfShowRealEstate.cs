@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.DTO;
 using Application.DTO.Query;
 using Application.Query;
@@ -27,7 +27,10 @@ namespace Implementation.Query
             var query = this.db.Realestates.AsQueryable();
 
             if (!(req.IncludeInactive && actor.UserRole == UserRoles.Admin))
+            {
                 query = query.Where(x => x.IsActive == 1);
+                query = query.Where(x => x.Status != RealEstateStatus.Sold);
+            }
 
             if (!string.IsNullOrWhiteSpace(req.City))
             {
@@ -48,13 +51,19 @@ namespace Implementation.Query
                 query = query.Where(x =>
                     x.Title.Contains(term) ||
                     x.Adress.Contains(term) ||
-                    x.Id.ToString().Contains(term));
+                    x.Id.ToString().Contains(term) ||
+                    db.Cities.Any(c => c.Id == x.City && c.City1.Contains(term)) ||
+                    db.Companies.Any(c => c.FkId == x.Owner && c.Name.Contains(term)) ||
+                    db.UserBasics.Any(b => b.FkId == x.Owner &&
+                        (b.FirstName.Contains(term) || b.LastName.Contains(term))));
             }
 
             if (req.MinPrice.HasValue) query = query.Where(x => x.Price >= req.MinPrice.Value);
             if (req.MaxPrice.HasValue) query = query.Where(x => x.Price <= req.MaxPrice.Value);
             if (req.TypeObject.HasValue) query = query.Where(x => x.TypeObject == req.TypeObject.Value);
             if (req.MinRooms.HasValue) query = query.Where(x => x.NumberOfRooms >= req.MinRooms.Value);
+            if (req.MinArea.HasValue) query = query.Where(x => x.Area >= req.MinArea.Value);
+            if (req.MaxArea.HasValue) query = query.Where(x => x.Area <= req.MaxArea.Value);
             if (req.Registered.HasValue) query = query.Where(x => x.Registered == req.Registered.Value);
             if (!string.IsNullOrWhiteSpace(req.Title)) query = query.Where(x => x.Title.Contains(req.Title));
 
@@ -112,8 +121,8 @@ namespace Implementation.Query
                     NumberOfRooms = x.NumberOfRooms,
                     CityId = x.City,
                     IsActive = x.IsActive == 1,
-                    CanEdit = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
-                    CanDelete = x.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
+                    CanEdit = x.IsActive == 1 && (x.Owner == actor.Id || actor.UserRole == UserRoles.Admin),
+                    CanDelete = x.IsActive == 1 && (x.Owner == actor.Id || actor.UserRole == UserRoles.Admin),
                     IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)
                 })
                 .ToList();

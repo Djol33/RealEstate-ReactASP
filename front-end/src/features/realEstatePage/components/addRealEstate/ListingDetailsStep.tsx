@@ -6,8 +6,10 @@ interface ListingDetailsStepProps {
   city: { id: number; cityName: string }[];
   typeObject: { id: number; naziv: string }[];
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   onTerraceChange: (value: boolean) => void;
   onRegisteredChange: (value: boolean) => void;
+  onShowMapChange: (value: boolean) => void;
   onNext: () => void;
 }
 
@@ -17,8 +19,10 @@ export function ListingDetailsStep({
   city,
   typeObject,
   onChange,
+  onBlur,
   onTerraceChange,
   onRegisteredChange,
+  onShowMapChange,
   onNext,
 }: ListingDetailsStepProps) {
   return (
@@ -31,6 +35,8 @@ export function ListingDetailsStep({
         placeholder="Title"
         value={formData.title}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.title ? 'input-error' : ''}
       />
       {errors.title && <span className="error">{errors.title}</span>}
 
@@ -41,11 +47,15 @@ export function ListingDetailsStep({
         name="description"
         value={formData.description}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.description ? 'input-error' : ''}
       />
       {errors.description && <span className="error">{errors.description}</span>}
 
       <label htmlFor="city">Select city</label>
-      <select name="cityId" id="city" value={formData.cityId} onChange={onChange}>
+      <select name="cityId" id="city" value={formData.cityId} onChange={onChange}
+        onBlur={onBlur}
+        className={errors.cityId ? 'input-error' : ''}>
         <option value="">Select a city</option>
         {city.map((a) => (
           <option key={a.id} value={a.id}>{a.cityName}</option>
@@ -61,11 +71,15 @@ export function ListingDetailsStep({
         placeholder="Ruzveltova 12"
         value={formData.address}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.address ? 'input-error' : ''}
       />
       {errors.address && <span className="error">{errors.address}</span>}
 
       <label htmlFor="tipObjekta">Type Of Building</label>
-      <select name="typeObjectId" id="tipObjekta" value={formData.typeObjectId} onChange={onChange}>
+      <select name="typeObjectId" id="tipObjekta" value={formData.typeObjectId} onChange={onChange}
+        onBlur={onBlur}
+        className={errors.typeObjectId ? 'input-error' : ''}>
         <option value="">Select a type</option>
         {typeObject.map((el) => (
           <option key={el.id} value={el.id}>{el.naziv}</option>
@@ -83,6 +97,8 @@ export function ListingDetailsStep({
         max="10"
         value={formData.numberOfRooms}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.numberOfRooms ? 'input-error' : ''}
       />
       {errors.numberOfRooms && <span className="error">{errors.numberOfRooms}</span>}
 
@@ -95,6 +111,8 @@ export function ListingDetailsStep({
         max="10000"
         value={formData.area}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.area ? 'input-error' : ''}
       />
       {errors.area && <span className="error">{errors.area}</span>}
 
@@ -103,11 +121,13 @@ export function ListingDetailsStep({
         type="number"
         id="cena"
         name="price"
-        min="0"
+        min="1000"
         max="100000000"
-        step="500"
+        step="100"
         value={formData.price}
         onChange={onChange}
+        onBlur={onBlur}
+        className={errors.price ? 'input-error' : ''}
       />
       {errors.price && <span className="error">{errors.price}</span>}
 
@@ -159,6 +179,23 @@ export function ListingDetailsStep({
             checked={formData.registered === false}
             onChange={() => onRegisteredChange(false)}
           />
+          No
+        </label>
+      </div>
+
+
+      <label htmlFor="showMapYes">Show map on the listing?</label>
+      <div className="toggle-group">
+        <label htmlFor="showMapYes" className={formData.showMap === true ? 'active' : ''}>
+          <input type="radio" name="showMap" id="showMapYes" value="true"
+            checked={formData.showMap === true}
+            onChange={() => onShowMapChange(true)} />
+          Yes
+        </label>
+        <label htmlFor="showMapNo" className={formData.showMap === false ? 'active' : ''}>
+          <input type="radio" name="showMap" id="showMapNo" value="false"
+            checked={formData.showMap === false}
+            onChange={() => onShowMapChange(false)} />
           No
         </label>
       </div>

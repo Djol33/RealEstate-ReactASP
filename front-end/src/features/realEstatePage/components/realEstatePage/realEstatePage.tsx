@@ -11,14 +11,13 @@ import { ReportListingModal } from '../../../../shared/components/ReportListingM
 import { RealEstateAnalyticsModal } from '../../../../shared/components/RealEstateAnalyticsModal/RealEstateAnalyticsModal';
 import { SEO } from '../../../../shared/components/SEO/SEO';
 import { useAuth } from '../../../../AuthStore';
-import { NotFound } from '../../../NotFound/components/NotFound/NotFound';
+import { NotFound } from '../../../NotFound/NotFound';
 import { formatPrice } from '../../../../shared/utils/format';
 import { ImageGallery } from './parts/ImageGallery';
 import { BasicInfoCard } from './parts/BasicInfoCard';
 import { AmenitiesList } from './parts/AmenitiesList';
 import { OwnerCard } from './parts/OwnerCard';
 import { OwnerActions } from './parts/OwnerActions';
-import { HeroBannerSection } from './parts/HeroBannerSection';
 import { useViewTracking } from './useViewTracking';
 import { useListingModals } from './useListingModals';
 import { API_URL } from '../../../../config';
@@ -54,6 +53,13 @@ export function RealEstatePage({params} ) {
 
   if (notFound) return <NotFound />;
   if (!realEstate) return null;
+
+  const isCompanyOwner = realEstate.ownerLogo != null;
+  const ownerAvatarUrl = realEstate.ownerLogo?.startsWith('images/')
+    ? `${API_URL}/${realEstate.ownerLogo}`
+    : isCompanyOwner && realEstate.images?.[0]?.location
+      ? `${API_URL}/${realEstate.images[0].location}`
+      : null;
 
   return <div id="realestatepost">
       <SEO
@@ -94,7 +100,7 @@ export function RealEstatePage({params} ) {
         <p>{realEstate.description}</p>
       </div>
 
-      {realEstate.lat && realEstate.lng && (
+      {realEstate.showMap && realEstate.lat && realEstate.lng && (
         <PropertyMap lat={realEstate.lat} lng={realEstate.lng} title={realEstate.title} />
       )}
 
@@ -103,8 +109,10 @@ export function RealEstatePage({params} ) {
         fName={realEstate.f_name}
         lName={realEstate.l_name}
         email={realEstate.email}
+        avatarUrl={ownerAvatarUrl}
         logged={logged}
         isOwnListing={user?.id === realEstate.owner}
+        canReport={realEstate.isActive !== false}
         reportSent={modals.reportSent}
         onReportClick={modals.openReportModal}
       />
@@ -114,13 +122,10 @@ export function RealEstatePage({params} ) {
         canEdit={realEstate.canEdit}
         canDelete={realEstate.canDelete}
         canViewAnalytics={realEstate.canViewAnalytics}
-        onAnalyticsClick={modals.openAnalyticsModal}
-      />
-
-      <HeroBannerSection
         canRequestHeroBanner={realEstate.canRequestHeroBanner}
         heroBannerStatus={realEstate.heroBannerStatus}
-        onRequestClick={modals.openHeroModal}
+        onAnalyticsClick={modals.openAnalyticsModal}
+        onHeroBannerClick={modals.openHeroModal}
       />
 
       {modals.showHeroModal && (
@@ -148,6 +153,7 @@ export function RealEstatePage({params} ) {
       {modals.showAnalyticsModal && (
         <RealEstateAnalyticsModal
           realestateId={realEstate.id}
+          heroBannerStatus={realEstate.heroBannerStatus}
           onClose={modals.closeAnalyticsModal}
         />
       )}

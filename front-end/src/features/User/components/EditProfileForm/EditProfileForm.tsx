@@ -56,12 +56,12 @@ export function EditProfileForm({ initialData, onSaved, onCancel }: EditProfileF
           <label htmlFor="firstName">First name</label>
           <input
             id="firstName"
-            maxLength={100}
+            maxLength={30}
             className={errors.firstName ? 'has-error' : ''}
             {...register('firstName', {
               required: 'First name is required.',
               minLength: { value: 3, message: 'At least 3 characters.' },
-              maxLength: { value: 100, message: 'First name cannot exceed 100 characters.' },
+              maxLength: { value: 30, message: 'First name cannot exceed 30 characters.' },
             })}
           />
           {errors.firstName && <span className="epf-error">{errors.firstName.message}</span>}
@@ -71,12 +71,12 @@ export function EditProfileForm({ initialData, onSaved, onCancel }: EditProfileF
           <label htmlFor="lastName">Last name</label>
           <input
             id="lastName"
-            maxLength={100}
+            maxLength={30}
             className={errors.lastName ? 'has-error' : ''}
             {...register('lastName', {
               required: 'Last name is required.',
               minLength: { value: 3, message: 'At least 3 characters.' },
-              maxLength: { value: 100, message: 'Last name cannot exceed 100 characters.' },
+              maxLength: { value: 30, message: 'Last name cannot exceed 30 characters.' },
             })}
           />
           {errors.lastName && <span className="epf-error">{errors.lastName.message}</span>}

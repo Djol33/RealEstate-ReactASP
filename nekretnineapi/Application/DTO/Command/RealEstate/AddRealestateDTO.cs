@@ -1,4 +1,4 @@
-namespace Application.DTO.Command
+﻿namespace Application.DTO.Command
 {
     public class AddRealestateDTO
     {
@@ -17,5 +17,6 @@ namespace Application.DTO.Command
         public decimal? Lat { get; set; }
         public decimal? Lng { get; set; }
         public int Status { get; set; } = RealEstateStatus.Available;
+        public bool ShowMap { get; set; } = true;
     }
 }

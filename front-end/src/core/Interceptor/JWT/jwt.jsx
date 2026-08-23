@@ -25,7 +25,10 @@ axios.interceptors.response.use(
       localStorage.removeItem('user');
 
       const onAuthPage = window.location.pathname.startsWith('/auth');
-      if (wasLoggedIn && !onAuthPage) {
+      const alreadyRedirecting = sessionStorage.getItem('auth-redirecting') === '1';
+
+      if (wasLoggedIn && !onAuthPage && !alreadyRedirecting) {
+        sessionStorage.setItem('auth-redirecting', '1');
         sessionStorage.setItem('auth-flash', 'Your session has expired. Please log in again.');
         window.location.href = '/auth/login';
       }
@@ -33,6 +36,10 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth')) {
+  sessionStorage.removeItem('auth-redirecting');
+}
 
 const JWTProvider = ({ children }) => children;
 

@@ -7,6 +7,7 @@ import { useEditImageUpload } from './useEditImageUpload';
 import { EditListingFormFields } from './EditListingFormFields';
 import { EditImageGrid } from './EditImageGrid';
 import { API_URL } from '../../../../config';
+import { NotFound } from '../../../NotFound/NotFound';
 import '../addRealEstate/style.scss';
 import './editImages.scss';
 
@@ -19,6 +20,7 @@ export function EditRealEstate() {
   const [city, setCity] = useState<{ id: number; cityName: string }[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [submitError, setSubmitError] = useState('');
+  const [notFound, setNotFound] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [amenityIds, setAmenityIds] = useState<number[]>([]);
 
@@ -35,6 +37,13 @@ export function EditRealEstate() {
       setCity(citiesRes.data);
 
       const e = estateRes.data;
+
+      if (e.canEdit === false) {
+        setNotFound(true);
+        setPageLoading(false);
+        return;
+      }
+
       form.loadFromServer(e);
 
       if (e.images?.length > 0) {
@@ -46,8 +55,12 @@ export function EditRealEstate() {
       }
 
       setPageLoading(false);
-    }).catch(() => {
-      setSubmitError('Error loading data.');
+    }).catch((err) => {
+      if (err?.response?.status === 404 || err?.response?.status === 403) {
+        setNotFound(true);
+      } else {
+        setSubmitError('Error loading data.');
+      }
       setPageLoading(false);
     });
   }, [id]);
@@ -68,6 +81,7 @@ export function EditRealEstate() {
       payload.append('numberOfRooms', form.formData.numberOfRooms);
       payload.append('terrace', String(form.formData.terrace));
       payload.append('registered', String(form.formData.registered));
+      payload.append('showMap', String(form.formData.showMap));
       payload.append('area', form.formData.area);
       payload.append('price', form.formData.price);
       payload.append('description', form.formData.description);
@@ -83,7 +97,7 @@ export function EditRealEstate() {
 
       amenityIds.forEach(amenityId => payload.append('amenityIds[]', String(amenityId)));
 
-      await axios.put(`${API_URL}/api/RealEstateEdit/${id}`, payload);
+      await axios.put(`${API_URL}/api/RealEstateMain/${id}`, payload);
       navigate(`/realestate/${id}`);
     } catch (err: any) {
       if (err.response?.status === 400) {
@@ -98,6 +112,7 @@ export function EditRealEstate() {
     }
   }
 
+  if (notFound) return <NotFound />;
   if (pageLoading) return <div style={{ textAlign: 'center', marginTop: '40px' }}>Loading...</div>;
 
   return (
@@ -116,8 +131,10 @@ export function EditRealEstate() {
           amenityIds={amenityIds}
           onAmenityChange={setAmenityIds}
           onChange={form.handleChange}
+          onBlur={form.handleBlur}
           onTerraceChange={form.setTerrace}
           onRegisteredChange={form.setRegistered}
+          onShowMapChange={form.setShowMap}
         />
 
         <label>Images</label>

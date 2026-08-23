@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../config';
 import './DeleteRealEstateButton.scss';
+import { useToast } from '../Toast/ToastProvider';
 
 interface DeleteRealEstateButtonProps {
   realestateId: number | string;
@@ -11,6 +12,7 @@ interface DeleteRealEstateButtonProps {
 }
 
 export function DeleteRealEstateButton({ realestateId, canDelete = false, onDeleted }: DeleteRealEstateButtonProps) {
+  const toast = useToast();
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -31,9 +33,9 @@ export function DeleteRealEstateButton({ realestateId, canDelete = false, onDele
       onDeleted?.();
     } catch (err: any) {
       if (err.response?.status === 403) {
-        alert('You do not have permission to delete this listing.');
+        toast.error('You do not have permission to delete this listing.');
       } else {
-        alert('Error deleting. Please try again.');
+        toast.error('Error deleting. Please try again.');
       }
     } finally {
       setBusy(false);

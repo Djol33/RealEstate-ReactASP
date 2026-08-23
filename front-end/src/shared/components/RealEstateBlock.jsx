@@ -11,11 +11,13 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
     function goEdit(e) {
         e.preventDefault();
         e.stopPropagation();
-        navigate(`/apartment/edit/${data.id}`);
+        navigate(`/realestate/${data.id}/edit`);
     }
 
+    const isDeleted = data.isActive === false;
+
     return (
-    <div className="result-item">
+    <div className={`result-item${isDeleted ? ' is-deleted' : ''}`}>
         <div className="col1">
             <img
                 src={data.images?.[0]?.location
@@ -25,6 +27,7 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
             />
         </div>
         <div className="col2">
+            {isDeleted && <span className="deleted-badge">Deleted</span>}
             <div className="title">{data.title}</div>
             <div className="adress">{data.adress}, {data.cityName}</div>
             <div className="general">
@@ -41,17 +44,21 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
                 </div>
             </div>
             <div className="card-actions">
-                <WishlistButton realestateId={data.id} initialSaved={data.isWishlisted} />
-                {data.canEdit && (
-                    <button type="button" className="edit-btn" title="Izmeni" onClick={goEdit}>
-                        <i className="fa-solid fa-pencil" />
-                    </button>
+                {!isDeleted && (
+                    <>
+                        <WishlistButton realestateId={data.id} initialSaved={data.isWishlisted} />
+                        {data.canEdit && (
+                            <button type="button" className="edit-btn" title="Izmeni" onClick={goEdit}>
+                                <i className="fa-solid fa-pencil" />
+                            </button>
+                        )}
+                        <DeleteRealEstateButton
+                            realestateId={data.id}
+                            canDelete={data.canDelete}
+                            onDeleted={() => onItemDeleted?.(data.id)}
+                        />
+                    </>
                 )}
-                <DeleteRealEstateButton
-                    realestateId={data.id}
-                    canDelete={data.canDelete}
-                    onDeleted={() => onItemDeleted?.(data.id)}
-                />
             </div>
         </div>
     </div>

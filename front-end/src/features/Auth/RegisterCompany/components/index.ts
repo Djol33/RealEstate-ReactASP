@@ -1,1 +1,0 @@
-export {RegisterCompany} from './RegisterCompany';

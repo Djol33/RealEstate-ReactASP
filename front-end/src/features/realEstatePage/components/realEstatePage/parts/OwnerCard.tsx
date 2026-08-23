@@ -5,8 +5,10 @@ interface OwnerCardProps {
   fName: string;
   lName: string;
   email: string;
+  avatarUrl?: string | null;
   logged: boolean;
   isOwnListing: boolean;
+  canReport: boolean;
   reportSent: boolean;
   onReportClick: () => void;
 }
@@ -16,8 +18,10 @@ export function OwnerCard({
   fName,
   lName,
   email,
+  avatarUrl,
   logged,
   isOwnListing,
+  canReport,
   reportSent,
   onReportClick,
 }: OwnerCardProps) {
@@ -27,11 +31,17 @@ export function OwnerCard({
   return (
     <div id="owner">
       <div className="owner-identity">
-        <span className="owner-avatar">{initials}</span>
+        {avatarUrl ? (
+          <span className="owner-avatar owner-avatar-image">
+            <img src={avatarUrl} alt={`${fName} ${lName}`.trim()} />
+          </span>
+        ) : (
+          <span className="owner-avatar">{initials}</span>
+        )}
         <div className="owner-text">
           <span className="owner-name">
             {logged ? (
-              <Link to={`/user/${ownerId}`}>
+              <Link to={isOwnListing ? '/user/profile' : `/user/${ownerId}`}>
                 {fName} {lName}
               </Link>
             ) : (
@@ -57,7 +67,7 @@ export function OwnerCard({
             >
               <i className="fa-solid fa-envelope" />
             </button>
-            {!reportSent && (
+            {canReport && !reportSent && (
               <button
                 type="button"
                 className="icon-action danger"
@@ -71,7 +81,7 @@ export function OwnerCard({
         )}
       </div>
 
-      {reportSent && (
+      {canReport && reportSent && (
         <span className="report-sent-note">
           <i className="fa-solid fa-check" /> Report sent, thank you
         </span>

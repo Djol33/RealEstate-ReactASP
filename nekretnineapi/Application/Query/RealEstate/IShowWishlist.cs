@@ -1,9 +1,9 @@
 using Application.DTO;
-using System.Collections.Generic;
+using Application.DTO.Query;
 
 namespace Application.Query
 {
-    public interface IShowWishlist : IQuery<int, List<RealEstateDTO>>
+    public interface IShowWishlist : IQuery<UserListingsQueryDTO, RealEstatePagedDTO>
     {
     }
 }

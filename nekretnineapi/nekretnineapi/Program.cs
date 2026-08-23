@@ -34,14 +34,30 @@ using nekretnineapi.Hubs;
 using nekretnineapi.Recommendations;
 using nekretnineapi.Services;
 using nekretnineapi.Validators;
+using Serilog;
 using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: Path.Combine(context.HostingEnvironment.ContentRootPath, "logs", "log-.txt"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"));
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5173", "https://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -102,17 +118,21 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<AppDbContext>();
 builder.Services.AddTransient<UseCaseExecutor>(x => new UseCaseExecutor(x));
 
 builder.Services.AddSingleton<ITokenFactory, JwtTokenFactory>();
-builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddTransient<ILogin, EfLogin>();
 builder.Services.AddTransient<IShowRealEstate, EfShowRealEstate>();
 builder.Services.AddTransient<ICitySearch, EfCity>();
 builder.Services.AddTransient<IRegesiter, EfRegisterUser>();
 builder.Services.AddTransient<IRegisterCompany, EfRegisterCompany>();
-builder.Services.AddDbContext<AppDbContext>(ServiceLifetime.Scoped);
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException(
+        "Nedostaje connection string 'ConnectionStrings:Default'. Podesi ga u appsettings.json ili preko env varijable 'ConnectionStrings__Default'.");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString, x => x.UseNetTopologySuite()));
 builder.Services.AddTransient<IUserProfile, EFUserProfile>();
 builder.Services.AddTransient<IShowTypeOfRealestate, TypeOfRealestateEf>();
 builder.Services.AddTransient<IShowAllCities, EfShowAllCities>();
@@ -181,6 +201,7 @@ var passwordResetSettings = builder.Configuration.GetSection(PasswordResetSettin
 builder.Services.AddSingleton(passwordResetSettings);
 builder.Services.AddScoped<IRequestPasswordReset, EfRequestPasswordReset>();
 builder.Services.AddScoped<IResetPassword, EfResetPassword>();
+builder.Services.AddScoped<ICheckResetToken, Implementation.Query.Auth.EfCheckResetToken>();
 
 var heroBannerSettings = builder.Configuration.GetSection(HeroBannerSettings.SectionName)
     .Get<HeroBannerSettings>() ?? new HeroBannerSettings();
@@ -210,6 +231,7 @@ builder.Services.AddScoped<ISubmitContactMessage, EfSubmitContactMessage>();
 builder.Services.AddScoped<IAdminListContactMessages, EfAdminListContactMessages>();
 builder.Services.AddScoped<IMarkContactMessageRead, EfMarkContactMessageRead>();
 builder.Services.AddScoped<IReplyToContactMessage, EfReplyToContactMessage>();
+builder.Services.AddScoped<ICloseContactMessage, EfCloseContactMessage>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AddRealestateValidator>();
 
@@ -223,8 +245,52 @@ app.UseExceptionHandler(appError =>
         var ex = feature?.Error;
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
+        var traceId = context.TraceIdentifier;
+        var userId = context.User?.FindFirst("Id")?.Value ?? "anonymous";
+        var method = context.Request.Method;
+        var path = context.Request.Path + context.Request.QueryString;
+
+        static string SafeMessage(Exception? e, string fallback)
+        {
+            if (e is null) return fallback;
+
+            var isOurs =
+                e is FluentValidation.ValidationException ||
+                e is InvalidCredentialsException ||
+                e is AccountDeactivatedException ||
+                e is EmailDeliveryException;
+
+            if (isOurs && !string.IsNullOrWhiteSpace(e.Message))
+                return e.Message;
+
+            var m = e.Message;
+            if (string.IsNullOrWhiteSpace(m) || m.Length > 200) return fallback;
+
+            string[] internalMarkers =
+            {
+                "Exception", "System.", "Microsoft.", "   at ", ":\\",
+                "Object reference", "index was out of", "Sequence contains",
+                "Value cannot be null", "SqlException", "was not found in the",
+                "Unable to", "Could not load", "database", "connection"
+            };
+
+            foreach (var marker in internalMarkers)
+            {
+                if (m.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                    return fallback;
+            }
+
+            return m;
+        }
+
+        void LogHandled(LogLevel level, int statusCode) => logger.Log(
+            level, ex,
+            "Handled {ExceptionType} -> {StatusCode} on {Method} {Path} (user={UserId}, trace={TraceId})",
+            ex?.GetType().Name, statusCode, method, path, userId, traceId);
+
         if (ex is FluentValidation.ValidationException validationEx)
         {
+            LogHandled(LogLevel.Debug, 422);
             context.Response.StatusCode = 422;
             context.Response.ContentType = "application/json";
             var errors = validationEx.Errors.Select(e => new { property = e.PropertyName, error = e.ErrorMessage });
@@ -234,6 +300,7 @@ app.UseExceptionHandler(appError =>
 
         if (ex is InvalidCredentialsException)
         {
+            LogHandled(LogLevel.Information, 401);
             context.Response.StatusCode = 401;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
@@ -242,6 +309,7 @@ app.UseExceptionHandler(appError =>
 
         if (ex is AccountDeactivatedException)
         {
+            LogHandled(LogLevel.Information, 403);
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
@@ -250,6 +318,7 @@ app.UseExceptionHandler(appError =>
 
         if (ex is EmailDeliveryException)
         {
+            LogHandled(LogLevel.Error, 502);
             context.Response.StatusCode = 502;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
@@ -258,33 +327,38 @@ app.UseExceptionHandler(appError =>
 
         if (ex is UnauthorizedAccessException)
         {
+            LogHandled(LogLevel.Warning, 403);
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = SafeMessage(ex, "You do not have permission to perform this action."), traceId });
             return;
         }
 
         if (ex is KeyNotFoundException)
         {
+            LogHandled(LogLevel.Information, 404);
             context.Response.StatusCode = 404;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = SafeMessage(ex, "The requested resource was not found."), traceId });
             return;
         }
 
         if (ex is ApplicationException)
         {
+            LogHandled(LogLevel.Warning, 409);
             context.Response.StatusCode = 409;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            await context.Response.WriteAsJsonAsync(new { error = SafeMessage(ex, "Something went wrong. Please contact the administrator if the problem persists."), traceId });
             return;
         }
 
-        logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+        logger.LogError(ex,
+            "UNHANDLED {ExceptionType} on {Method} {Path} (user={UserId}, trace={TraceId})",
+            ex?.GetType().FullName, method, path, userId, traceId);
 
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new { error = "A server error occurred." });
+        await context.Response.WriteAsJsonAsync(new { error = "Something went wrong. Please contact the administrator and include this reference.", traceId });
     });
 });
 
@@ -347,4 +421,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
-app.Run();
+
+try
+{
+    Log.Information("Starting nekretnineapi host");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

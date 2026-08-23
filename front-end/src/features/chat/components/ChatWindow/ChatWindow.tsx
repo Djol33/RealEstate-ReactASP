@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { startChatConnection, getChatConnection } from '../../../../core/signalr/chat';
 import { API_URL } from '../../../../config';
+import { notifyMessagesRead } from '../../../../shared/hooks/messagesRead';
 import './ChatWindow.scss';
 
 interface Message {
@@ -32,7 +33,10 @@ export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWi
     setLoadError(false);
     axios
       .get(`${API_URL}/api/Messages/${otherUserId}`)
-      .then((res) => setMessages(res.data))
+      .then((res) => {
+        setMessages(res.data);
+        notifyMessagesRead();
+      })
       .catch(() => setLoadError(true));
   }
 
@@ -47,6 +51,12 @@ export function ChatWindow({ otherUserId, otherUserName, onMessageSent }: ChatWi
       if (!mounted) return;
       if (msg.senderId === otherUserId || msg.receiverId === otherUserId) {
         setMessages((prev) => [...prev, msg]);
+        if (msg.senderId === otherUserId) {
+          axios
+            .get(`${API_URL}/api/Messages/${otherUserId}`)
+            .then(() => notifyMessagesRead())
+            .catch(() => {});
+        }
       }
     };
 

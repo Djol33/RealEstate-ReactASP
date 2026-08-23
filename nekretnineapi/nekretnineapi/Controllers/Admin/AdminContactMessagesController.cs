@@ -1,5 +1,6 @@
 using Application;
 using Application.Command.Admin;
+using Application.DTO.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
 using FluentValidation;
@@ -15,9 +16,20 @@ namespace nekretnineapi.Controllers.Admin
             : base(executor, actor) { }
 
         [HttpGet]
-        public IActionResult List([FromServices] IAdminListContactMessages service)
+        public IActionResult List(
+            [FromQuery] bool handled,
+            [FromQuery] string? search,
+            [FromQuery] int? reasonId,
+            [FromServices] IAdminListContactMessages service)
         {
-            return Ok(executor.ExecuteQuery(service, 0));
+            var query = new ContactMessageQueryDTO
+            {
+                Handled = handled,
+                Search = search,
+                ReasonId = reasonId
+            };
+
+            return Ok(executor.ExecuteQuery(service, query));
         }
 
         [HttpPost("{id}/read")]
@@ -37,6 +49,13 @@ namespace nekretnineapi.Controllers.Admin
                 throw new ValidationException(result.Errors);
 
             executor.ExecuteCommand(service, dto);
+            return NoContent();
+        }
+
+        [HttpPost("{id}/close")]
+        public IActionResult Close(int id, [FromServices] ICloseContactMessage service)
+        {
+            executor.ExecuteCommand(service, id);
             return NoContent();
         }
 

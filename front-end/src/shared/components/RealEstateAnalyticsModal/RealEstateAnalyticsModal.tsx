@@ -17,6 +17,7 @@ interface Analytics {
 
 interface RealEstateAnalyticsModalProps {
   realestateId: number | string;
+  heroBannerStatus?: string | null;
   onClose: () => void;
 }
 
@@ -28,7 +29,7 @@ function formatDuration(seconds: number | null): string {
   return `${minutes}m ${rest}s`;
 }
 
-export function RealEstateAnalyticsModal({ realestateId, onClose }: RealEstateAnalyticsModalProps) {
+export function RealEstateAnalyticsModal({ realestateId, heroBannerStatus, onClose }: RealEstateAnalyticsModalProps) {
   const [data, setData] = useState<Analytics | null>(null);
   const [error, setError] = useState('');
 
@@ -50,6 +51,17 @@ export function RealEstateAnalyticsModal({ realestateId, onClose }: RealEstateAn
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
+
+        {heroBannerStatus === 'Pending' && (
+          <div className="analytics-hero-status pending">
+            <i className="fa-solid fa-clock" /> Hero banner request pending admin approval
+          </div>
+        )}
+        {heroBannerStatus === 'Approved' && (
+          <div className="analytics-hero-status approved">
+            <i className="fa-solid fa-star" /> This listing is currently featured on the homepage
+          </div>
+        )}
 
         {error && <p className="analytics-error">{error}</p>}
 

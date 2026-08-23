@@ -142,3 +142,24 @@
     }
   }
 }
+
+.profile-load-more {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 4px;
+
+  button {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    color: #002356;
+    border-radius: 999px;
+    padding: 10px 26px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) { background: #f1f1f1; }
+    &:disabled { opacity: 0.6; cursor: default; }
+  }
+}

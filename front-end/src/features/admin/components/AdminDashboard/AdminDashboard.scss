@@ -101,3 +101,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+.admin-dashboard {
+  .dashboard-section-title {
+    font-size: 1.15rem;
+    margin: 26px 0 12px;
+    color: #002356;
+  }
+
+  .stat-card.sales {
+    border-left: 3px solid #166534;
+
+    .stat-value { color: #166534; }
+  }
+}

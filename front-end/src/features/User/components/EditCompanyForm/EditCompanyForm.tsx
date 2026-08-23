@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_URL } from '../../../../config';
 import '../EditProfileForm/EditProfileForm.scss';
 import './EditCompanyForm.scss';
+import { isValidPib } from '../../../../shared/Validation/pib';
 
 const MAX_MB = 5;
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
@@ -99,14 +100,17 @@ export function EditCompanyForm({ initialData, onSaved, onCancel }: EditCompanyF
         </div>
 
         <div className="epf-field">
-          <label htmlFor="bip">Tax ID</label>
+          <label htmlFor="bip">Tax ID (PIB)</label>
           <input
             id="bip"
-            maxLength={40}
+            maxLength={9}
+            inputMode="numeric"
+            placeholder="9 digits, e.g. 104052135"
             className={errors.bip ? 'has-error' : ''}
             {...register('bip', {
-              required: 'Tax ID is required.',
-              maxLength: { value: 40, message: 'Tax ID cannot exceed 40 characters.' },
+              required: 'Tax ID (PIB) cannot be empty.',
+              validate: (v: string) =>
+                isValidPib(v) || 'Tax ID (PIB) must be 9 digits and a valid Serbian PIB.',
             })}
           />
           {errors.bip && <span className="epf-error">{errors.bip.message}</span>}

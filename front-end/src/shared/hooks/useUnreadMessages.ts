@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../../AuthStore';
 import { startChatConnection, getChatConnection } from '../../core/signalr/chat';
 import { API_URL } from '../../config';
+import { onMessagesRead } from './messagesRead';
 
 interface Conversation {
   unreadCount: number;
@@ -30,12 +31,12 @@ export function useUnreadMessages(): number {
       return;
     }
     load();
-  }, [user]);
+  }, [user, location.pathname]);
 
   useEffect(() => {
     if (!user) return;
-    load();
-  }, [location.pathname, user]);
+    return onMessagesRead(() => load());
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Chat;
 using Application.Command;
 using Application.DTO.Chat;
@@ -31,6 +31,10 @@ namespace Implementation.Command
 
             var exists = db.Users.Any(u => u.Id == request.ReceiverId && u.IsActive == 1);
             if (!exists)
+                return;
+
+            var senderExists = db.Users.Any(u => u.Id == SystemUser.Id);
+            if (!senderExists)
                 return;
 
             var message = new Message

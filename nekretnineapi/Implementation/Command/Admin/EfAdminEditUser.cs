@@ -36,6 +36,7 @@ namespace Implementation.Command.Admin
             var email = (request.Email ?? "").Trim();
             var firstName = (request.FirstName ?? "").Trim();
             var lastName = (request.LastName ?? "").Trim();
+            var companyName = (request.CompanyName ?? "").Trim();
 
             if (db.Users.Any(u => u.Email == email && u.Id != user.Id))
                 throw new ValidationException(new[] { new ValidationFailure("email", "Another user already uses this email.") });
@@ -48,16 +49,24 @@ namespace Implementation.Command.Admin
             user.Email = email;
             user.IsActive = (short)(request.IsActive ? 1 : 0);
 
-            var basic = db.UserBasics.FirstOrDefault(b => b.FkId == user.Id);
-            if (basic == null)
+            var company = db.Companies.FirstOrDefault(c => c.FkId == user.Id);
+            if (company != null)
             {
-                basic = new UserBasic { FkId = user.Id, FirstName = firstName, LastName = lastName };
-                db.UserBasics.Add(basic);
+                company.Name = companyName;
             }
             else
             {
-                basic.FirstName = firstName;
-                basic.LastName = lastName;
+                var basic = db.UserBasics.FirstOrDefault(b => b.FkId == user.Id);
+                if (basic == null)
+                {
+                    basic = new UserBasic { FkId = user.Id, FirstName = firstName, LastName = lastName };
+                    db.UserBasics.Add(basic);
+                }
+                else
+                {
+                    basic.FirstName = firstName;
+                    basic.LastName = lastName;
+                }
             }
 
             db.SaveChanges();

@@ -5,6 +5,7 @@ import { AmenityFormModal } from './AmenityFormModal';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../../config';
 import './AdminAmenities.scss';
+import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
 interface Amenity {
   id: number;
@@ -21,6 +22,7 @@ interface FormState {
 const EMPTY_FORM: FormState = { name: '', isFilterable: false };
 
 export function AdminAmenities() {
+  const toast = useToast();
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -101,7 +103,7 @@ export function AdminAmenities() {
       setDeleting(null);
       load();
     } catch {
-      alert('Failed to delete.');
+      toast.error('Failed to delete.');
     }
   }
 
@@ -110,7 +112,7 @@ export function AdminAmenities() {
       await axios.post(`${API_URL}/api/admin/amenities/${a.id}/restore`);
       load();
     } catch {
-      alert('Failed to restore.');
+      toast.error('Failed to restore.');
     }
   }
 

@@ -1,1 +1,2 @@
-export {Register} from './Register';
+export {BasicData} from './BasicData';
+export {PersonalData} from './PersonalData';

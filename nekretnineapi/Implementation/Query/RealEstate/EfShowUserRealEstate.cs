@@ -1,5 +1,6 @@
-using Application;
+﻿using Application;
 using Application.DTO;
+using Application.DTO.Query;
 using Application.Query;
 using DataDomain.Entities;
 
@@ -18,11 +19,23 @@ namespace Implementation.Query.RealEstate
             this.actor = actor;
         }
 
-        public List<RealEstateDTO> Execute(int request)
+        public const int PageSize = 10;
+
+        public RealEstatePagedDTO Execute(UserListingsQueryDTO request)
         {
-            return db.Realestates
-                .Where(x => x.Owner == request && (x.IsActive == 1 || actor.Id == request || actor.UserRole == UserRoles.Admin))
+            var userId = request.UserId;
+            var page = request.Page < 1 ? 1 : request.Page;
+
+            var query = db.Realestates
+                .Where(x => x.Owner == userId && (x.IsActive == 1 || actor.UserRole == UserRoles.Admin));
+
+            var totalCount = query.Count();
+            var totalPages = totalCount == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)PageSize);
+
+            var data = query
                 .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
                 .Select(x => new RealEstateDTO
                 {
                     Id = x.Id,
@@ -48,6 +61,14 @@ namespace Implementation.Query.RealEstate
                     IsWishlisted = x.Wishlists.Any(w => w.UserId == actor.Id)
                 })
                 .ToList();
+
+            return new RealEstatePagedDTO
+            {
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                Data = data
+            };
         }
     }
 }

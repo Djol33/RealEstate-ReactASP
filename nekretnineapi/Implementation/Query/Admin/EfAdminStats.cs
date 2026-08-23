@@ -63,11 +63,18 @@ namespace Implementation.Query.Admin
             double avgArea = viewedStats.Count > 0 ? viewedStats.Average(x => x.Area) : 0;
             decimal avgPrice = viewedStats.Count > 0 ? viewedStats.Average(x => x.Price) : 0;
 
+            var now = DateTime.Now;
+            var soldQuery = db.Realestates.Where(r => r.IsActive == 1 && r.Status == RealEstateStatus.Sold);
+
             return new AdminStatsDTO
             {
+                SoldLast24h = soldQuery.Count(r => r.SoldAt != null && r.SoldAt >= now.AddDays(-1)),
+                SoldLast7Days = soldQuery.Count(r => r.SoldAt != null && r.SoldAt >= now.AddDays(-7)),
+                SoldLast30Days = soldQuery.Count(r => r.SoldAt != null && r.SoldAt >= now.AddDays(-30)),
+                SoldTotal = soldQuery.Count(),
                 TotalUsers = db.Users.Count(u => u.IsActive == 1),
                 TotalAdmins = db.Users.Count(u => u.UserRole == UserRoles.Admin && u.IsActive == 1),
-                TotalRealEstate = db.Realestates.Count(r => r.IsActive == 1),
+                TotalRealEstate = db.Realestates.Count(r => r.IsActive == 1 && r.Status != RealEstateStatus.Sold),
                 TotalMessages = db.Messages.Count(m =>
                     db.Users.Any(u => u.Id == m.SenderId && u.IsActive == 1) &&
                     db.Users.Any(u => u.Id == m.ReceiverId && u.IsActive == 1)),

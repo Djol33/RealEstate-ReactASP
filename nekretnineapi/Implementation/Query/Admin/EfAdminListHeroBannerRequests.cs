@@ -26,7 +26,7 @@ namespace Implementation.Query.Admin
             var userIds = requests.Select(h => h.RequestedBy).Distinct().ToList();
 
             var titlesById = db.Realestates
-                .Where(r => realestateIds.Contains(r.Id))
+                .Where(r => realestateIds.Contains(r.Id) && r.IsActive == 1)
                 .Select(r => new { r.Id, r.Title })
                 .ToDictionary(x => x.Id, x => x.Title);
 
@@ -45,6 +45,7 @@ namespace Implementation.Query.Admin
                 Id = h.Id,
                 RealestateId = h.RealestateId,
                 RealestateTitle = titlesById.GetValueOrDefault(h.RealestateId),
+                RealestateStillExists = titlesById.ContainsKey(h.RealestateId),
                 CompanyName = companyNamesByUserId.GetValueOrDefault(h.RequestedBy),
                 RequestedByEmail = emailsByUserId.GetValueOrDefault(h.RequestedBy),
                 Days = h.Days,

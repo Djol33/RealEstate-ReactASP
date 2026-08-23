@@ -5,6 +5,7 @@ import { ChatWindow } from '../ChatWindow/ChatWindow';
 import { startChatConnection, getChatConnection, subscribeChatStatus, getChatStatus, ChatConnectionStatus } from '../../../../core/signalr/chat';
 import { SEO } from '../../../../shared/components/SEO/SEO';
 import { API_URL } from '../../../../config';
+import { onMessagesRead } from '../../../../shared/hooks/messagesRead';
 import './Messages.scss';
 
 interface Conversation {
@@ -45,6 +46,8 @@ export function Messages() {
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
+
+  useEffect(() => onMessagesRead(() => loadConversations()), [loadConversations]);
 
   useEffect(() => {
     if (activeId == null) return;

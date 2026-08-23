@@ -3,6 +3,7 @@ using Application.Command.Admin;
 using Application.DTO.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
+using DataDomain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using nekretnineapi.Validators;
@@ -42,18 +43,22 @@ namespace nekretnineapi.Controllers.Admin
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody] EditUserRequest body, [FromServices] IAdminEditUser service)
+        public IActionResult Edit(int id, [FromBody] EditUserRequest body, [FromServices] IAdminEditUser service,
+            [FromServices] AppDbContext db)
         {
             var dto = new AdminEditUserDTO
             {
                 UserId = id,
                 FirstName = (body.FirstName ?? "").Trim(),
                 LastName = (body.LastName ?? "").Trim(),
+                CompanyName = (body.CompanyName ?? "").Trim(),
                 Email = (body.Email ?? "").Trim(),
                 IsActive = body.IsActive
             };
 
-            var result = new AdminEditUserValidator().Validate(dto);
+            var isCompany = db.Companies.Any(c => c.FkId == id);
+
+            var result = new AdminEditUserValidator().ValidateFor(dto, isCompany);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 
@@ -70,6 +75,7 @@ namespace nekretnineapi.Controllers.Admin
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+            public string CompanyName { get; set; }
             public string Email { get; set; }
             public bool IsActive { get; set; }
         }

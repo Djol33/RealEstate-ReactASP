@@ -8,6 +8,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { Main } from './features/main/components/Main/Main.js'
 import JWTProvider from './core/Interceptor/JWT/jwt.jsx'
  import  AuthProvider  from './AuthStore.tsx'
+import { ToastProvider } from './shared/components/Toast/ToastProvider'
 
 
 createRoot(document.getElementById('root')).render(
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')).render(
 
       <HelmetProvider>
       <AuthProvider>
+      <ToastProvider>
       <App />
+      </ToastProvider>
       </AuthProvider>
       </HelmetProvider>
 

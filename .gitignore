@@ -8,3 +8,6 @@ database/
 
 # Local environment overrides
 front-end/.env.local
+
+# Serilog output
+logs/

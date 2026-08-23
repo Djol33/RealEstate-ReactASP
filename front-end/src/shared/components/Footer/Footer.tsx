@@ -16,7 +16,7 @@ export function Footer() {
           <h3>Navigation</h3>
           <ul>
             <li><Link to="/">Home</Link></li>
-            <li><Link to="/apartment/add">Add Apartment</Link></li>
+            <li><Link to="/realestate/new">Add Apartment</Link></li>
             <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>

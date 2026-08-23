@@ -12,6 +12,10 @@ namespace Application.DTO.Admin
         public int TotalViews { get; set; }
         public double AvgViewedArea { get; set; }
         public decimal AvgViewedPrice { get; set; }
+        public int SoldLast24h { get; set; }
+        public int SoldLast7Days { get; set; }
+        public int SoldLast30Days { get; set; }
+        public int SoldTotal { get; set; }
         public List<CityCountDTO> TopCities { get; set; }
         public List<RealEstateDTO> MostViewed { get; set; }
     }

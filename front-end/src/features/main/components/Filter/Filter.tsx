@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useScrollFade } from '../../../../shared/hooks/useScrollFade';
 import './Filter.scss';
 import axios from 'axios';
 import { useFilterState, PagedResult } from './useFilterState';
@@ -39,6 +40,8 @@ export function Filter({ setPagedResult, page, onLoadingChange, onFilterChange }
     return () => { document.body.style.overflow = ''; };
   }, [filterOpen]);
 
+  const { ref: formRef, isScrolling } = useScrollFade<HTMLFormElement>();
+
   return <>
     <button
       type="button"
@@ -55,7 +58,7 @@ export function Filter({ setPagedResult, page, onLoadingChange, onFilterChange }
       <div className="filter-backdrop" onClick={() => setFilterOpen(false)} />
     )}
 
-    <form id="filter-form" className={filterOpen ? 'is-open' : ''} action="">
+    <form ref={formRef} id="filter-form" className={`${filterOpen ? 'is-open' : ''}${isScrolling ? ' is-scrolling' : ''}`} action="">
       <SortBar sortBy={formav.sortBy} onChange={handleChange} />
 
       <FilterFormFields

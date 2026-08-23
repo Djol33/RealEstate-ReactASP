@@ -16,11 +16,6 @@ public partial class AppDbContext : DbContext
 
 
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Server=DESKTOP-F5TETT5;Database=phpapp;Trusted_Connection=True;TrustServerCertificate=True;", x => x.UseNetTopologySuite());
-      
-    }
 
     public virtual DbSet<City> Cities { get; set; }
 
@@ -257,6 +252,16 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("price");
             entity.Property(e => e.Terrace).HasColumnName("terrace");
             entity.Property(e => e.Registered).HasColumnName("registered");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.SoldAt)
+                .HasColumnType("datetime")
+                .HasColumnName("sold_at");
+            entity.Property(e => e.ShowMap)
+                .HasDefaultValue(true)
+                .HasColumnName("show_map");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.TypeObject).HasColumnName("typeObject");
             entity.Property(e => e.Lat).HasColumnType("decimal(9, 6)").HasColumnName("lat");
@@ -318,6 +323,16 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("title");
             entity.Property(e => e.ReasonId).HasColumnName("reason_id");
+            entity.Property(e => e.ReplyText)
+                .HasMaxLength(2000)
+                .HasColumnName("reply_text");
+            entity.Property(e => e.RepliedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("replied_at");
+            entity.Property(e => e.RepliedBy).HasColumnName("replied_by");
+            entity.Property(e => e.ClosedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("closed_at");
 
             entity.HasOne(d => d.ReasonNavigation).WithMany(p => p.Supports)
                 .HasForeignKey(d => d.ReasonId)

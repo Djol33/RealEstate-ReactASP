@@ -40,7 +40,7 @@ namespace Implementation.Query.Recommendations
             if (ids.Count == 0)
             {
                 ids = db.Realestates
-                    .Where(r => r.IsActive == 1)
+                    .Where(r => r.IsActive == 1 && r.Status != RealEstateStatus.Sold)
                     .OrderByDescending(r => r.Id)
                     .Take(count)
                     .Select(r => r.Id)
@@ -48,7 +48,7 @@ namespace Implementation.Query.Recommendations
             }
 
             var entities = db.Realestates
-                .Where(r => ids.Contains(r.Id) && r.IsActive == 1)
+                .Where(r => ids.Contains(r.Id) && r.IsActive == 1 && r.Status != RealEstateStatus.Sold)
                 .Include(r => r.RealestateImages)
                 .Include(r => r.Wishlists)
                 .ToList();

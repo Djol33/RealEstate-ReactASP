@@ -3,6 +3,8 @@ interface AdminUser {
   email: string;
   firstName: string;
   lastName: string;
+  companyName: string | null;
+  isCompany: boolean;
   userRole: number;
   isActive: boolean;
   realEstateCount: number;
@@ -35,7 +37,7 @@ export function UsersTable({ users, currentUserId, onEdit, onToggleRole, onDelet
           {users.map((u) => (
             <tr key={u.id}>
               <td>{u.id}</td>
-              <td>{u.firstName} {u.lastName}</td>
+              <td>{u.isCompany ? u.companyName : `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim()}</td>
               <td>{u.email}</td>
               <td>
                 <span className={`role-badge ${u.userRole === 2 ? 'admin' : ''}`}>

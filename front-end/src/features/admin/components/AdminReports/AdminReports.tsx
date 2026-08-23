@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../../config';
 import './AdminReports.scss';
+import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
 interface Report {
   id: number;
@@ -29,6 +30,7 @@ const STATUS_LABEL: Record<number, string> = { 0: 'Pending', 1: 'Dismissed', 2: 
 const STATUS_CLASS: Record<number, string> = { 0: 'pending', 1: 'dismissed', 2: 'actioned' };
 
 export function AdminReports() {
+  const toast = useToast();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,7 +56,7 @@ export function AdminReports() {
       await axios.post(`${API_URL}/api/admin/reports/${id}/dismiss`);
       load();
     } catch {
-      alert('Failed to dismiss the report.');
+      toast.error('Failed to dismiss the report.');
     } finally {
       setBusyId(null);
     }
@@ -69,7 +71,7 @@ export function AdminReports() {
       await axios.post(`${API_URL}/api/admin/reports/${id}/delete-listing`);
       load();
     } catch {
-      alert('Failed to delete the listing.');
+      toast.error('Failed to delete the listing.');
     } finally {
       setBusyId(null);
     }

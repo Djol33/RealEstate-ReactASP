@@ -5,11 +5,13 @@ import './AdminHeroBanner.scss';
 import { formatPrice } from '../../../../shared/utils/format';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
 import { API_URL } from '../../../../config';
+import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
 interface HeroBannerRequest {
   id: number;
   realestateId: number;
-  realestateTitle: string;
+  realestateTitle: string | null;
+  realestateStillExists: boolean;
   companyName: string;
   requestedByEmail: string;
   days: number;
@@ -30,6 +32,7 @@ function isCurrentlyActive(r: HeroBannerRequest): boolean {
 }
 
 export function AdminHeroBanner() {
+  const toast = useToast();
   const [requests, setRequests] = useState<HeroBannerRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,7 +58,7 @@ export function AdminHeroBanner() {
       await axios.post(`${API_URL}/api/admin/hero-banner-requests/${id}/${approve ? 'approve' : 'reject'}`);
       load();
     } catch {
-      alert('Failed to update the request.');
+      toast.error('Failed to update the request.');
     } finally {
       setBusyId(null);
     }
@@ -70,7 +73,7 @@ export function AdminHeroBanner() {
       await axios.post(`${API_URL}/api/admin/hero-banner-requests/${id}/revoke`);
       load();
     } catch {
-      alert('Failed to remove the listing from the banner.');
+      toast.error('Failed to remove the listing from the banner.');
     } finally {
       setBusyId(null);
     }
@@ -103,9 +106,13 @@ export function AdminHeroBanner() {
             {requests.map((r) => (
               <tr key={r.id}>
                 <td>
-                  <Link to={`/realestate/${r.realestateId}`} className="listing-link">
-                    {r.realestateTitle}
-                  </Link>
+                  {r.realestateStillExists ? (
+                    <Link to={`/realestate/${r.realestateId}`} className="listing-link">
+                      {r.realestateTitle}
+                    </Link>
+                  ) : (
+                    <span className="muted">{r.realestateTitle ?? 'Listing removed'}</span>
+                  )}
                 </td>
                 <td>{r.companyName ?? r.requestedByEmail}</td>
                 <td>{r.days}</td>
@@ -119,13 +126,15 @@ export function AdminHeroBanner() {
                 <td className="actions">
                   {r.status === 0 ? (
                     <>
-                      <button
-                        className="btn-approve"
-                        disabled={busyId === r.id}
-                        onClick={() => decide(r.id, true)}
-                      >
-                        Approve
-                      </button>
+                      {r.realestateStillExists && (
+                        <button
+                          className="btn-approve"
+                          disabled={busyId === r.id}
+                          onClick={() => decide(r.id, true)}
+                        >
+                          Approve
+                        </button>
+                      )}
                       <button
                         className="btn-reject"
                         disabled={busyId === r.id}

@@ -25,5 +25,13 @@ public partial class Support
 
     public int? ReasonId { get; set; }
 
+    public string? ReplyText { get; set; }
+
+    public DateTime? RepliedAt { get; set; }
+
+    public int? RepliedBy { get; set; }
+
+    public DateTime? ClosedAt { get; set; }
+
     public virtual ContactReason? ReasonNavigation { get; set; }
 }

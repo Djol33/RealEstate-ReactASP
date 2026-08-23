@@ -57,7 +57,7 @@ namespace Implementation.Query.Recommendations
             var maxPrice = decimal.Round(avgPrice * 1.4m, 0, MidpointRounding.AwayFromZero);
 
             var scoredIds = db.Realestates
-                .Where(r => !interactedIds.Contains(r.Id) && r.Owner != actor.Id && r.IsActive == 1)
+                .Where(r => !interactedIds.Contains(r.Id) && r.Owner != actor.Id && r.IsActive == 1 && r.Status != RealEstateStatus.Sold)
                 .Select(r => new
                 {
                     r.Id,

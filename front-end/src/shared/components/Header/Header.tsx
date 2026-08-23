@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../AuthStore';
 import './Header.scss';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Profile } from '../Profile/components/Profile/Profile';
+import { Profile } from '../Profile/Profile';
 import { useUnreadMessages } from '../../hooks/useUnreadMessages';
 
 export function Header() {
@@ -80,7 +80,7 @@ export function Header() {
 
           {user && (
             <li>
-              <Link to="/apartment/add" onClick={close}>Add Apartment</Link>
+              <Link to="/realestate/new" onClick={close}>Add Apartment</Link>
             </li>
           )}
           {user && (

@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.DTO;
 using Application.Query;
 using DataDomain.Entities;
@@ -25,7 +25,7 @@ namespace Implementation.Query.RealEstate
             var isLoggedIn = actor.Id > 0;
 
             var realestate = this.db.Realestates
-                .Where(a => a.Id == request && (a.IsActive == 1 || a.Owner == actor.Id || actor.UserRole == UserRoles.Admin))
+                .Where(a => a.Id == request && (a.IsActive == 1 || actor.UserRole == UserRoles.Admin))
                 .Select(a => new RealEstateDTO
                 {
                     Id = a.Id,
@@ -37,6 +37,7 @@ namespace Implementation.Query.RealEstate
                     Terrace = a.Terrace,
                     Registered = a.Registered,
                     Status = a.Status,
+                    ShowMap = a.ShowMap,
                     Title = a.Title,
                     CityId = db.Cities.Where(c => c.Id == a.City).Select(c => c.Id).FirstOrDefault(),
                     TypeObject=a.TypeObjectNavigation.Id,
@@ -53,8 +54,9 @@ namespace Implementation.Query.RealEstate
                         Name = am.Name,
                         IsFilterable = am.IsFilterable
                     }).ToList(),
-                    CanEdit = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
-                    CanDelete = a.Owner == actor.Id || actor.UserRole == UserRoles.Admin,
+                    IsActive = a.IsActive == 1,
+                    CanEdit = a.IsActive == 1 && (a.Owner == actor.Id || actor.UserRole == UserRoles.Admin),
+                    CanDelete = a.IsActive == 1 && (a.Owner == actor.Id || actor.UserRole == UserRoles.Admin),
                     IsWishlisted = a.Wishlists.Any(w => w.UserId == actor.Id),
                     Lng = a.Lng ?? null,
                     Lat = a.Lat ??null,
@@ -62,7 +64,8 @@ namespace Implementation.Query.RealEstate
                     Email = db.Users.Where(u => u.Id == a.Owner).Select(u => u.Email).FirstOrDefault(),
                     F_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.FirstName).FirstOrDefault()
                         ?? db.Companies.Where(c => c.FkId == a.Owner).Select(c => c.Name).FirstOrDefault(),
-                    L_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.LastName).FirstOrDefault() ?? string.Empty
+                    L_name = db.Users.Where(u => u.Id == a.Owner).SelectMany(u => u.UserBasics).Select(b => b.LastName).FirstOrDefault() ?? string.Empty,
+                    OwnerLogo = db.Companies.Where(c => c.FkId == a.Owner).Select(c => c.Logo).FirstOrDefault()
                 })
                 .FirstOrDefault()
                 ?? throw new KeyNotFoundException("Listing not found.");

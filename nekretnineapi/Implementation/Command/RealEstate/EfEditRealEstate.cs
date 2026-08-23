@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -33,7 +33,7 @@ namespace Implementation.Command
             if (!isOwner && !isAdmin)
                 throw new UnauthorizedAccessException("You do not have permission to edit this listing.");
 
-            if (realestate.IsActive != 1 && !isAdmin)
+            if (realestate.IsActive != 1)
                 throw new KeyNotFoundException("Listing not found.");
 
             realestate.Title = request.Title;
@@ -46,9 +46,14 @@ namespace Implementation.Command
             realestate.Area = request.Area;
             realestate.Adress = request.Address;
             realestate.NumberOfRooms = request.NumberOfRooms;
+            realestate.ShowMap = request.ShowMap;
             if (request.Lat.HasValue) realestate.Lat = request.Lat.Value;
             if (request.Lng.HasValue) realestate.Lng = request.Lng.Value;
-            if (request.Status.HasValue) realestate.Status = request.Status.Value;
+            if (request.Status.HasValue && request.Status.Value != realestate.Status)
+            {
+                realestate.Status = request.Status.Value;
+                realestate.SoldAt = request.Status.Value == RealEstateStatus.Sold ? DateTime.Now : null;
+            }
 
             var toDelete = db.RealestateImages
                 .Where(i => i.IdPost == realestate.Id && !request.ExistingImageIds.Contains(i.Id))
