@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Admin;
 using Application.DTO.Command;
@@ -20,13 +20,15 @@ namespace nekretnineapi.Controllers.Admin
             [FromQuery] bool handled,
             [FromQuery] string? search,
             [FromQuery] int? reasonId,
+            [FromQuery] int page,
             [FromServices] IAdminListContactMessages service)
         {
             var query = new ContactMessageQueryDTO
             {
                 Handled = handled,
                 Search = search,
-                ReasonId = reasonId
+                ReasonId = reasonId,
+                Page = page < 1 ? 1 : page
             };
 
             return Ok(executor.ExecuteQuery(service, query));
@@ -42,7 +44,7 @@ namespace nekretnineapi.Controllers.Admin
         [HttpPost("{id}/reply")]
         public IActionResult Reply(int id, [FromBody] ReplyBody body, [FromServices] IReplyToContactMessage service)
         {
-            var dto = new ReplyToContactMessageDTO { MessageId = id, Reply = (body.Reply ?? "").Trim() };
+            var dto = new ReplyToContactMessageDTO { MessageId = id, Reply = body.Reply ?? "" };
 
             var result = new ReplyToContactMessageValidator().Validate(dto);
             if (!result.IsValid)

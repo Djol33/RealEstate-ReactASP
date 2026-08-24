@@ -33,6 +33,7 @@ using nekretnineapi.Auth;
 using nekretnineapi.Hubs;
 using nekretnineapi.Recommendations;
 using nekretnineapi.Services;
+using nekretnineapi.Json;
 using nekretnineapi.Validators;
 using Serilog;
 using System.Text;
@@ -69,6 +70,10 @@ builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
         options.SuppressModelStateInvalidFilter = true;
+    })
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new TrimmedStringConverter());
     });
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));

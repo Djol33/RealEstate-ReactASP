@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Chat;
 using Application.DTO.Command;
@@ -22,13 +22,6 @@ namespace Implementation.Command
 
         public MessageDTO Execute(SendMessageDTO request)
         {
-            if (request.ReceiverId == actor.Id)
-                throw new FluentValidation.ValidationException("You cannot send a message to yourself.");
-
-            var exists = db.Users.Any(u => u.Id == request.ReceiverId && u.IsActive == 1);
-            if (!exists)
-                throw new KeyNotFoundException("Recipient does not exist.");
-
             var message = new Message
             {
                 SenderId = actor.Id,

@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.Command.Admin;
 using Application.DTO.Command;
@@ -13,22 +13,18 @@ namespace Implementation.Command.Admin
         public string Name => "Admin Decide Report";
 
         private readonly AppDbContext db;
-        private readonly IApplicationActor actor;
         private readonly IDeleteRealestate deleteRealestate;
         private readonly ISendSystemMessage sendSystemMessage;
 
-        public EfAdminDecideReport(AppDbContext db, IApplicationActor actor, IDeleteRealestate deleteRealestate, ISendSystemMessage sendSystemMessage)
+        public EfAdminDecideReport(AppDbContext db, IDeleteRealestate deleteRealestate, ISendSystemMessage sendSystemMessage)
         {
             this.db = db;
-            this.actor = actor;
             this.deleteRealestate = deleteRealestate;
             this.sendSystemMessage = sendSystemMessage;
         }
 
         public void Execute(AdminDecideReportDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can decide reports.");
 
             var report = db.RealestateReports.FirstOrDefault(r => r.Id == request.ReportId)
                 ?? throw new KeyNotFoundException("Report not found.");

@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
 using Application.Query;
@@ -26,7 +26,7 @@ namespace nekretnineapi.Controllers.Auth
         {
             var dto = new RequestPasswordResetDTO
             {
-                Email = (body.Email ?? "").Trim()
+                Email = body.Email ?? ""
             };
 
             var result = new RequestPasswordResetValidator().Validate(dto);

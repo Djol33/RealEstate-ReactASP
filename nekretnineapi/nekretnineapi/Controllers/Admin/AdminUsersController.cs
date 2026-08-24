@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Admin;
 using Application.DTO.Command;
@@ -49,16 +49,16 @@ namespace nekretnineapi.Controllers.Admin
             var dto = new AdminEditUserDTO
             {
                 UserId = id,
-                FirstName = (body.FirstName ?? "").Trim(),
-                LastName = (body.LastName ?? "").Trim(),
-                CompanyName = (body.CompanyName ?? "").Trim(),
-                Email = (body.Email ?? "").Trim(),
+                FirstName = body.FirstName ?? "",
+                LastName = body.LastName ?? "",
+                CompanyName = body.CompanyName ?? "",
+                Email = body.Email ?? "",
                 IsActive = body.IsActive
             };
 
             var isCompany = db.Companies.Any(c => c.FkId == id);
 
-            var result = new AdminEditUserValidator().ValidateFor(dto, isCompany);
+            var result = new AdminEditUserValidator(db).ValidateFor(dto, isCompany);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 

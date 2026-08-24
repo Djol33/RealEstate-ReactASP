@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -13,29 +13,17 @@ namespace Implementation.Command.Admin
         public string Name => "Save Contact Reason";
 
         private readonly AppDbContext db;
-        private readonly IApplicationActor actor;
 
-        public EfSaveContactReason(AppDbContext db, IApplicationActor actor)
+        public EfSaveContactReason(AppDbContext db)
         {
             this.db = db;
-            this.actor = actor;
         }
 
         public void Execute(SaveContactReasonDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can manage contact reasons.");
 
-            var name = (request.Name ?? "").Trim();
+            var name = request.Name ?? "";
 
-            var conflicting = db.ContactReasons.FirstOrDefault(r => r.Name == name && r.Id != request.Id);
-            if (conflicting != null)
-            {
-                var message = conflicting.IsActive
-                    ? "A reason with this name already exists."
-                    : "A reason with this name was previously deleted. Restore it instead of creating a new one.";
-                throw new ValidationException(new[] { new ValidationFailure("name", message) });
-            }
 
             if (request.Id > 0)
             {

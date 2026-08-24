@@ -49,8 +49,8 @@ export function DeleteRealEstateButton({ realestateId, canDelete = false, onDele
         className="delete-re-btn"
         onClick={openConfirm}
         disabled={busy}
-        title="Obriši"
-        aria-label="Obriši"
+        title="Delete"
+        aria-label="Delete"
       >
         <i className="fa-solid fa-trash" />
       </button>

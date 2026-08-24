@@ -73,7 +73,7 @@ namespace nekretnineapi.Controllers.User
 
             var dto = new EditCompanyDTO { Name = (name ?? "").Trim(), BIP = (bip ?? "").Trim() };
 
-            var result = new EditCompanyValidator().Validate(dto);
+            var result = new EditCompanyValidator(db, actor).Validate(dto);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 

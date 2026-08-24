@@ -1,4 +1,5 @@
-using Application;
+﻿using Application;
+using Application.DTO;
 using Application.DTO.Admin;
 using Application.Query.Admin;
 using DataDomain.Entities;
@@ -17,11 +18,21 @@ namespace Implementation.Query.Admin
             this.db = db;
         }
 
-        public List<ReportAdminListItemDTO> Execute(int request)
+        public PagedResult<ReportAdminListItemDTO> Execute(int request)
         {
-            var reports = db.RealestateReports
+            var page = request < 1 ? 1 : request;
+
+            var ordered = db.RealestateReports
                 .OrderBy(r => r.Status == ReportStatus.Pending ? 0 : 1)
-                .ThenByDescending(r => r.CreatedAt)
+                .ThenByDescending(r => r.CreatedAt);
+
+            var totalCount = ordered.Count();
+            var totalPages = totalCount == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)Paging.DefaultPageSize);
+            if (page > totalPages) page = totalPages;
+
+            var reports = ordered
+                .Skip((page - 1) * Paging.DefaultPageSize)
+                .Take(Paging.DefaultPageSize)
                 .ToList();
 
             var realestateIds = reports.Select(r => r.RealestateId).Distinct().ToList();
@@ -37,7 +48,7 @@ namespace Implementation.Query.Admin
                 .Select(u => new { u.Id, u.Email })
                 .ToDictionary(x => x.Id, x => x.Email);
 
-            return reports.Select(r => new ReportAdminListItemDTO
+            var items = reports.Select(r => new ReportAdminListItemDTO
             {
                 Id = r.Id,
                 RealestateId = r.RealestateId,
@@ -49,6 +60,14 @@ namespace Implementation.Query.Admin
                 Status = r.Status,
                 CreatedAt = r.CreatedAt
             }).ToList();
+
+            return new PagedResult<ReportAdminListItemDTO>
+            {
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                Data = items
+            };
         }
     }
 }

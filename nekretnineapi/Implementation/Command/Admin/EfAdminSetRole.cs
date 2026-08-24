@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -21,8 +21,6 @@ namespace Implementation.Command.Admin
 
         public void Execute(SetRoleDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can change roles.");
 
             if (request.UserId == actor.Id && request.Role != UserRoles.Admin)
                 throw new UnauthorizedAccessException("You cannot remove your own admin role.");

@@ -1,6 +1,7 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
+using DataDomain.Entities;
 using Application.Query;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -28,9 +29,9 @@ namespace nekretnineapi.Controllers.Contact
             => Ok(executor.ExecuteQuery(service, 0));
 
         [HttpPost]
-        public IActionResult Submit([FromBody] SubmitContactMessageDTO body, [FromServices] ISubmitContactMessage service)
+        public IActionResult Submit([FromBody] SubmitContactMessageDTO body, [FromServices] ISubmitContactMessage service, [FromServices] AppDbContext db)
         {
-            var result = new SubmitContactMessageValidator().ValidateFor(body, actor.Id > 0);
+            var result = new SubmitContactMessageValidator(db).ValidateFor(body, actor.Id > 0);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 

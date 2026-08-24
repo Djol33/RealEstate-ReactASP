@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
 import { API_URL } from '../../../../config';
 import './AdminReports.scss';
 import { useToast } from '../../../../shared/components/Toast/ToastProvider';
@@ -37,14 +38,22 @@ export function AdminReports() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get(`${API_URL}/api/admin/reports`)
-      .then((res) => setReports(res.data))
+      .get(`${API_URL}/api/admin/reports`, { params: { page } })
+      .then((res) => {
+        setReports(res.data.data ?? []);
+        setTotalPages(res.data.totalPages ?? 1);
+        setTotalCount(res.data.totalCount ?? 0);
+      })
       .catch(() => setError('Failed to load reports.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     load();
@@ -156,6 +165,12 @@ export function AdminReports() {
           onConfirm={confirmDeleteListing}
           onCancel={() => setDeletingId(null)}
         />
+      )}
+
+      {!loading && totalCount > 0 && (
+        <div className="admin-pagination">
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </div>
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+﻿using Application.DTO;
 using Application.DTO.HeroBanner;
 using Application.Query.Admin;
 using DataDomain.Entities;
@@ -16,10 +17,19 @@ namespace Implementation.Query.Admin
             this.db = db;
         }
 
-        public List<HeroBannerAdminListItemDTO> Execute(int request)
+        public PagedResult<HeroBannerAdminListItemDTO> Execute(int request)
         {
-            var requests = db.HeroBannerRequests
-                .OrderByDescending(h => h.CreatedAt)
+            var page = request < 1 ? 1 : request;
+
+            var ordered = db.HeroBannerRequests.OrderByDescending(h => h.CreatedAt);
+
+            var totalCount = ordered.Count();
+            var totalPages = totalCount == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)Paging.DefaultPageSize);
+            if (page > totalPages) page = totalPages;
+
+            var requests = ordered
+                .Skip((page - 1) * Paging.DefaultPageSize)
+                .Take(Paging.DefaultPageSize)
                 .ToList();
 
             var realestateIds = requests.Select(h => h.RealestateId).Distinct().ToList();
@@ -40,7 +50,7 @@ namespace Implementation.Query.Admin
                 .Select(u => new { u.Id, u.Email })
                 .ToDictionary(x => x.Id, x => x.Email);
 
-            return requests.Select(h => new HeroBannerAdminListItemDTO
+            var items = requests.Select(h => new HeroBannerAdminListItemDTO
             {
                 Id = h.Id,
                 RealestateId = h.RealestateId,
@@ -57,6 +67,14 @@ namespace Implementation.Query.Admin
                 CreatedAt = h.CreatedAt,
                 RevokedAt = h.RevokedAt
             }).ToList();
+
+            return new PagedResult<HeroBannerAdminListItemDTO>
+            {
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                Data = items
+            };
         }
     }
 }

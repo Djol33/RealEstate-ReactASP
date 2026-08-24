@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.Command.Admin;
 using Application.DTO.Command;
@@ -14,20 +14,16 @@ namespace Implementation.Command.Admin
         public string Name => "Admin Revoke Hero Banner";
 
         private readonly AppDbContext db;
-        private readonly IApplicationActor actor;
         private readonly ISendSystemMessage sendSystemMessage;
 
-        public EfAdminRevokeHeroBanner(AppDbContext db, IApplicationActor actor, ISendSystemMessage sendSystemMessage)
+        public EfAdminRevokeHeroBanner(AppDbContext db, ISendSystemMessage sendSystemMessage)
         {
             this.db = db;
-            this.actor = actor;
             this.sendSystemMessage = sendSystemMessage;
         }
 
         public void Execute(int request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can manage hero banner requests.");
 
             var heroRequest = db.HeroBannerRequests.FirstOrDefault(h => h.Id == request)
                 ?? throw new KeyNotFoundException("Request not found.");

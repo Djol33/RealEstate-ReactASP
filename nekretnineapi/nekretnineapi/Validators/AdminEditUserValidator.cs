@@ -1,5 +1,7 @@
 ﻿using Application;
+using Application;
 using Application.DTO.Command;
+using DataDomain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -9,12 +11,14 @@ namespace nekretnineapi.Validators
     {
         public const string IsCompanyKey = "IsCompany";
 
-        public AdminEditUserValidator()
+        public AdminEditUserValidator(AppDbContext db)
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email cannot be empty.")
                 .Matches(@"^[^\s@]+@[^\s@]+\.[^\s@]+$").WithMessage("Please enter a valid email address.")
-                .MaximumLength(100).WithMessage("Email cannot exceed 100 characters.");
+                .MaximumLength(100).WithMessage("Email cannot exceed 100 characters.")
+                .Must((dto, email) => !db.Users.Any(u => u.Email == email && u.Id != dto.UserId))
+                .WithMessage("Another user already uses this email.");
 
             When(IsCompany, () =>
             {

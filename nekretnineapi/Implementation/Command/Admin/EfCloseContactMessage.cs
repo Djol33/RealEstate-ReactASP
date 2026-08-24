@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using DataDomain.Entities;
 using FluentValidation;
@@ -22,8 +22,6 @@ namespace Implementation.Command.Admin
 
         public void Execute(int request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can close contact messages.");
 
             var message = db.Supports.FirstOrDefault(s => s.Id == request)
                 ?? throw new KeyNotFoundException("Message not found.");

@@ -1,3 +1,4 @@
+﻿using Application.DTO;
 using Application.DTO.Admin;
 using Application.Query.Admin;
 using DataDomain.Entities;
@@ -16,7 +17,7 @@ namespace Implementation.Query.Admin
             this.db = db;
         }
 
-        public List<ContactMessageAdminListItemDTO> Execute(ContactMessageQueryDTO request)
+        public PagedResult<ContactMessageAdminListItemDTO> Execute(ContactMessageQueryDTO request)
         {
             var query = db.Supports.AsQueryable();
 
@@ -41,7 +42,7 @@ namespace Implementation.Query.Admin
                 ? query.OrderByDescending(s => s.RepliedAt ?? s.ClosedAt)
                 : query.OrderBy(s => s.IsRead).ThenByDescending(s => s.DateReported);
 
-            var items = query
+            var projected = query
                 .Select(s => new ContactMessageAdminListItemDTO
                 {
                     Id = s.Id,
@@ -59,10 +60,9 @@ namespace Implementation.Query.Admin
                     RepliedByEmail = s.RepliedBy != null
                         ? db.Users.Where(u => u.Id == s.RepliedBy).Select(u => u.Email).FirstOrDefault()
                         : null
-                })
-                .ToList();
+                });
 
-            return items;
+            return Paging.Build(projected, request.Page);
         }
     }
 }

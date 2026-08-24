@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.Command.Admin;
 using Application.DTO.Command;
@@ -29,10 +29,8 @@ namespace Implementation.Command.Admin
 
         public void Execute(ReplyToContactMessageDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can reply to contact messages.");
 
-            var reply = (request.Reply ?? "").Trim();
+            var reply = request.Reply ?? "";
 
             var message = db.Supports.FirstOrDefault(s => s.Id == request.MessageId)
                 ?? throw new KeyNotFoundException("Message not found.");

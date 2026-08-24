@@ -1,6 +1,7 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
+using DataDomain.Entities;
 using Application.Query;
 using FluentValidation;
 using Implementation.Query;
@@ -22,7 +23,7 @@ namespace nekretnineapi.Controllers.Admin
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
+        public IActionResult Create([FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service, [FromServices] AppDbContext db)
         {
             var dto = new SaveAmenityDTO
             {
@@ -31,7 +32,7 @@ namespace nekretnineapi.Controllers.Admin
                 IsFilterable = body.IsFilterable
             };
 
-            var result = new SaveAmenityValidator().Validate(dto);
+            var result = new SaveAmenityValidator(db).Validate(dto);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 
@@ -40,7 +41,7 @@ namespace nekretnineapi.Controllers.Admin
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service)
+        public IActionResult Update(int id, [FromBody] SaveAmenityRequest body, [FromServices] ISaveAmenity service, [FromServices] AppDbContext db)
         {
             var dto = new SaveAmenityDTO
             {
@@ -49,7 +50,7 @@ namespace nekretnineapi.Controllers.Admin
                 IsFilterable = body.IsFilterable
             };
 
-            var result = new SaveAmenityValidator().Validate(dto);
+            var result = new SaveAmenityValidator(db).Validate(dto);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 

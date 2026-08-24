@@ -1,4 +1,5 @@
 ﻿using Application.DTO.Command;
+using DataDomain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -8,10 +9,16 @@ namespace nekretnineapi.Validators
     {
         public const string IsLoggedInKey = "IsLoggedIn";
 
-        public SubmitContactMessageValidator()
+        private readonly AppDbContext db;
+
+        public SubmitContactMessageValidator(AppDbContext db)
         {
+            this.db = db;
+
             RuleFor(x => x.ReasonId)
-                .GreaterThan(0).WithMessage("Please select a valid reason.");
+                .GreaterThan(0).WithMessage("Please select a valid reason.")
+                .Must(id => db.ContactReasons.Any(r => r.Id == id && r.IsActive))
+                .WithMessage("Please select a valid reason.");
 
             RuleFor(x => x.Message)
                 .NotEmpty().WithMessage("Message cannot be empty.")

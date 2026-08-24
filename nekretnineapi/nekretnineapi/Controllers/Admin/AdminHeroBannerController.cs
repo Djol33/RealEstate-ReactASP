@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using Application.Query.Admin;
@@ -13,9 +13,9 @@ namespace nekretnineapi.Controllers.Admin
             : base(executor, actor) { }
 
         [HttpGet]
-        public IActionResult List([FromServices] IAdminListHeroBannerRequests service)
+        public IActionResult List([FromQuery] int page, [FromServices] IAdminListHeroBannerRequests service)
         {
-            return Ok(executor.ExecuteQuery(service, 0));
+            return Ok(executor.ExecuteQuery(service, page < 1 ? 1 : page));
         }
 
         [HttpPost("{id}/approve")]

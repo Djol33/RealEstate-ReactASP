@@ -122,7 +122,7 @@ export function Header() {
                   navigate('/');
                 }}
               >
-                Odjava
+                Log out
               </button>
             </li>
           )}

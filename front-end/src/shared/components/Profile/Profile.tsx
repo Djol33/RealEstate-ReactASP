@@ -76,7 +76,7 @@ export function Profile() {
             navigate('/');
           }}
         >
-          <i className="fa-solid fa-right-from-bracket" /> Odjava
+          <i className="fa-solid fa-right-from-bracket" /> Log out
         </button>
       </div>
     </div>

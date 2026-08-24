@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './AdminHeroBanner.scss';
 import { formatPrice } from '../../../../shared/utils/format';
 import { ConfirmDialog } from '../../../../shared/components/ConfirmDialog/ConfirmDialog';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
 import { API_URL } from '../../../../config';
 import { useToast } from '../../../../shared/components/Toast/ToastProvider';
 
@@ -39,14 +40,22 @@ export function AdminHeroBanner() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [revokingId, setRevokingId] = useState<number | null>(null);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const load = useCallback(() => {
     setLoading(true);
     axios
-      .get(`${API_URL}/api/admin/hero-banner-requests`)
-      .then((res) => setRequests(res.data))
+      .get(`${API_URL}/api/admin/hero-banner-requests`, { params: { page } })
+      .then((res) => {
+        setRequests(res.data.data ?? []);
+        setTotalPages(res.data.totalPages ?? 1);
+        setTotalCount(res.data.totalCount ?? 0);
+      })
       .catch(() => setError('Failed to load hero banner requests.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     load();
@@ -170,6 +179,12 @@ export function AdminHeroBanner() {
           onConfirm={confirmRevoke}
           onCancel={() => setRevokingId(null)}
         />
+      )}
+
+      {!loading && totalCount > 0 && (
+        <div className="admin-pagination">
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </div>
       )}
     </div>
   );

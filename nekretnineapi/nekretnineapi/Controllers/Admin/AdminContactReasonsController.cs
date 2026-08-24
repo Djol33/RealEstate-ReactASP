@@ -1,6 +1,7 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
+using DataDomain.Entities;
 using Application.Query;
 using FluentValidation;
 using Implementation.Query;
@@ -16,17 +17,17 @@ namespace nekretnineapi.Controllers.Admin
             : base(executor, actor) { }
 
         [HttpGet]
-        public IActionResult List([FromServices] IListContactReasons service)
+        public IActionResult List([FromServices] IListContactReasons service, [FromServices] AppDbContext db)
         {
             return Ok(executor.ExecuteQuery(service, EfListContactReasons.IncludeInactive));
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] SaveContactReasonRequest body, [FromServices] ISaveContactReason service)
+        public IActionResult Create([FromBody] SaveContactReasonRequest body, [FromServices] ISaveContactReason service, [FromServices] AppDbContext db)
         {
-            var dto = new SaveContactReasonDTO { Id = 0, Name = (body.Name ?? "").Trim() };
+            var dto = new SaveContactReasonDTO { Id = 0, Name = body.Name ?? "" };
 
-            var result = new SaveContactReasonValidator().Validate(dto);
+            var result = new SaveContactReasonValidator(db).Validate(dto);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 
@@ -35,11 +36,11 @@ namespace nekretnineapi.Controllers.Admin
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] SaveContactReasonRequest body, [FromServices] ISaveContactReason service)
+        public IActionResult Update(int id, [FromBody] SaveContactReasonRequest body, [FromServices] ISaveContactReason service, [FromServices] AppDbContext db)
         {
-            var dto = new SaveContactReasonDTO { Id = id, Name = (body.Name ?? "").Trim() };
+            var dto = new SaveContactReasonDTO { Id = id, Name = body.Name ?? "" };
 
-            var result = new SaveContactReasonValidator().Validate(dto);
+            var result = new SaveContactReasonValidator(db).Validate(dto);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 

@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.Command.Admin;
 using Application.DTO.Command;
@@ -14,20 +14,16 @@ namespace Implementation.Command.Admin
         public string Name => "Admin Decide Hero Banner";
 
         private readonly AppDbContext db;
-        private readonly IApplicationActor actor;
         private readonly ISendSystemMessage sendSystemMessage;
 
-        public EfAdminDecideHeroBanner(AppDbContext db, IApplicationActor actor, ISendSystemMessage sendSystemMessage)
+        public EfAdminDecideHeroBanner(AppDbContext db, ISendSystemMessage sendSystemMessage)
         {
             this.db = db;
-            this.actor = actor;
             this.sendSystemMessage = sendSystemMessage;
         }
 
         public void Execute(AdminDecideHeroBannerDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can decide hero banner requests.");
 
             var heroRequest = db.HeroBannerRequests.FirstOrDefault(h => h.Id == request.RequestId)
                 ?? throw new KeyNotFoundException("Request not found.");

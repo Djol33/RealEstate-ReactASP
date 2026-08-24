@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -13,29 +13,17 @@ namespace Implementation.Command.Admin
         public string Name => "Save Amenity";
 
         private readonly AppDbContext db;
-        private readonly IApplicationActor actor;
 
-        public EfSaveAmenity(AppDbContext db, IApplicationActor actor)
+        public EfSaveAmenity(AppDbContext db)
         {
             this.db = db;
-            this.actor = actor;
         }
 
         public void Execute(SaveAmenityDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can manage amenities.");
 
-            var name = (request.Name ?? "").Trim();
+            var name = request.Name ?? "";
 
-            var conflicting = db.Amenities.FirstOrDefault(a => a.Name == name && a.Id != request.Id);
-            if (conflicting != null)
-            {
-                var message = conflicting.IsActive
-                    ? "An amenity with this name already exists."
-                    : "An amenity with this name was previously deleted. Restore it instead of creating a new one.";
-                throw new ValidationException(new[] { new ValidationFailure("name", message) });
-            }
 
             if (request.Id > 0)
             {

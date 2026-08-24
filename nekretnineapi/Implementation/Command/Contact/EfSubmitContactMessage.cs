@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
@@ -25,10 +25,7 @@ namespace Implementation.Command
         {
             var isLoggedIn = actor.Id > 0;
 
-            if (!db.ContactReasons.Any(r => r.Id == request.ReasonId))
-                throw new ValidationException(new[] { new ValidationFailure("reasonId", "Please select a valid reason.") });
-
-            var message = (request.Message ?? "").Trim();
+            var message = request.Message ?? "";
 
             string firstName, lastName, email;
 
@@ -53,9 +50,9 @@ namespace Implementation.Command
             }
             else
             {
-                firstName = (request.FirstName ?? "").Trim();
-                lastName = (request.LastName ?? "").Trim();
-                email = (request.Email ?? "").Trim();
+                firstName = request.FirstName ?? "";
+                lastName = request.LastName ?? "";
+                email = request.Email ?? "";
             }
 
             db.Supports.Add(new Support

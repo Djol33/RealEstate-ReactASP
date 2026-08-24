@@ -48,7 +48,7 @@ export default function RealEstateBlock({ data, onItemDeleted }) {
                     <>
                         <WishlistButton realestateId={data.id} initialSaved={data.isWishlisted} />
                         {data.canEdit && (
-                            <button type="button" className="edit-btn" title="Izmeni" onClick={goEdit}>
+                            <button type="button" className="edit-btn" title="Edit" onClick={goEdit}>
                                 <i className="fa-solid fa-pencil" />
                             </button>
                         )}

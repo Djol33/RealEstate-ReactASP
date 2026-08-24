@@ -1,9 +1,7 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
 using DataDomain.Entities;
-using FluentValidation;
-using FluentValidation.Results;
 
 namespace Implementation.Command
 {
@@ -29,9 +27,6 @@ namespace Implementation.Command
 
             var name = (request.Name ?? "").Trim();
             var bip = (request.BIP ?? "").Trim();
-
-            if (db.Companies.Any(c => c.Bip == bip && c.Id != company.Id))
-                throw new ValidationException(new[] { new ValidationFailure("bip", "This Tax ID is already in use.") });
 
             company.Name = name;
             company.Bip = bip;

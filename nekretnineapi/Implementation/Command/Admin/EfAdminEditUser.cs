@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command;
 using Application.Command.Admin;
 using Application.DTO.Command;
@@ -26,20 +26,15 @@ namespace Implementation.Command.Admin
 
         public void Execute(AdminEditUserDTO request)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can edit users.");
 
             var user = db.Users
                 .FirstOrDefault(u => u.Id == request.UserId)
                 ?? throw new KeyNotFoundException("User not found.");
 
-            var email = (request.Email ?? "").Trim();
-            var firstName = (request.FirstName ?? "").Trim();
-            var lastName = (request.LastName ?? "").Trim();
-            var companyName = (request.CompanyName ?? "").Trim();
-
-            if (db.Users.Any(u => u.Email == email && u.Id != user.Id))
-                throw new ValidationException(new[] { new ValidationFailure("email", "Another user already uses this email.") });
+            var email = request.Email ?? "";
+            var firstName = request.FirstName ?? "";
+            var lastName = request.LastName ?? "";
+            var companyName = request.CompanyName ?? "";
 
             if (user.Id == actor.Id && !request.IsActive)
                 throw new UnauthorizedAccessException("You cannot deactivate your own account.");

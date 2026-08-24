@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Command.Admin;
 using DataDomain.Entities;
 
@@ -20,8 +20,6 @@ namespace Implementation.Command.Admin
 
         public void Execute(int userId)
         {
-            if (actor.UserRole != UserRoles.Admin)
-                throw new UnauthorizedAccessException("Only an administrator can delete users.");
 
             if (userId == actor.Id)
                 throw new UnauthorizedAccessException("You cannot delete your own account.");

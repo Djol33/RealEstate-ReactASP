@@ -1,5 +1,7 @@
+﻿using Application;
 using Application.Command;
 using Application.DTO.Command;
+using DataDomain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -11,10 +13,14 @@ namespace nekretnineapi.Hubs
     public class ChatHub : Hub
     {
         private readonly ISendMessage sendMessage;
+        private readonly AppDbContext db;
+        private readonly IApplicationActor actor;
 
-        public ChatHub(ISendMessage sendMessage)
+        public ChatHub(ISendMessage sendMessage, AppDbContext db, IApplicationActor actor)
         {
             this.sendMessage = sendMessage;
+            this.db = db;
+            this.actor = actor;
         }
 
         public async Task SendMessage(int receiverId, string content)
@@ -25,7 +31,7 @@ namespace nekretnineapi.Hubs
                 Content = content
             };
 
-            var result = new SendMessageValidator().Validate(request);
+            var result = new SendMessageValidator(db, actor).Validate(request);
             if (!result.IsValid)
                 throw new ValidationException(result.Errors);
 
