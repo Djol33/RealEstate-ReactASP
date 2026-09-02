@@ -48,10 +48,12 @@ namespace Implementation.Query
             if (!string.IsNullOrWhiteSpace(req.Search))
             {
                 var term = req.Search.Trim();
+                var isIdMatch = long.TryParse(term, out var searchId);
+
                 query = query.Where(x =>
                     x.Title.Contains(term) ||
                     x.Adress.Contains(term) ||
-                    x.Id.ToString().Contains(term) ||
+                    (isIdMatch && x.Id == searchId) ||
                     db.Cities.Any(c => c.Id == x.City && c.City1.Contains(term)) ||
                     db.Companies.Any(c => c.FkId == x.Owner && c.Name.Contains(term)) ||
                     db.UserBasics.Any(b => b.FkId == x.Owner &&

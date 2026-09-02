@@ -44,7 +44,7 @@ namespace nekretnineapi.Controllers.Contact
 
         [Authorize]
         [HttpGet("my-requests")]
-        public IActionResult MyRequests([FromServices] IGetMyHeroBannerRequests service)
-            => Ok(executor.ExecuteQuery(service, 0));
+        public IActionResult MyRequests([FromQuery] int page, [FromServices] IGetMyHeroBannerRequests service)
+            => Ok(executor.ExecuteQuery(service, page));
     }
 }

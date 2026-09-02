@@ -50,7 +50,9 @@ namespace nekretnineapi.Validators
                 .WithMessage("Invalid listing status.");
 
             RuleFor(x => x.TypeObjectId)
+                .Cascade(CascadeMode.Stop)
                 .GreaterThan(0).WithMessage("A property type must be selected.")
+                .LessThanOrEqualTo(short.MaxValue).WithMessage("Selected property type does not exist.")
                 .Must(typeId => db.TipObjekta.Any(t => t.Id == typeId))
                 .WithMessage("Selected property type does not exist.");
         }

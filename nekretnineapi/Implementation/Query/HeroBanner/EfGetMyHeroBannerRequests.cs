@@ -1,4 +1,5 @@
 using Application;
+using Application.DTO;
 using Application.DTO.HeroBanner;
 using Application.Query;
 using DataDomain.Entities;
@@ -19,9 +20,9 @@ namespace Implementation.Query
             this.actor = actor;
         }
 
-        public List<HeroBannerMyRequestDTO> Execute(int request)
+        public PagedResult<HeroBannerMyRequestDTO> Execute(int request)
         {
-            return db.HeroBannerRequests
+            var query = db.HeroBannerRequests
                 .Where(h => h.RequestedBy == actor.Id)
                 .OrderByDescending(h => h.CreatedAt)
                 .Select(h => new HeroBannerMyRequestDTO
@@ -36,8 +37,9 @@ namespace Implementation.Query
                     StartsAt = h.StartsAt,
                     EndsAt = h.EndsAt,
                     CreatedAt = h.CreatedAt
-                })
-                .ToList();
+                });
+
+            return Paging.Build(query, request);
         }
     }
 }

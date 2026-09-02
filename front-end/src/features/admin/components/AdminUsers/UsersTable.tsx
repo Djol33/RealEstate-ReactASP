@@ -56,9 +56,11 @@ export function UsersTable({ users, currentUserId, onEdit, onToggleRole, onDelet
                 </button>
                 {u.id !== currentUserId && (
                   <>
-                    <button className="btn-role" onClick={() => onToggleRole(u)}>
-                      {u.userRole === 2 ? 'Remove admin' : 'Make admin'}
-                    </button>
+                    {(u.userRole === 2 || !u.isCompany) && (
+                      <button className="btn-role" onClick={() => onToggleRole(u)}>
+                        {u.userRole === 2 ? 'Remove admin' : 'Make admin'}
+                      </button>
+                    )}
                     <button className="btn-del" onClick={() => onDelete(u)}>
                       Delete
                     </button>

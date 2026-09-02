@@ -4,6 +4,7 @@ import axios from 'axios';
 import './MyHeroBannerRequests.scss';
 import { formatPrice } from '../../../../shared/utils/format';
 import { API_URL } from '../../../../config';
+import { Pagination } from '../../../../shared/components/Pagination/Pagination';
 
 interface MyHeroRequest {
   id: number;
@@ -22,13 +23,18 @@ const STATUS_CLASS: Record<number, string> = { 0: 'pending', 1: 'approved', 2: '
 
 export function MyHeroBannerRequests() {
   const [requests, setRequests] = useState<MyHeroRequest[] | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/api/hero-banner/my-requests`)
-      .then((res) => setRequests(res.data))
+      .get(`${API_URL}/api/hero-banner/my-requests`, { params: { page } })
+      .then((res) => {
+        setRequests(res.data.data ?? []);
+        setTotalPages(res.data.totalPages ?? 1);
+      })
       .catch(() => setRequests([]));
-  }, []);
+  }, [page]);
 
   if (requests === null || requests.length === 0) return null;
 
@@ -57,6 +63,7 @@ export function MyHeroBannerRequests() {
           );
         })}
       </div>
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

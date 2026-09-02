@@ -269,7 +269,11 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.TypeObjectNavigation).WithMany(p => p.Realestates)
                 .HasForeignKey(d => d.TypeObject)
-                .HasConstraintName("realestate$realestate_ibfk_1");
+                .HasConstraintName("FK_realestate_typeobject");
+
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(d => d.Owner)
+                .HasConstraintName("FK_realestate_owner");
         });
 
         modelBuilder.Entity<RealestateImage>(entity =>
@@ -423,9 +427,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.RealestateId, "realestate_id");
 
-            entity.HasIndex(e => new { e.UserId, e.RealestateId }, "user_id_2");
-
-            entity.HasIndex(e => new { e.UserId, e.RealestateId }, "wishlist$user_id").IsUnique();
+            entity.HasIndex(e => e.UserId, "IX_wishlist_user");
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.RealestateId).HasColumnName("realestate_id");
@@ -439,6 +441,10 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RealestateId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("wishlist$wishlist_ibfk_2");
+
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_wishlist_user");
         });
 
         OnModelCreatingPartial(modelBuilder);

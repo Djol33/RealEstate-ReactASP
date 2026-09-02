@@ -5,7 +5,7 @@ namespace DataDomain.Entities;
 
 public partial class Wishlist
 {
-    public long UserId { get; set; }
+    public int UserId { get; set; }
 
     public long RealestateId { get; set; }
 

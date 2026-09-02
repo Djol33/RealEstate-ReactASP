@@ -163,6 +163,7 @@ builder.Services.AddHttpClient("nominatim", client =>
 {
     client.BaseAddress = new Uri("https://nominatim.openstreetmap.org");
     client.DefaultRequestHeaders.Add("User-Agent", "nekretnineapi/1.0");
+    client.Timeout = TimeSpan.FromSeconds(5);
 });
 builder.Services.AddScoped<IAddRealestate, EfAddRealEstate>();
 builder.Services.AddScoped<IEditRealestate, EfEditRealEstate>();

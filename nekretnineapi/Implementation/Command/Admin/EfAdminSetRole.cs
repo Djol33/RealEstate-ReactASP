@@ -29,6 +29,9 @@ namespace Implementation.Command.Admin
                 .FirstOrDefault(u => u.Id == request.UserId)
                 ?? throw new KeyNotFoundException("User not found.");
 
+            if (request.Role == UserRoles.Admin && db.Companies.Any(c => c.FkId == request.UserId))
+                throw new UnauthorizedAccessException("A company account cannot be made an admin.");
+
             user.UserRole = request.Role;
             db.SaveChanges();
         }
