@@ -5,7 +5,6 @@
 *.user
 .vs/
 .idea/
-nekretnineapi/uploads/
 *.env
 .env
 secrets.json
