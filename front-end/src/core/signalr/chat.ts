@@ -14,6 +14,8 @@ function setStatus(next: ChatConnectionStatus) {
   statusListeners.forEach((listener) => listener(status));
 }
 
+
+
 export function getChatStatus(): ChatConnectionStatus {
   return status;
 }
